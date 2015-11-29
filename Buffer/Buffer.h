@@ -1,6 +1,5 @@
 #include <array>
 
-
 namespace Buffer {
 
     template <typename Record_, std::size_t Size_>

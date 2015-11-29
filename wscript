@@ -10,13 +10,14 @@ def configure(conf):
     conf.env.CXXFLAGS = ['-std=c++11', '-O3', '-g', '-Wall']
 
 def build(bld):
-    bld.program(source='tests/**.cpp',
+    # Separate unit tests, integration tests and benchmarks!
+    bld.program(source=bld.path.ant_glob('tests/**/*.cpp'),
                 target='tests/testDriver',
                 stlib='boost_unit_test_framework',
                 includes='.')
 
     bld.program(source='tests/Instrumentation/Benchmark.cpp',
-                target='tests/Instrumentation/Benchmark',
+                target='tests/benchmarks',
                 lib='pthread',
                 stlib='benchmark')
 
