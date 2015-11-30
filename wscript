@@ -10,16 +10,21 @@ def configure(conf):
     conf.env.CXXFLAGS = ['-std=c++11', '-O3', '-g', '-Wall']
 
 def build(bld):
-    # Separate unit tests, integration tests and benchmarks!
-    bld.program(source=bld.path.ant_glob('tests/**/*.cpp'),
-                target='tests/testDriver',
+    bld.program(source=bld.path.ant_glob('tests/unit/**/*.cpp'),
+                target='unit_tests',
                 stlib='boost_unit_test_framework',
                 includes='.')
 
-    bld.program(source='tests/Instrumentation/Benchmark.cpp',
-                target='tests/benchmarks',
+    # bld.program(source=bld.path.ant_glob('tests/integ/**/*.cpp'),
+    #             target='integ_tests',
+    #             stlib='boost_unit_test_framework',
+    #             includes='.')
+
+    bld.program(source=bld.path.ant_glob('tests/perf/**/*.cpp'),
+                target='perf_tests',
                 lib='pthread',
-                stlib='benchmark')
+                stlib='benchmark',
+                includes='.')
 
 # TODO:
 # clang -E [your -I flags] myfile.cpp > myfile_pp.cpp

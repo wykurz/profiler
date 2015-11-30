@@ -1,3 +1,6 @@
+#ifndef BUFFER_BUFFER
+#define BUFFER_BUFFER
+
 #include <array>
 
 namespace Buffer {
@@ -17,3 +20,5 @@ namespace Buffer {
     };
 
 }
+
+#endif // BUFFER_BUFFER
