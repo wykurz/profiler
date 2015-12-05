@@ -42,12 +42,22 @@ struct TimeBenchFixture: public ::benchmark::Fixture
         }
     }
 
+    void rdtscClockTimeTest(benchmark::State& state_)
+    {
+        while (state_.KeepRunning())
+        {
+            timeTest<Time::RdtscTime>(state_.range_x(), state_.range_y());
+        }
+    }
+
   private:
 };
 
 BENCHMARK_DEFINE_F(TimeBenchFixture,     HighResTimeTest)(benchmark::State& state_) {     highResTimeTest(state_); }
 BENCHMARK_DEFINE_F(TimeBenchFixture, SystemClockTimeTest)(benchmark::State& state_) { systemClockTimeTest(state_); }
+BENCHMARK_DEFINE_F(TimeBenchFixture,  RdtscClockTimeTest)(benchmark::State& state_) {  rdtscClockTimeTest(state_); }
 BENCHMARK_REGISTER_F(TimeBenchFixture,     HighResTimeTest)->RangePair(1, 1, 0, 1 << 10);
 BENCHMARK_REGISTER_F(TimeBenchFixture, SystemClockTimeTest)->RangePair(1, 1, 0, 1 << 10);
+BENCHMARK_REGISTER_F(TimeBenchFixture,  RdtscClockTimeTest)->RangePair(1, 1, 0, 1 << 10);
 
 BENCHMARK_MAIN();
