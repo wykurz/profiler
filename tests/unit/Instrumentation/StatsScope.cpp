@@ -3,8 +3,29 @@
 
 namespace Instrumentation { namespace Test {
 
+namespace {
+
+    int testFunc2()
+    {
+        STATS_SCOPE();
+        int mod = 107;
+        int res = 1;
+        for (int i = 2; i < 1e7; ++i) res *= i, res %= mod;
+        return res;
+    }
+
+    void testFunc1()
+    {
+        STATS_SCOPE();
+        std::cerr << "res = " << testFunc2() << "\n";
+        std::cerr << "res = " << testFunc2() << "\n";
+    }
+
+}
+
     BOOST_AUTO_TEST_CASE(Basic)
     {
+        testFunc1();
         BOOST_CHECK(true);
     }
 
