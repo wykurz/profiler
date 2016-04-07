@@ -1,17 +1,25 @@
+#ifndef QUEUE_H
+#define QUEUE_H
+
 #include <atomic>
 
-namespace Utilities {
+namespace Queue
+{
 
-    template <typename NodeType_>
-    struct WorkQueue
+    struct Node
     {
-        using NodeType = NodeType_;
-        void push(NodeType elem_);
-        T grab();
-        NodeType* extract();
+        Node* next;
+    };
+
+    struct Queue
+    {
+        void push(Node* node_);
+        Node* extract();
 
       private:
         std::atomic<Node*> _head;
     };
 
 }
+
+#endif

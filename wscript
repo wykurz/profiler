@@ -21,6 +21,8 @@ def test_summary(bld):
             Logs.pprint('RED', '    %s' % err)
 
 def build(bld):
+    # TODO: build instrumentation lib...
+
     bld.program(features='test',
                 source=bld.path.ant_glob('tests/unit/**/*.cpp'),
                 target='unit_tests',

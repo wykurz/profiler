@@ -1,3 +1,6 @@
+#ifndef TIME_H
+#define TIME_H
+
 #include <iostream>
 #include <chrono>
 
@@ -41,3 +44,5 @@ namespace Time {
     using RdtscTime = Time<RdtscClock>;
 
 }
+
+#endif

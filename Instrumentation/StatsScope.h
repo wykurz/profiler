@@ -1,7 +1,12 @@
+#ifndef STATSSCOPE_H
+#define STATSSCOPE_H
+
 #include <Instrumentation/Time.h>
 
 namespace Scope
 {
+
+    using ScopeTime = Time::RdtscTime;
 
     struct StatsScope
     {
@@ -14,16 +19,15 @@ namespace Scope
             record();
         }
 
-        void record()
-        {
-            std::cerr << "Name: " << _name << ", delta: " << _time.delta().count() << "\n";
-        }
+        void record();
 
       private:
         const char* _name;
-        const Time::RdtscTime _time = Time::RdtscTime();
+        const ScopeTime _time = ScopeTime();
     };
 
 }
 
 #define STATS_SCOPE() Scope::StatsScope(__PRETTY_FUNCTION__)
+
+#endif
