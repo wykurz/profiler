@@ -1,5 +1,5 @@
-#ifndef QUEUE_H
-#define QUEUE_H
+#ifndef QUEUE_QUEUE_H
+#define QUEUE_QUEUE_H
 
 #include <atomic>
 

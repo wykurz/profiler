@@ -1,5 +1,5 @@
-#ifndef STATSSCOPE_H
-#define STATSSCOPE_H
+#ifndef INSTRUMENTATION_STATSSCOPE_H
+#define INSTRUMENTATION_STATSSCOPE_H
 
 #include <Instrumentation/Time.h>
 

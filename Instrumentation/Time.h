@@ -1,5 +1,5 @@
-#ifndef TIME_H
-#define TIME_H
+#ifndef INSTRUMENTATION_TIME_H
+#define INSTRUMENTATION_TIME_H
 
 #include <iostream>
 #include <chrono>

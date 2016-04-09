@@ -1,5 +1,5 @@
-#ifndef MANAGER_H
-#define MANAGER_H
+#ifndef CONTROL_MANAGER_H
+#define CONTROL_MANAGER_H
 
 #include <Queue/Queue.h>
 
