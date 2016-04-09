@@ -1,6 +1,8 @@
 #ifndef MANAGER_H
 #define MANAGER_H
 
+#include <Queue/Queue.h>
+
 namespace Control
 {
 
@@ -8,7 +10,7 @@ namespace Control
     {
         Thread();
         Thread(const Thread&) = delete;
-        Queue queue;
+        Queue::Queue queue;
     };
 
     Thread& getThread();

@@ -1,4 +1,5 @@
 #include <Instrumentation/StatsScope.h>
+#include <Control/Manager.h>
 #include <Queue/Queue.h>
 
 namespace Scope
@@ -8,13 +9,17 @@ namespace Scope
 
     struct Record : Queue::Node
     {
-        const char* _name;
+        Record(const char* name_, const TimeDelta& delta_)
+          : name(name_),
+            delta(delta_)
+        { }
+        const char* name;
         const TimeDelta delta;
     };
 
     void StatsScope::record()
     {
-        getThread().queue.push(new Record{_name, _time.delta()});
+        Control::getThread().queue.push(new Record{_name, _time.delta()});
     }
 
 }

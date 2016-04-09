@@ -1,11 +1,13 @@
-#include <Queue/Queue.h>
+#include <Control/Manager.h>
+#include <array>
+#include <atomic>
 
 namespace Control
 {
 
     struct Manager
     {
-        constexpr std::size_t MaxThreads = 1024;
+        static constexpr std::size_t MaxThreads = 1024;
         // TODO: How should we deal with infinite # of threads
         std::atomic<int> currentThread;
         std::array<Thread*, MaxThreads> threadBuffers;

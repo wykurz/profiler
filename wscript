@@ -22,12 +22,16 @@ def test_summary(bld):
 
 def build(bld):
     # TODO: build instrumentation lib...
+    bld.shlib(source=bld.path.ant_glob('**/*.cpp', excl='tests/*'),
+              target='profiler',
+              includes='.')
 
     bld.program(features='test',
                 source=bld.path.ant_glob('tests/unit/**/*.cpp'),
                 target='unit_tests',
                 stlib='boost_unit_test_framework',
-                includes='.')
+                includes='.',
+                use='profiler')
 
     # bld.program(features='test',
     #             source=bld.path.ant_glob('tests/integ/**/*.cpp'),
@@ -40,7 +44,8 @@ def build(bld):
                 target='perf_tests',
                 lib='pthread',
                 stlib='benchmark',
-                includes='.')
+                includes='.',
+                use='profiler')
 
     bld.add_post_fun(test_summary)
 
