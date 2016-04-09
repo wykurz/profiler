@@ -1,25 +1,34 @@
-#include <Instrumentation/StatsScope.h>
 #include <Control/Manager.h>
-#include <Queue/Queue.h>
+#include <Control/Store.h>
+#include <Instrumentation/StatsScope.h>
 
 namespace Scope
 {
 
     using TimeDelta = ScopeTime::TimeDelta;
 
-    struct Record : Queue::Node
+    struct Record
     {
         Record(const char* name_, const TimeDelta& delta_)
           : name(name_),
             delta(delta_)
         { }
+
+        virtual ~Record() = default;
+
         const char* name;
         const TimeDelta delta;
     };
 
+    // TODO: Should be somewhere else?
+    void store(const Record& record_, std::ostream& out_)
+    {
+        // TODO: ...
+    }
+
     void StatsScope::record()
     {
-        Control::getThread().queue.push(new Record{_name, _time.delta()});
+        Control::getThread().queue.push(new Control::Queue::NodeType(new Record{_name, _time.delta()}));
     }
 
 }
