@@ -28,7 +28,7 @@ namespace Scope
 
     void StatsScope::record()
     {
-        Control::getThread().queue.push(new Control::Queue::NodeType(new Record{_name, _time.delta()}));
+        Control::getThread().queue.push(new Control::Queue::NodeType(Record(_name, _time.delta())));
     }
 
 }
