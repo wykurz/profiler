@@ -10,6 +10,7 @@ namespace Queue
     struct Node
     {
         using Type = T_;
+        Node() = default;
         Node(Type&& value_)
           : value(std::move(value_))
         { }
@@ -24,6 +25,7 @@ namespace Queue
         using Type = T_;
         using NodeType = Node<T_>;
         void push(NodeType* node_);
+        NodeType* pull();
         NodeType* extract();
 
       private:
@@ -39,6 +41,18 @@ namespace Queue
                                            std::memory_order_release,
                                            std::memory_order_relaxed))
             ; // empty
+    }
+
+    template<typename T_>
+    typename Queue<T_>::NodeType* Queue<T_>::pull()
+    {
+        // TODO: deal with ABA
+        //       - set a base pointer
+        //       - store an offset + seq. number
+        auto res = _head.load(std::memory_order_relaxed);
+        while (res && !_head.compare_exchange_weak(res, res->next))
+            ; // empty
+        return res;
     }
 
     template<typename T_>

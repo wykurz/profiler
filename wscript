@@ -40,6 +40,14 @@ def build(bld):
     #             includes='.')
 
     bld.program(features='test',
+                source=bld.path.ant_glob('tests/stress/**/*.cpp'),
+                target='stress_tests',
+                lib='pthread',
+                stlib='boost_unit_test_framework',
+                includes='.',
+                use='profiler')
+
+    bld.program(features='test',
                 source=bld.path.ant_glob('tests/perf/**/*.cpp'),
                 target='perf_tests',
                 lib='pthread',
