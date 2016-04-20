@@ -15,6 +15,8 @@ def configure(conf):
 def test_summary(bld):
     lst = getattr(bld, 'utest_results', [])
     for (f, code, out, err) in lst:
+        if f:
+            Logs.pprint('BLUE', '    %s' % f)
         if out:
             Logs.pprint('CYAN', '    %s' % out)
         if err:
