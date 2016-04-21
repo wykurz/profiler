@@ -16,7 +16,7 @@ namespace Queue
         { }
 
         Node* next = nullptr;
-        Type value;
+        const Type value;
     };
 
     template<typename T_>
@@ -29,7 +29,7 @@ namespace Queue
         NodeType* extract();
 
       private:
-        std::atomic<NodeType*> _head;
+        std::atomic<NodeType*> _head{nullptr};
     };
 
     template<typename T_>
@@ -49,7 +49,7 @@ namespace Queue
         // TODO: deal with ABA
         //       - set a base pointer
         //       - store an offset + seq. number
-        auto res = _head.load(std::memory_order_relaxed);
+        auto res = _head.load(std::memory_order_acquire);
         while (res && !_head.compare_exchange_weak(res, res->next))
             ; // empty
         return res;

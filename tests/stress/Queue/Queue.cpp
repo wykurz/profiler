@@ -1,6 +1,10 @@
 #include <Instrumentation/StatsScope.h>
 #include <Queue/Queue.h>
 #include <boost/test/unit_test.hpp>
+#include <array>
+#include <chrono>
+#include <condition_variable>
+#include <memory>
 #include <thread>
 
 namespace Queue { namespace Tests
@@ -53,11 +57,31 @@ namespace Queue { namespace Tests
 
     BOOST_AUTO_TEST_CASE(Shuffle)
     {
-        QueueTest queueTest(1000);
-        std::thread t1([&queueTest]() { int count = 1000000; while (count--) queueTest.shuffle(); });
-        std::thread t2([&queueTest]() { int count = 1000000; while (count--) queueTest.shuffle(); });
-        t1.join();
-        t2.join();
+        constexpr std::size_t numThreads = 2;
+        std::mutex lock;
+        std::condition_variable control, workers;
+        std::size_t waitCount = 0;
+        std::atomic<bool> done{false};
+        QueueTest queueTest(100);
+        auto func = [&]() {
+            std::unique_lock<std::mutex> lk(lock);
+            ++waitCount;
+            control.notify_one();
+            workers.wait(lk);
+            while (not done.load()) queueTest.shuffle();
+        };
+        std::vector<std::unique_ptr<std::thread>> threads;
+        for (int i = 0; i < numThreads; ++i)
+            threads.push_back(std::move(std::unique_ptr<std::thread>(new std::thread(func))));
+        {
+            std::unique_lock<std::mutex> lk(lock);
+            control.wait(lk, [&waitCount]{ return waitCount == numThreads; });
+        }
+        std::this_thread::sleep_for(std::chrono::microseconds(10000)); // 10ms
+        workers.notify_all();
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        done.store(true);
+        for (auto& thread : threads) thread->join();
     }
 
 }
