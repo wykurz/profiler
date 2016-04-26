@@ -1,6 +1,7 @@
 #ifndef QUEUE_QUEUE_H
 #define QUEUE_QUEUE_H
 
+#include <algorithm>
 #include <atomic>
 
 namespace Queue
@@ -14,9 +15,8 @@ namespace Queue
         Node(Type&& value_)
           : value(std::move(value_))
         { }
-
         Node* next = nullptr;
-        const Type value;
+        Type value;
     };
 
     template<typename T_>

@@ -1,6 +1,7 @@
 #ifndef INSTRUMENTATION_TIME_H
 #define INSTRUMENTATION_TIME_H
 
+#include <Record/Record.h>
 #include <iostream>
 #include <chrono>
 
@@ -11,9 +12,8 @@ namespace Time {
     {
         using ClockType = ClockType_;
         using TimePoint = std::chrono::time_point<ClockType>;
-        using TimeDelta = std::chrono::duration<double>;
 
-        TimeDelta delta() const
+        Record::TimeDelta delta() const
         {
             return ClockType::now() - start;
         }

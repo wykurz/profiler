@@ -5,20 +5,6 @@
 namespace Control
 {
 
-    struct Manager
-    {
-        static constexpr std::size_t MaxThreads = 1024;
-        // TODO: How should we deal with infinite # of threads
-        std::atomic<int> currentThread;
-        std::array<Thread*, MaxThreads> threadBuffers;
-    };
-
-    Manager& getManager()
-    {
-        static Manager manager;
-        return manager;
-    }
-
     Thread::Thread()
     {
         auto& manager = getManager();
@@ -28,8 +14,21 @@ namespace Control
 
     Thread& getThread()
     {
+        // TODO: Setup everythin such that it's easy to avoid singletons on demand (e.g. in tests, but not only)
         thread_local static Thread thread;
         return thread;
+    }
+
+    Manager& getManager()
+    {
+        static Manager manager;
+        return manager;
+    }
+
+    template <>
+    RecordManager<Record::Record>& Thread::getRecordManager<Record::Record>()
+    {
+        return _recordManager;
     }
 
 }
