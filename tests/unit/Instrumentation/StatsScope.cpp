@@ -1,3 +1,4 @@
+#include <Control/Manager.h>
 #include <Instrumentation/StatsScope.h>
 #include <boost/test/unit_test.hpp>
 
@@ -26,7 +27,7 @@ namespace {
     BOOST_AUTO_TEST_CASE(Basic)
     {
         testFunc1();
-        BOOST_CHECK(true);
+        BOOST_CHECK_EQUAL(std::size_t(3), Control::getThread().getRecordManager<Record::Record>().dirty.size());
     }
 
 }

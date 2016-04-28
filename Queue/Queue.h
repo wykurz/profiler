@@ -12,9 +12,14 @@ namespace Queue
     {
         using Type = T_;
         Node() = default;
+        Node(const Type& value_)
+          : value(value_)
+        { }
         Node(Type&& value_)
           : value(std::move(value_))
         { }
+        Node(const Node&) = default;
+        Node(Node&&) = default;
         Node* next = nullptr;
         Type value;
     };
@@ -27,6 +32,7 @@ namespace Queue
         void push(NodeType* node_);
         NodeType* pull();
         NodeType* extract();
+        std::size_t size(); // Assumes the list is static for its duration.
 
       private:
         std::atomic<NodeType*> _head{nullptr};
@@ -59,6 +65,21 @@ namespace Queue
     typename Queue<T_>::NodeType* Queue<T_>::extract()
     {
         return _head.exchange(nullptr, std::memory_order_acquire);
+    }
+
+    template<typename T_>
+    std::size_t Queue<T_>::size()
+    {
+        // Should be used for testing purposes only. It's worth remembering that computing the size of a lock-free list
+        // this way may results in a number of elements that this list had never contained at any point in time.
+        std::size_t res = 0;
+        NodeType* node = _head.load();
+        while (node)
+        {
+            ++res;
+            node = node->next;
+        }
+        return res;
     }
 
 }

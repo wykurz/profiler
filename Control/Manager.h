@@ -36,9 +36,7 @@ namespace Control
         RecordManager() = default;
         RecordManager(const This&) = delete;
         RecordHolder<RecordType> getRecord();
-        void commitRecord(RecordNode& record_);
-      private:
-        Queue::Queue<RecordType> _dirty;
+        Queue::Queue<RecordType> dirty;
     };
 
     struct Thread
@@ -57,7 +55,7 @@ namespace Control
     template <typename RecordType_>
     RecordHolder<RecordType_>::~RecordHolder<RecordType>()
     {
-        if (this->isValid()) getThread().getRecordManager<RecordType>().commitRecord(*_record);
+        if (this->isValid()) getThread().getRecordManager<RecordType>().dirty.push(_record);
     }
 
     template <typename RecordType_>
@@ -90,16 +88,10 @@ namespace Control
         auto record = getManager().free.pull();
         if (!record)
         {
-            ++getThread().droppedRecords;
+            ++(getThread().droppedRecords);
             return RecordHolder<RecordType>();
         }
         return RecordHolder<RecordType>(record);
-    }
-
-    template <typename RecordType_>
-    void RecordManager<RecordType_>::commitRecord(RecordNode& record_)
-    {
-        _dirty.push(&record_);
     }
 
 }
