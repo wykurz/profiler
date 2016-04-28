@@ -32,8 +32,7 @@ namespace Queue
         void push(NodeType* node_);
         NodeType* pull();
         NodeType* extract();
-        std::size_t size(); // Assumes the list is static for its duration.
-
+        std::size_t size() const; // Assumes the list is static for its duration.
       private:
         std::atomic<NodeType*> _head{nullptr};
     };
@@ -68,12 +67,12 @@ namespace Queue
     }
 
     template<typename T_>
-    std::size_t Queue<T_>::size()
+    std::size_t Queue<T_>::size() const
     {
         // Should be used for testing purposes only. It's worth remembering that computing the size of a lock-free list
         // this way may results in a number of elements that this list had never contained at any point in time.
         std::size_t res = 0;
-        NodeType* node = _head.load();
+        auto node = _head.load();
         while (node)
         {
             ++res;

@@ -1,5 +1,6 @@
 #include <Instrumentation/StatsScope.h>
 #include <Queue/Queue.h>
+#include <Utils/Algorithm.h>
 #include <boost/test/unit_test.hpp>
 #include <array>
 #include <chrono>
@@ -51,6 +52,13 @@ namespace Queue { namespace Tests
             queues[idx].push(nodePtr);
         }
 
+        void check() const
+        {
+            std::size_t size = Utils::foldLeft(queues, 0, [](std::size_t v, const QueueType& q) {
+                    return v + q.size(); });
+            BOOST_CHECK_EQUAL(data.size(), size);
+        }
+
         std::vector<QueueType::NodeType> data;
         std::array<QueueType, numQueues> queues;
     };
@@ -82,6 +90,7 @@ namespace Queue { namespace Tests
         std::this_thread::sleep_for(std::chrono::seconds(1));
         done.store(true);
         for (auto& thread : threads) thread->join();
+        queueTest.check();
     }
 
 }
