@@ -20,7 +20,7 @@ namespace Queue
         { }
         Node(const Node&) = default;
         Node(Node&&) = default;
-        Node* next = nullptr;
+        Node* next = nullptr; // Not atomic, assumes no concurrency!
         Type value;
     };
 
