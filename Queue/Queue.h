@@ -57,6 +57,7 @@ namespace Queue
         auto res = _head.load(std::memory_order_acquire);
         while (res && !_head.compare_exchange_weak(res, res->next))
             ; // empty
+        if (res) res->next = nullptr;
         return res;
     }
 
@@ -73,8 +74,7 @@ namespace Queue
         // this way may results in a number of elements that this list had never contained at any point in time.
         std::size_t res = 0;
         auto node = _head.load();
-        while (node)
-        {
+        while (node) {
             ++res;
             node = node->next;
         }
