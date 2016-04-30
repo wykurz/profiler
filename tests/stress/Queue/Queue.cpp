@@ -75,7 +75,6 @@ namespace Queue { namespace Tests
         {
             std::size_t size = Utils::foldLeft(queues, 0, [](std::size_t v, const QueueType& q) {
                     return v + q.size(); });
-            for (int i = 0; i < numQueues; ++i) std::cerr << i << ": " << queues[i].size() << std::endl;
             BOOST_CHECK_EQUAL(data.size(), size);
             BOOST_CHECK_GT(shuffles, 0);
             BOOST_CHECK_GT(exchanges, 0);
@@ -94,7 +93,7 @@ namespace Queue { namespace Tests
         std::condition_variable control, workers;
         std::size_t waitCount = 0;
         std::atomic<bool> done{false};
-        QueueTest queueTest(100);
+        QueueTest queueTest(1000);
         auto setup = [&]() {
             std::unique_lock<std::mutex> lk(lock);
             ++waitCount;
