@@ -64,6 +64,10 @@ namespace Queue
                 assert(!node_ || base_ <= node_);
             }
             NodePtr(const NodePtr&) = default;
+            NodeType* applyOffset(const NodeType* baseNode_) const
+            {
+                return reinterpret_cast<NodeType*>(reinterpret_cast<std::intptr_t>(baseNode_) + offset);
+            }
             bool isNull() const
             {
                 return -1 == offset;
@@ -85,7 +89,7 @@ namespace Queue
         NodeType* unpackPtr(NodePtr nodePtr_) const
         {
             if (nodePtr_.isNull()) return nullptr;
-            auto res = reinterpret_cast<NodeType*>(reinterpret_cast<std::intptr_t>(_baseNode) + nodePtr_.offset);
+            auto res = nodePtr_.applyOffset(_baseNode);
             assert(res < _baseNode + _size);
             return res;
         }
@@ -97,6 +101,7 @@ namespace Queue
     template <typename T_>
     void Queue<T_>::push(NodeType* node_)
     {
+        node_->updateTag();
         auto headPtr = _head.load(std::memory_order_relaxed);
         auto nodePtr = NodePtr(_baseNode, node_);
         do {
@@ -116,7 +121,6 @@ namespace Queue
         if (nodePtr.isNull()) return nullptr;
         auto node = unpackPtr(nodePtr);
         node->next = nullptr;
-        node->updateTag();
         return node;
     }
 
@@ -126,7 +130,6 @@ namespace Queue
         auto nodePtr = _head.exchange(NodePtr(), std::memory_order_acquire);
         if (nodePtr.isNull()) return nullptr;
         auto node = unpackPtr(nodePtr);
-        node->updateTag();
         return node;
     }
 
