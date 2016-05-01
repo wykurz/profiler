@@ -6,6 +6,7 @@ namespace Control
 {
 
     Thread::Thread()
+      : _recordManager(getManager().getNodeBase(), getManager().MaxRecords)
     {
         auto& manager = getManager();
         auto id = manager.currentThread++;

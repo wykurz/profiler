@@ -10,7 +10,7 @@ def options(opt):
 def configure(conf):
     conf.find_program('clang++-3.6', var='CXX', mandatory=True)
     conf.load('compiler_cxx waf_unit_test')
-    conf.env.CXXFLAGS = ['-std=c++11', '-O3', '-g', '-Wall']
+    conf.env.CXXFLAGS = ['-std=c++11', '-g', '-O3', '-Wall'] # '-O3' '-fsanitize=address'
 
 def test_summary(bld):
     lst = getattr(bld, 'utest_results', [])

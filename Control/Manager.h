@@ -33,7 +33,9 @@ namespace Control
         using RecordType = RecordType_;
         using RecordNode = Queue::Node<RecordType>;
         using This = RecordManager<RecordType>;
-        RecordManager() = default;
+        RecordManager(const RecordNode* baseNode_, std::size_t size_)
+          : dirty(baseNode_, size_)
+        { }
         RecordManager(const This&) = delete;
         RecordHolder<RecordType> getRecord();
         Queue::Queue<RecordType> dirty;
@@ -47,13 +49,14 @@ namespace Control
         RecordManager<RecordType_>& getRecordManager();
         std::size_t droppedRecords = 0;
       private:
+        std::size_t _maxRecords;
         RecordManager<Record::Record> _recordManager;
     };
 
     Thread& getThread();
 
     template <typename RecordType_>
-    RecordHolder<RecordType_>::~RecordHolder<RecordType>()
+    RecordHolder<RecordType_>::~RecordHolder<RecordType_>()
     {
         if (this->isValid()) getThread().getRecordManager<RecordType>().dirty.push(_record);
     }
@@ -67,6 +70,9 @@ namespace Control
     struct Manager
     {
         static constexpr std::size_t MaxThreads = 1024;
+        static constexpr std::size_t MaxRecords = (1 << 20);
+        using RecordType = Record::Record;
+        using NodeType = Queue::Node<RecordType>;
         Manager()
         {
             for (auto& block : arena) free.push(&block);
@@ -74,9 +80,15 @@ namespace Control
         // TODO: How should we deal with infinite # of threads
         std::atomic<int> currentThread;
         std::array<Thread*, MaxThreads> threadBuffers;
-        static constexpr std::size_t MaxRecords = (1 << 20);
+        // TODO: Will we have multiple of those function?
+        const NodeType* getNodeBase() const
+        {
+            return &arena[0];
+        }
+      private:
         std::array<Queue::Node<Record::Record>, MaxRecords> arena{};
-        Queue::Queue<Record::Record> free;
+      public:
+        Queue::Queue<Record::Record> free{getNodeBase(), MaxRecords};
     };
 
     Manager& getManager();

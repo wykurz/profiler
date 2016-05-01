@@ -5,6 +5,7 @@
 #include <array>
 #include <chrono>
 #include <condition_variable>
+#include <deque>
 #include <memory>
 #include <thread>
 
@@ -13,10 +14,10 @@ namespace Queue { namespace Tests
 
     BOOST_AUTO_TEST_CASE(Basic)
     {
-        std::size_t n = 1000;
+        int n = 1000;
         std::vector<Node<int>> data;
         for (int i = 0; i < n; ++i) data.push_back(std::move(i));
-        Queue<int> queue;
+        Queue<int> queue(&data[0], n);
         for (int i = 0; i < n; ++i) queue.push(&data[i]);
         std::vector<Node<int>> data2;
         for (int i = 0; i < n; ++i) {
@@ -32,11 +33,15 @@ namespace Queue { namespace Tests
     struct QueueTest
     {
         using QueueType = Queue<int>;
+        using NodeType = QueueType::NodeType;
+
         static constexpr std::size_t numQueues = 10;
 
-        QueueTest(std::size_t size_)
+        QueueTest(int size_)
+          : data(size_)
         {
-            for (int i = 0; i < size_; ++i) data.push_back(std::move(i));
+            for (int i = 0; i < size_; ++i) data[i] = i;
+            for (int i = 0; i < size_; ++i) queues.emplace_back(&data[0], size_);
             for (int i = 0; i < size_; ++i) queues[0].push(&data[i]);
         }
 
@@ -80,15 +85,15 @@ namespace Queue { namespace Tests
             BOOST_CHECK_GT(exchanges, 0);
         }
 
-        std::vector<QueueType::NodeType> data;
-        std::array<QueueType, numQueues> queues;
+        std::vector<NodeType> data;
+        std::deque<QueueType> queues;
         std::atomic<int> shuffles = {0};
         std::atomic<int> exchanges = {0};
     };
 
     BOOST_AUTO_TEST_CASE(Shuffle)
     {
-        constexpr std::size_t numThreads = 4;
+        constexpr int numThreads = 4;
         std::mutex lock;
         std::condition_variable control, workers;
         std::size_t waitCount = 0;
