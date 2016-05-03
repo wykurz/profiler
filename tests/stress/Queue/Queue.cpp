@@ -7,6 +7,7 @@
 #include <condition_variable>
 #include <deque>
 #include <memory>
+#include <stdexcept>
 #include <thread>
 
 namespace Queue { namespace Tests
@@ -40,9 +41,11 @@ namespace Queue { namespace Tests
         QueueTest(int size_)
           : data(size_)
         {
-            for (int i = 0; i < size_; ++i) data[i] = i;
-            for (int i = 0; i < size_; ++i) queues.emplace_back(&data[0], size_);
-            for (int i = 0; i < size_; ++i) queues[0].push(&data[i]);
+            for (int i = 0; i < size_; ++i) {
+                data[i] = i;
+                queues.emplace_back(&data[0], size_);
+                queues[0].push(&data[i]);
+            }
         }
 
         void shuffle()
@@ -104,7 +107,6 @@ namespace Queue { namespace Tests
             ++waitCount;
             control.notify_one();
             workers.wait(lk);
-            // return lk;
         };
         auto func1 = [&]() {
             setup();
@@ -113,7 +115,7 @@ namespace Queue { namespace Tests
                 queueTest.shuffle();
                 ++loops;
             }
-            BOOST_CHECK_GT(loops,  0);
+            BOOST_CHECK_GT(loops, 0);
         };
         auto func2 = [&]() {
             setup();
