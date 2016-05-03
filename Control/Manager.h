@@ -9,16 +9,16 @@ namespace Control
 {
 
     template <typename RecordType_>
-    struct RecordHolder
+    struct RecordHandle
     {
         using RecordType = RecordType_;
         using RecordNode = Queue::Node<RecordType>;
-        RecordHolder(RecordNode* record_ = nullptr)
+        RecordHandle(RecordNode* record_ = nullptr)
           : _record(record_)
         { }
-        ~RecordHolder();
+        ~RecordHandle();
         bool isValid() const;
-        RecordType& get()
+        RecordType& getRecord()
         {
             assert(_record);
             return _record->value;
@@ -37,7 +37,7 @@ namespace Control
           : dirty(baseNode_, size_)
         { }
         RecordManager(const This&) = delete;
-        RecordHolder<RecordType> getRecord();
+        RecordHandle<RecordType> getRecord();
         Queue::Queue<RecordType> dirty;
     };
 
@@ -56,13 +56,13 @@ namespace Control
     Thread& getThread();
 
     template <typename RecordType_>
-    RecordHolder<RecordType_>::~RecordHolder<RecordType_>()
+    RecordHandle<RecordType_>::~RecordHandle<RecordType_>()
     {
         if (this->isValid()) getThread().getRecordManager<RecordType>().dirty.push(_record);
     }
 
     template <typename RecordType_>
-    bool RecordHolder<RecordType_>::isValid() const
+    bool RecordHandle<RecordType_>::isValid() const
     {
         return nullptr != _record;
     }
@@ -94,16 +94,16 @@ namespace Control
     Manager& getManager();
 
     template <typename RecordType_>
-    RecordHolder<RecordType_> RecordManager<RecordType_>::getRecord()
+    RecordHandle<RecordType_> RecordManager<RecordType_>::getRecord()
     {
         // TODO: Pick up first record from the block, only if not available pull from global queue
         auto record = getManager().free.pull();
         if (!record)
         {
             ++(getThread().droppedRecords);
-            return RecordHolder<RecordType>();
+            return RecordHandle<RecordType>();
         }
-        return RecordHolder<RecordType>(record);
+        return RecordHandle<RecordType>(record);
     }
 
 }

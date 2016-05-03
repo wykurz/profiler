@@ -13,14 +13,11 @@ namespace Scope
         StatsScope(const char* name_)
           : _name(name_)
         { }
-
         ~StatsScope()
         {
             record();
         }
-
         void record();
-
       private:
         const char* _name;
         const ScopeTime _time = ScopeTime();

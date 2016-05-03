@@ -6,9 +6,9 @@ namespace Scope
 
     void StatsScope::record()
     {
-        auto record = Control::getThread().getRecordManager<Record::Record>().getRecord();
-        if (!record.isValid()) return;
-        record.get() = Record::Record(_name, _time.delta());
+        auto holder = Control::getThread().getRecordManager<Record::Record>().getRecord();
+        if (!holder.isValid()) return;
+        holder.getRecord() = Record::Record(_name, _time.delta());
     }
 
 }
