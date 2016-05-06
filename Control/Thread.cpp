@@ -1,4 +1,5 @@
 #include <Control/Manager.h>
+#include <Control/Thread.h>
 #include <array>
 #include <atomic>
 

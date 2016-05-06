@@ -1,13 +1,14 @@
 #ifndef CONTROL_MANAGER_H
 #define CONTROL_MANAGER_H
 
-#include <Control/Thread.h>
 #include <Queue/Queue.h>
 #include <Record/Record.h>
 #include <cassert>
 
 namespace Control
 {
+
+    struct Thread;
 
     struct Manager
     {
@@ -34,19 +35,6 @@ namespace Control
     };
 
     Manager& getManager();
-
-    template <typename RecordType_>
-    RecordHandle<RecordType_> RecordManager<RecordType_>::getRecord()
-    {
-        // TODO: Pick up first record from the block, only if not available pull from global queue
-        auto record = getManager().free.pull();
-        if (!record)
-        {
-            ++(getThread().droppedRecords);
-            return RecordHandle<RecordType>();
-        }
-        return RecordHandle<RecordType>(record);
-    }
 
 }
 
