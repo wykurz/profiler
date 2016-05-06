@@ -4,6 +4,7 @@
 #include <Queue/Queue.h>
 #include <Record/Record.h>
 #include <cassert>
+#include <condition_variable>
 
 namespace Control
 {
@@ -13,25 +14,48 @@ namespace Control
     struct Manager
     {
         static constexpr std::size_t MaxThreads = 1024;
+        static constexpr std::size_t MaxSlotSearches = MaxThreads;
         static constexpr std::size_t MaxRecords = (1 << 20);
         using RecordType = Record::Record;
-        using NodeType = Queue::Node<RecordType>;
+        using RecordNode = Queue::Node<RecordType>;
         Manager()
         {
-            for (auto& block : arena) free.push(&block);
+            for (auto& block : arena) _free.push(&block);
         }
         // TODO: How should we deal with infinite # of threads
         std::atomic<int> currentThread;
-        std::array<Thread*, MaxThreads> threadBuffers;
         // TODO: Will we have multiple of those function?
-        const NodeType* getNodeBase() const
+        const RecordNode* getNodeBase() const
         {
             return &arena[0];
         }
+        void addThread(Thread& thread_)
+        {
+            bool found = false;
+            auto count = MaxSlotSearches;
+            while (!found && 0 < count--) {
+                auto id = currentThread++;
+                std::unique_lock<std::mutex> lk(_threadBuffers[id].lock);
+                if (_threadBuffers[id].thread) continue;
+                _threadBuffers[id].thread = &thread_;
+                found = true;
+            }
+            if (!found) ++_droppedThreads;
+        }
+        RecordNode* getFreeRecordNode()
+        {
+            return _free.pull();
+        }
       private:
+        struct Holder
+        {
+            Thread* thread;
+            std::mutex lock;
+        };
+        std::array<Holder, MaxThreads> _threadBuffers;
+        std::size_t _droppedThreads = 0;
         std::array<Queue::Node<Record::Record>, MaxRecords> arena = {};
-      public:
-        Queue::Queue<Record::Record> free = {getNodeBase(), MaxRecords};
+        Queue::Queue<Record::Record> _free = {getNodeBase(), MaxRecords};
     };
 
     Manager& getManager();

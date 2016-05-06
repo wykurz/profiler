@@ -24,13 +24,13 @@ namespace Control
         RecordHandleType getRecord()
         {
             // TODO: Should we make this a template function? Or the whole class?
-            auto record = getManager().free.pull();
-            if (!record)
+            auto recordNode = getManager().getFreeRecordNode();
+            if (!recordNode)
             {
                 ++droppedRecords;
                 return RecordHandleType(*this);
             }
-            return RecordHandleType(*this, record);
+            return RecordHandleType(*this, recordNode);
         }
         void retireRecord(RecordNode* record_)
         {

@@ -9,10 +9,8 @@ namespace Control
     Thread::Thread()
       : _recordManager(getManager().getNodeBase(), getManager().MaxRecords)
     {
-        auto& manager = getManager();
-        auto id = manager.currentThread++;
-        // TODO: Need to grab a slot-lock for this...
-        manager.threadBuffers[id] = this;
+        // TODO - handle failure case?
+        getManager().addThread(*this);
     }
 
     Thread::~Thread()
