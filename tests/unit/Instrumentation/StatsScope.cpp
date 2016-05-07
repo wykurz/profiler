@@ -28,7 +28,14 @@ namespace {
     BOOST_AUTO_TEST_CASE(Basic)
     {
         testFunc1();
-        BOOST_CHECK_EQUAL(std::size_t(3), Control::getThread().template getRecordManager<Record::Record>().getDirtyRecords().size());
+        auto recordNode = Control::getThread().template getRecordManager<Record::Record>().extractDirtyRecords();
+        BOOST_REQUIRE(recordNode);
+        int size = 0;
+        while (recordNode) {
+            recordNode = recordNode->next;
+            ++size;
+        }
+        BOOST_CHECK_EQUAL(3, size);
     }
 
 }

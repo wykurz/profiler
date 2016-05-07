@@ -1,7 +1,6 @@
 #ifndef CONTROL_RECORDMANAGER_H
 #define CONTROL_RECORDMANAGER_H
 
-#include <Control/Manager.h>
 #include <Queue/Queue.h>
 #include <Record/Record.h>
 #include <cassert>
@@ -9,40 +8,65 @@
 namespace Control
 {
 
-    template <typename RecordType_>
+    template <typename Record_>
     struct RecordManager
     {
-        using RecordType = RecordType_;
-        using RecordNode = Queue::Node<RecordType>;
-        using This = RecordManager<RecordType>;
-        using RecordHandleType = Record::RecordHandle<RecordNode, This>;
-        using RecordQueue = Queue::Queue<RecordType>;
-        RecordManager(const RecordNode* baseNode_, std::size_t size_)
-          : dirty(baseNode_, size_)
+        using This = RecordManager<Record_>;
+        using RecordStorageType = Record::RecordStorage<Record_>;
+        using RecordQueue = typename RecordStorageType::RecordQueue;
+        using RecordNode = typename RecordStorageType::RecordNode;
+        using RecordType = typename RecordStorageType::RecordType;
+        struct RecordHolder
+        {
+            RecordHolder(This& manager_, RecordNode* record_ = nullptr)
+              : _manager(manager_),
+                _record(record_)
+            { }
+            ~RecordHolder()
+            {
+                if (this->isValid()) _manager.retireRecord(_record);
+            }
+            bool isValid() const
+            {
+                return nullptr != _record;
+            }
+            RecordType& getRecord()
+            {
+                assert(_record);
+                return _record->value;
+            }
+          private:
+            This& _manager;
+            RecordNode* const _record;
+        };
+        RecordManager(RecordStorageType& recordStorage_)
+          : _recordStorage(recordStorage_),
+            _dirty(recordStorage_.getNodeBase(), recordStorage_.size())
         { }
         RecordManager(const This&) = delete;
-        RecordHandleType getRecord()
+        RecordHolder getRecord()
         {
-            // TODO: Should we make this a template function? Or the whole class?
-            auto recordNode = getManager().getFreeRecordNode();
+            auto recordNode = _recordStorage.getFreeRecordNode();
             if (!recordNode)
             {
-                ++droppedRecords;
-                return RecordHandleType(*this);
+                ++_droppedRecords;
+                return RecordHolder(*this);
             }
-            return RecordHandleType(*this, recordNode);
+            return RecordHolder(*this, recordNode);
         }
         void retireRecord(RecordNode* record_)
         {
-            dirty.push(record_);
+            _dirty.push(record_);
         }
-        const RecordQueue& getDirtyRecords() const
+        RecordNode* extractDirtyRecords()
         {
-            return dirty;
+            return _dirty.extract();
         }
       private:
-        std::size_t droppedRecords = 0;
-        RecordQueue dirty;
+        RecordStorageType& _recordStorage;
+        // TODO: add padding
+        std::size_t _droppedRecords = 0;
+        RecordQueue _dirty;
     };
 
 }

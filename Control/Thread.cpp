@@ -7,7 +7,7 @@ namespace Control
 {
 
     Thread::Thread()
-      : _recordManager(getManager().getNodeBase(), getManager().MaxRecords)
+      : _recordManager(getManager().getRecordStorage())
     {
         // TODO - handle failure case?
         getManager().addThread(*this);
@@ -23,12 +23,6 @@ namespace Control
         // TODO: Setup everythin such that it's easy to avoid singletons on demand (e.g. in tests, but not only)
         thread_local static Thread thread;
         return thread;
-    }
-
-    template <>
-    RecordManager<Record::Record>& Thread::getRecordManager<Record::Record>()
-    {
-        return _recordManager;
     }
 
 }
