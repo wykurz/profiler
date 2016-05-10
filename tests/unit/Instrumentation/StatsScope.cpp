@@ -3,9 +3,11 @@
 #include <Instrumentation/StatsScope.h>
 #include <boost/test/unit_test.hpp>
 
-namespace Instrumentation { namespace Test {
+namespace Instrumentation { namespace Test
+{
 
-namespace {
+namespace
+{
 
     int testFunc2()
     {

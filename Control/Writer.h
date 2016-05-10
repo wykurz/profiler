@@ -2,6 +2,7 @@
 #define CONTROL_WRITER_H
 
 #include <Control/Thread.h>
+#include <fstream>
 #include <mutex>
 
 namespace Control
@@ -9,19 +10,11 @@ namespace Control
 
     struct Writer
     {
-        Writer() = default;
+        Writer(const char* file_);
         Writer(const Writer&) = delete;
-        void run(ThreadArray& threadArray_)
-        {
-            for (auto& threadHolder : threadArray_) {
-                std::unique_lock<std::mutex> lk(threadHolder.lock);
-                if (!threadHolder.thread) continue;
-                auto& thread = *threadHolder.thread;
-                auto recordNode = thread.template getRecordManager<Record::Record>().extractDirtyRecords();
-                if (!recordNode) continue;
-                // TODO
-            }
-        }
+        void run(ThreadArray& threadArray_);
+      private:
+        std::ofstream _out;
     };
 
 }

@@ -7,18 +7,19 @@ namespace Control
 
     // TODO: How should we deal with infinite # of threads
     // TODO: Will we have multiple of those function?
-    void Manager::addThread(Thread& thread_)
+    ThreadHolder* Manager::addThread(Thread& thread_)
     {
-        bool found = false;
+        ThreadHolder* res = nullptr;
         auto count = MaxSlotSearches;
-        while (!found && 0 < count--) {
-            auto id = _currentThread++;
-            std::unique_lock<std::mutex> lk(_threadArray[id].lock);
-            if (_threadArray[id].thread) continue;
-            _threadArray[id].thread = &thread_;
-            found = true;
+        while (!res && 0 < count--) {
+            auto& holder = _threadArray[_currentThread++];
+            auto lk = holder.lock();
+            if (holder.thread) continue;
+            holder.thread = &thread_;
+            res = &holder;
         }
-        if (!found) ++_droppedThreads;
+        if (!res) ++_droppedThreads;
+        return res;
     }
 
     Manager::RecordStorageType& Manager::getRecordStorage()

@@ -23,7 +23,7 @@ namespace Control
         using RecordType = typename RecordStorageType::RecordType;
         Manager() = default;
         Manager(const Manager&) = delete;
-        void addThread(Thread& thread_);
+        ThreadHolder* addThread(Thread& thread_);
         // TODO: Template on record type?
         RecordStorageType& getRecordStorage();
       private:
@@ -32,7 +32,7 @@ namespace Control
         ThreadArray _threadArray{MaxThreads};
         std::size_t _droppedThreads = {0};
         RecordStorageType _recordStorage{NumRecords};
-        Writer _writer; // TODO
+        Writer _writer{"blah"};
     };
 
     Manager& getManager();

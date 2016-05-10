@@ -4,6 +4,7 @@
 #include <Queue/Queue.h>
 #include <array>
 #include <chrono>
+#include <ostream>
 
 namespace Record
 {
@@ -20,6 +21,12 @@ namespace Record
         const char* name = nullptr;
         TimeDelta delta;
     };
+
+    inline std::ostream& operator<<(std::ostream& out_, const Record& record_)
+    {
+        out_ << record_.name << record_.delta.count();
+        return out_;
+    }
 
     template <typename Record_>
     struct RecordStorage
@@ -51,6 +58,8 @@ namespace Record
         Queue::Queue<Record_> _free;
     };
 
+    // TODO: Add a type list type that has all records available
+    //       We'll need a for_each functionality...
 
 }
 
