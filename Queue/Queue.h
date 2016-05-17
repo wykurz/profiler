@@ -53,6 +53,7 @@ namespace Queue
         NodeType* extract();
         std::size_t size() const; // Assumes the queue is static for the duration of the call.
       private:
+        // TODO: run clang undef. behavior sanitizer
         struct alignas(sizeof(std::intptr_t)) NodePtr
         {
             NodePtr() = default;

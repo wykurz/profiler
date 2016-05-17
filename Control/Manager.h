@@ -32,7 +32,7 @@ namespace Control
         ThreadArray _threadArray{MaxThreads};
         std::size_t _droppedThreads = {0};
         RecordStorageType _recordStorage{NumRecords};
-        Writer _writer{"blah"};
+        Writer _writer{Output::Ptr(new FileOut("blah"))};
     };
 
     Manager& getManager();
