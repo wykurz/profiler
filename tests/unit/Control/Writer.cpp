@@ -1,6 +1,8 @@
 #include <Control/Thread.h>
 #include <Control/Writer.h>
+#include <Instrumentation/StatsScope.h>
 #include <boost/test/unit_test.hpp>
+#include <cassert>
 #include <unordered_map>
 
 namespace Control { namespace Test
@@ -38,6 +40,7 @@ namespace
         }
         virtual std::ostream& get()
         {
+            assert(_out.get());
             return *_out;
         }
       private:
@@ -48,15 +51,21 @@ namespace
 
     BOOST_AUTO_TEST_CASE(Basic)
     {
-        constexpr std::size_t numThreads = 3;
         MockManager manager;
         Thread thread(manager);
-        ThreadArray threadArray(numThreads);
-        // TODO: temp dir!
+        Scope::StatsScope scope(thread.template getRecordManager<Record::Record>(), "test");
+        ThreadArray threadArray(1);
+        auto& holder = threadArray[0];
+        {
+            auto lk = holder.lock();
+            BOOST_REQUIRE(!holder.thread);
+            holder.thread = &thread;
+        }
         BufferMap buffers;
         Writer writer(Output::Ptr(new MemoryOut(buffers, "test")));
         writer.run(threadArray);
-        // BOOST_CHECK_EQUAL(3, size);
+        BOOST_REQUIRE(buffers["test"].get());
+        BOOST_CHECK(0 < buffers["test"]->str().size());
     }
 
 }

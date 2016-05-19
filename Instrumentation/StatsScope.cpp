@@ -1,6 +1,5 @@
-#include <Control/Manager.h>
-#include <Control/Thread.h>
 #include <Instrumentation/StatsScope.h>
+#include <Log/Log.h>
 #include <Record/Record.h>
 
 namespace Scope
@@ -8,8 +7,11 @@ namespace Scope
 
     void StatsScope::record()
     {
-        auto holder = Control::getThread().template getRecordManager<Record::Record>().getRecord();
-        if (!holder.isValid()) return;
+        auto holder = _recordManager.getRecord();
+        if (!holder.isValid()) {
+            DLOG() << "No valid holder!";
+            return;
+        }
         holder.getRecord() = Record::Record(_name, _time.delta());
     }
 
