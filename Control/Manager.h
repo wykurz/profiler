@@ -7,6 +7,7 @@
 #include <Record/Record.h>
 #include <cassert>
 #include <condition_variable>
+#include <thread>
 
 namespace Control
 {
@@ -23,6 +24,7 @@ namespace Control
         using RecordType = typename RecordStorageType::RecordType;
         Manager() = default;
         Manager(const Manager&) = delete;
+        ~Manager();
         ThreadHolder* addThread(Thread& thread_);
         // TODO: Template on record type?
         RecordStorageType& getRecordStorage();
@@ -32,7 +34,8 @@ namespace Control
         ThreadArray _threadArray{MaxThreads};
         std::size_t _droppedThreads = {0};
         RecordStorageType _recordStorage{NumRecords};
-        Writer _writer{Output::Ptr(new FileOut("blah"))};
+        Writer _writer{Output::Ptr(new FileOut("blah")), _threadArray};
+        std::thread _writerThread{[this](){ this->_writer.run(); }};
     };
 
     Manager& getManager();

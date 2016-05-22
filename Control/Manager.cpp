@@ -1,9 +1,16 @@
 #include <Control/Manager.h>
+#include <Log/Log.h>
 #include <array>
 #include <atomic>
 
 namespace Control
 {
+
+    Manager::~Manager()
+    {
+        _writer.stop();
+        _writerThread.join();
+    }
 
     // TODO: How should we deal with infinite # of threads
     // TODO: Will we have multiple of those function?

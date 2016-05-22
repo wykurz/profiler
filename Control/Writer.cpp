@@ -6,15 +6,16 @@
 namespace Control
 {
 
-    Writer::Writer(Output::Ptr out_)
-      : _out(std::move(out_))
+    Writer::Writer(Output::Ptr out_, ThreadArray& threadArray_)
+      : _threadArray(threadArray_),
+        _out(std::move(out_))
     {
         assert(_out.get());
     }
 
-    void Writer::run(ThreadArray& threadArray_)
+    void Writer::run()
     {
-        for (auto& holder : threadArray_) {
+        do for (auto& holder : _threadArray) {
             auto lk = holder.lock();
             if (!holder.thread) continue;
             auto& thread = *(holder.thread);
@@ -24,6 +25,11 @@ namespace Control
                 recordNode = recordNode->next;
             }
         }
+        while (!_done);
     }
 
+    void Writer::stop()
+    {
+        _done = true;
+    }
 }

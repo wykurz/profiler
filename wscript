@@ -23,9 +23,11 @@ def test_summary(bld):
             Logs.pprint('RED', '    %s' % err)
 
 def build(bld):
+    # TODO: disable RTTI?
     # TODO: build instrumentation lib...
     bld.shlib(source=bld.path.ant_glob('**/*.cpp', excl='tests/*'),
               target='profiler',
+              lib='pthread',
               includes='.')
 
     bld.program(features='test',

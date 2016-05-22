@@ -30,11 +30,14 @@ namespace Control
 
     struct Writer
     {
-        Writer(Output::Ptr out_);
+        Writer(Output::Ptr out_, ThreadArray& threadArray_);
         Writer(const Writer&) = delete;
-        void run(ThreadArray& threadArray_);
+        void run();
+        void stop();
       private:
+        ThreadArray& _threadArray;
         const Output::Ptr _out;
+        std::atomic<bool> _done{false};
     };
 
 }

@@ -64,8 +64,8 @@ namespace
             holder.thread = &thread;
         }
         BufferMap buffers;
-        Writer writer(Output::Ptr(new MemoryOut(buffers, "test")));
-        writer.run(threadArray);
+        Writer writer(Output::Ptr(new MemoryOut(buffers, "test")), threadArray);
+        writer.run();
         BOOST_REQUIRE(buffers["test"].get());
         BOOST_CHECK(0 < buffers["test"]->str().size());
     }
