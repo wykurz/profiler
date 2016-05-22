@@ -53,7 +53,9 @@ namespace
     {
         MockManager manager;
         Thread thread(manager);
-        Scope::StatsScope scope(thread.template getRecordManager<Record::Record>(), "test");
+        {
+            Scope::StatsScope scope(thread.template getRecordManager<Record::Record>(), "test");
+        }
         ThreadArray threadArray(1);
         auto& holder = threadArray[0];
         {
