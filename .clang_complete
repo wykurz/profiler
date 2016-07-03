@@ -1,0 +1,7 @@
+-std=c++11
+-g
+-O3
+-Wall
+-fPIC
+-I/home/mateusz/projects/profiler/build
+-I/home/mateusz/projects/profiler
