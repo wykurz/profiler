@@ -1,3 +1,4 @@
+LIBNAME=cxxprof
 CXX=clang++-3.8
 INC=-Iprofiler
 CFLAGS=-std=c++14 -g -O3 -Wall
@@ -5,7 +6,8 @@ LFLAGS=-lpthread -latomic
 BUILD_DIR=build
 OBJ_DIR=$(BUILD_DIR)/obj
 TEST_DIR=$(BUILD_DIR)/tests
-LIBPROFILER=$(BUILD_DIR)/lib/libprofiler.so
+LIBPROFILER=$(BUILD_DIR)/lib/lib$(LIBNAME).so
+LIBPATH=$(abspath $(dir $(LIBPROFILER)))
 
 all: lib tests
 
@@ -16,7 +18,7 @@ tests: $(TEST_DIR)/unit_tests
 
 $(TEST_DIR)/unit_tests: $(UNIT_TESTS_OBJ)
 	@mkdir -p $(TEST_DIR)
-	$(CXX) $(CFLAGS) $(LFLAGS) -lboost_unit_test_framework -lprofiler -L$(dir $(LIBPROFILER)) -o $@ $^
+	$(CXX) $(CFLAGS) $(LFLAGS) -lboost_unit_test_framework -l$(LIBNAME) -L$(LIBPATH) -Wl,-R$(LIBPATH) -o $@ $^
 
 $(OBJ_DIR)/tests/unit/%.o: tests/unit/%.cpp
 	@mkdir -p $(dir $@)
