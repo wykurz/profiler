@@ -1,24 +1,25 @@
 CXX=clang++-3.8
-CXXFLAGS=-std=c++11 -g -O3 -Wall -I.
+INC=-Iprofiler
+CFLAGS=-fPIC -std=c++14 -g -O3 -Wall
+LFLAGS=-shared
 BUILD_DIR=build
 OBJ_DIR=$(BUILD_DIR)/obj
+LIBPROFILER=$(BUILD_DIR)/lib/libprofiler.so
 
-PROFILER_SRC=$(filter-out tests/**/*.cpp, $(wildcard **/*.cpp))
+PROFILER_SRC=$(wildcard profiler/**/*.cpp)
 PROFILER_OBJ=$(patsubst %.cpp, $(OBJ_DIR)/%.o, $(PROFILER_SRC))
 
-# @echo '$(PROFILER_SRC)'
+all: $(LIBPROFILER)
 
-build_dir:
-	mkdir -p $(BUILD_DIR)
-	mkdir -p $(OBJ_DIR)
-
-$(OBJ_DIR)/%.o : $(PROFILER_SRC)
+$(LIBPROFILER): $(PROFILER_OBJ)
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) -c $< $(LIB_PATH) $(LIBS) -o $@
+	$(CXX) $(LFLAGS) -o $@ $^
 
-profiler: $(PROFILER_OBJ)
-	$(CXX) -o $@ $^ $(CXXFLAGS)
+$(OBJ_DIR)/%.o: %.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CFLAGS) $(INC) -c -o $@ $<
 
-all: profiler
+clean:
+	@rm build -rf
 
-.PHONY : all
+.PHONY : all clean
