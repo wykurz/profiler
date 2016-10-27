@@ -39,7 +39,7 @@ STRESS_TESTS_OBJ=$(patsubst %.cpp, $(OBJ_DIR)/%.o, $(STRESS_TESTS_SRC))
 stress: $(TEST_DIR)/stress
 	./build/tests/stress --show_progress --log_level=test_suite
 
-$(TEST_DIR)/stress: $(STRESS_TESTS_OBJ)
+$(TEST_DIR)/stress: $(STRESS_TESTS_OBJ) $(LIBPROFILER)
 	@mkdir -p $(TEST_DIR)
 	$(CXX) $(CFLAGS) $(LFLAGS) -lboost_unit_test_framework -l$(LIBNAME) -L$(LIBPATH) -Wl,-R$(LIBPATH) -o $@ $^
 
@@ -56,7 +56,7 @@ UNIT_TESTS_OBJ=$(patsubst %.cpp, $(OBJ_DIR)/%.o, $(UNIT_TESTS_SRC))
 unit: $(TEST_DIR)/unit_tests
 	./build/tests/unit_tests --show_progress --log_level=test_suite
 
-$(TEST_DIR)/unit_tests: $(UNIT_TESTS_OBJ)
+$(TEST_DIR)/unit_tests: $(UNIT_TESTS_OBJ) $(LIBPROFILER)
 	@mkdir -p $(TEST_DIR)
 	$(CXX) $(CFLAGS) $(LFLAGS) -lboost_unit_test_framework -l$(LIBNAME) -L$(LIBPATH) -Wl,-R$(LIBPATH) -o $@ $^
 

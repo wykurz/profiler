@@ -45,7 +45,7 @@ namespace Record
         {
             return _arena.size();
         }
-        const RecordNode* getNodeBase() const
+        RecordNode* getNodeBase()
         {
             return &_arena[0];
         }

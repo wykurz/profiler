@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <atomic>
 #include <cassert>
+#include <Queue/TaggedPtr.h>
 
 namespace Queue
 {
@@ -25,14 +26,18 @@ namespace Queue
         Node(const Node&) = default;
         Node& operator=(const Node&) = default;
         Node(Node&&) = default;
+        std::uint32_t getTag() const
+        {
+            return tag;
+        }
         Node* next{nullptr}; // Not atomic, assumes no concurrency!
         Type value;
       private:
         friend struct Queue<Type>;
         void updateTag()
         {
+            // Allow the tag to overflow, we're using unsigned int for that:
             tag += 1;
-            tag &= std::numeric_limits<std::uint32_t>::max() / 2;
         }
         std::uint32_t tag = 0;
     };
@@ -42,7 +47,7 @@ namespace Queue
     {
         using Type = T_;
         using NodeType = Node<T_>;
-        Queue(const NodeType* baseNode_, std::size_t size_)
+        Queue(NodeType* baseNode_, std::size_t size_)
           : _baseNode(baseNode_),
             _size(size_)
         {
@@ -54,47 +59,15 @@ namespace Queue
         std::size_t size() const; // Assumes the queue is static for the duration of the call.
       private:
         // TODO: run clang undef. behavior sanitizer
-        struct alignas(sizeof(std::intptr_t)) NodePtr
-        {
-            NodePtr() = default;
-            NodePtr(const NodeType* base_, const NodeType* node_)
-              : offset(getOffset(base_, node_)),
-                tag(getTag(node_))
-            {
-                assert(base_);
-                assert(!node_ || base_ <= node_);
-            }
-            NodePtr(const NodePtr&) = default;
-            NodeType* applyOffset(const NodeType* baseNode_) const
-            {
-                return reinterpret_cast<NodeType*>(reinterpret_cast<std::intptr_t>(baseNode_) + offset);
-            }
-            bool isNull() const
-            {
-                return -1 == offset;
-            }
-            static std::uint32_t getOffset(const NodeType* base_, const NodeType* node_)
-            {
-                if (!node_) return -1;
-                return static_cast<std::uint32_t>(reinterpret_cast<std::intptr_t>(node_) - reinterpret_cast<std::intptr_t>(base_));
-            }
-            static std::uint32_t getTag(const NodeType* node_)
-            {
-                if (!node_) return 0;
-                return node_->tag;
-            }
-            const std::uint32_t offset = -1;
-            const std::uint32_t tag = 0;
-        };
-        static_assert(sizeof(std::intptr_t) == sizeof(NodePtr), "Tagged pointer doesn't match the expected size!");
+        using NodePtr = TaggedPtr<Node<T_>>;
         NodeType* unpackPtr(NodePtr nodePtr_) const
         {
             if (nodePtr_.isNull()) return nullptr;
-            auto res = nodePtr_.applyOffset(_baseNode);
+            auto res = nodePtr_.get(_baseNode);
             assert(res < _baseNode + _size);
             return res;
         }
-        const NodeType* const _baseNode;
+        NodeType* const _baseNode;
         const std::size_t _size;
         std::atomic<NodePtr> _head{NodePtr()};
     };
