@@ -49,26 +49,29 @@ namespace
 
 }
 
-    BOOST_AUTO_TEST_CASE(Basic)
-    {
-        MockManager manager;
-        Thread thread(manager);
-        {
-            Scope::StatsScope scope(thread.template getRecordManager<Record::Record>(), "test");
-        }
-        ThreadArray threadArray(1);
-        auto& holder = threadArray[0];
-        {
-            auto lk = holder.lock();
-            BOOST_REQUIRE(!holder.thread);
-            holder.thread = &thread;
-        }
-        BufferMap buffers;
-        Writer writer(Output::Ptr(new MemoryOut(buffers, "test")), threadArray);
-        writer.run();
-        BOOST_REQUIRE(buffers["test"].get());
-        BOOST_CHECK(0 < buffers["test"]->str().size());
-    }
+    BOOST_AUTO_TEST_SUITE(WriterTests)
 
+    // BOOST_AUTO_TEST_CASE(Basic)
+    // {
+    //     MockManager manager;
+    //     Thread thread(manager);
+    //     {
+    //         Scope::StatsScope scope(thread.template getRecordManager<Record::Record>(), "test");
+    //     }
+    //     ThreadArray threadArray(1);
+    //     auto& holder = threadArray[0];
+    //     {
+    //         auto lk = holder.lock();
+    //         BOOST_REQUIRE(!holder.thread);
+    //         holder.thread = &thread;
+    //     }
+    //     BufferMap buffers;
+    //     Writer writer(Output::Ptr(new MemoryOut(buffers, "test")), threadArray);
+    //     writer.run();
+    //     BOOST_REQUIRE(buffers["test"].get());
+    //     BOOST_CHECK(0 < buffers["test"]->str().size());
+    // }
+
+    BOOST_AUTO_TEST_SUITE_END()
 }
 }

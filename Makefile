@@ -1,3 +1,5 @@
+LIBDIRS?=/usr/lib
+INCDIRS?=/usr/include
 LIBNAME=cxxprof
 CXX=clang++-3.8
 INC=-Iprofiler
@@ -9,12 +11,27 @@ TEST_DIR=$(BUILD_DIR)/tests
 LIBPROFILER=$(BUILD_DIR)/lib/lib$(LIBNAME).so
 LIBPATH=$(abspath $(dir $(LIBPROFILER)))
 
-all: lib tests
+all: lib tests perf
+
+PERF_TESTS_SRC=$(wildcard tests/perf/**/*.cpp)
+PERF_TESTS_OBJ=$(patsubst %.cpp, $(OBJ_DIR)/%.o, $(PERF_TESTS_SRC))
+
+perf: $(TEST_DIR)/perf
+	./build/tests/perf
+
+$(TEST_DIR)/perf: $(PERF_TESTS_OBJ) $(LIBPROFILER)
+	@mkdir -p $(TEST_DIR)
+	$(CXX) $(CFLAGS) $(LFLAGS) -l$(LIBNAME) -L$(LIBPATH) -Wl,-R$(LIBPATH) -o $@ $^ -Wl,-Bstatic -L$(LIBDIRS) -lbenchmark -Wl,-Bdynamic
+
+$(OBJ_DIR)/tests/perf/%.o: tests/perf/%.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CFLAGS) $(INC) -I$(INCDIRS) -c -o $@ $<
 
 UNIT_TESTS_SRC=$(wildcard tests/unit/**/*.cpp) tests/unit/Main.cpp
 UNIT_TESTS_OBJ=$(patsubst %.cpp, $(OBJ_DIR)/%.o, $(UNIT_TESTS_SRC))
 
 tests: $(TEST_DIR)/unit_tests
+	./build/tests/unit_tests --show_progress --log_level=test_suite
 
 $(TEST_DIR)/unit_tests: $(UNIT_TESTS_OBJ)
 	@mkdir -p $(TEST_DIR)

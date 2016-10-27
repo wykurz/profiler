@@ -27,6 +27,8 @@ namespace
 
 }
 
+    BOOST_AUTO_TEST_SUITE(StatsScopeTests)
+
     BOOST_AUTO_TEST_CASE(Basic)
     {
         testFunc1();
@@ -40,5 +42,8 @@ namespace
         BOOST_CHECK_EQUAL(3, size);
     }
 
+    BOOST_AUTO_TEST_SUITE_END()
+
 }
 }
+

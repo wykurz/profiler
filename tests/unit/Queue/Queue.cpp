@@ -3,6 +3,8 @@
 
 namespace Queue { namespace Test {
 
+    BOOST_AUTO_TEST_SUITE(QueueTests)
+
     BOOST_AUTO_TEST_CASE(PushPull)
     {
         std::vector<Node<int>> v;
@@ -34,5 +36,8 @@ namespace Queue { namespace Test {
         }
     }
 
+    BOOST_AUTO_TEST_SUITE_END()
+
 }
 }
+
