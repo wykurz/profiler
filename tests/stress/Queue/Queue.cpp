@@ -94,6 +94,8 @@ namespace Queue { namespace Tests
         std::atomic<int> exchanges = {0};
     };
 
+    BOOST_AUTO_TEST_SUITE(WriterTests)
+
     BOOST_AUTO_TEST_CASE(Shuffle)
     {
         constexpr int numThreads = 4;
@@ -127,20 +129,22 @@ namespace Queue { namespace Tests
             BOOST_CHECK_GT(loops, 0);
         };
         std::vector<std::unique_ptr<std::thread>> threads;
-        threads.push_back(std::move(std::unique_ptr<std::thread>(new std::thread(func2))));
+        threads.push_back(std::unique_ptr<std::thread>(new std::thread(func2)));
         for (int i = 0; i < numThreads - 1; ++i)
-            threads.push_back(std::move(std::unique_ptr<std::thread>(new std::thread(func1))));
+            threads.push_back(std::unique_ptr<std::thread>(new std::thread(func1)));
         {
             std::unique_lock<std::mutex> lk(lock);
             control.wait(lk, [&waitCount]{ return waitCount == numThreads; });
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(10000)); // 10ms
+        std::this_thread::sleep_for(std::chrono::microseconds(1000000)); // 1s
         workers.notify_all();
         std::this_thread::sleep_for(std::chrono::seconds(3));
         done.store(true);
         for (auto& thread : threads) thread->join();
         queueTest.check();
     }
+
+    BOOST_AUTO_TEST_SUITE_END()
 
 }
 }
