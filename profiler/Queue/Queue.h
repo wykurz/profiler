@@ -30,7 +30,7 @@ namespace Queue
         {
             return tag;
         }
-        Node* next{nullptr}; // Not atomic, assumes no concurrency!
+        Node* next{nullptr}; // Assumes no concurrency!
         Type value;
       private:
         friend struct Queue<Type>;

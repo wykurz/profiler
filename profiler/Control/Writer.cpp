@@ -25,11 +25,12 @@ namespace Control
                 recordNode = recordNode->next;
             }
         }
-        while (!_done);
+        while (!_done.load(std::memory_order_acquire));
     }
 
     void Writer::stop()
     {
-        _done = true;
+        _done.store(true, std::memory_order_release);
     }
+
 }
