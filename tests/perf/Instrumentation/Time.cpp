@@ -22,15 +22,11 @@ void timeTest(std::size_t createCount_, std::size_t queryCount_)
 
 struct TimeBenchFixture: public ::benchmark::Fixture
 {
-    void SetUp()
-    {
-    }
-
     void highResTimeTest(benchmark::State& state_)
     {
         while (state_.KeepRunning())
         {
-            timeTest<Time::HighResTime>(state_.range_x(), state_.range_y());
+            timeTest<Time::HighResTime>(state_.range(0), state_.range(1));
         }
     }
 
@@ -38,7 +34,7 @@ struct TimeBenchFixture: public ::benchmark::Fixture
     {
         while (state_.KeepRunning())
         {
-            timeTest<Time::Time<std::chrono::system_clock>>(state_.range_x(), state_.range_y());
+            timeTest<Time::Time<std::chrono::system_clock>>(state_.range(0), state_.range(1));
         }
     }
 
@@ -46,7 +42,7 @@ struct TimeBenchFixture: public ::benchmark::Fixture
     {
         while (state_.KeepRunning())
         {
-            timeTest<Time::RdtscTime>(state_.range_x(), state_.range_y());
+            timeTest<Time::RdtscTime>(state_.range(0), state_.range(1));
         }
     }
 
