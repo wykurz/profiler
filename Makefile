@@ -2,16 +2,25 @@ LIBDIRS?=/usr/lib
 INCDIRS?=/usr/include
 LIBNAME=cxxprof
 CXX=clang++-3.8
+DOXYGEN=doxygen
 INC=-Iprofiler
 CFLAGS=-std=c++14 -g -O3 -Wall
 LFLAGS=-lpthread -latomic
 BUILD_DIR=build
 OBJ_DIR=$(BUILD_DIR)/obj
 TEST_DIR=$(BUILD_DIR)/tests
+DOCS_DIR=$(BUILD_DIR)/docs
 LIBPROFILER=$(BUILD_DIR)/lib/lib$(LIBNAME).so
 LIBPATH=$(abspath $(dir $(LIBPROFILER)))
 
-all: lib unit stress perf
+all: lib unit stress perf docs
+
+#
+# Doxygen docs
+#
+docs:
+	@mkdir -p $(TEST_DIR)
+	$(DOXYGEN) Doxyfile
 
 #
 # Perf tests
@@ -83,4 +92,4 @@ $(OBJ_DIR)/profiler/%.o: profiler/%.cpp
 clean:
 	@rm build -rf
 
-.PHONY : all lib unit stress clean
+.PHONY : all lib unit stress clean docs
