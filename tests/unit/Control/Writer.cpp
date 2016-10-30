@@ -15,7 +15,7 @@ namespace
 
     struct MockManager
     {
-        static constexpr std::size_t NumRecords = 10;
+        static constexpr int NumRecords = 10;
         ThreadHolder* addThread(Thread& thread_)
         {
             return nullptr;

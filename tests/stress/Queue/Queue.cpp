@@ -36,7 +36,7 @@ namespace Queue { namespace Tests
         using QueueType = Queue<int>;
         using NodeType = QueueType::NodeType;
 
-        static constexpr std::size_t numQueues = 10;
+        static constexpr int numQueues = 10;
 
         QueueTest(int size_)
           : data(size_)
@@ -50,7 +50,7 @@ namespace Queue { namespace Tests
 
         void shuffle()
         {
-            std::size_t idx = 0;
+            int idx = 0;
             auto nodePtr = queues[idx].pull();
             while (!nodePtr) {
                 idx = (idx + 1) % numQueues;
@@ -63,7 +63,7 @@ namespace Queue { namespace Tests
 
         void exchange()
         {
-            std::size_t idx = 0;
+            int idx = 0;
             auto nodePtr = queues[idx].extract();
             while (!nodePtr) {
                 idx = (idx + 1) % numQueues;
@@ -81,7 +81,7 @@ namespace Queue { namespace Tests
 
         void check() const
         {
-            std::size_t size = Utils::foldLeft(queues, 0, [](std::size_t v, const QueueType& q) {
+            int size = Utils::foldLeft(queues, 0, [](int v, const QueueType& q) {
                     return v + q.size(); });
             BOOST_CHECK_EQUAL(data.size(), size);
             BOOST_CHECK_GT(shuffles, 0);
@@ -101,7 +101,7 @@ namespace Queue { namespace Tests
         constexpr int numThreads = 4;
         std::mutex lock;
         std::condition_variable control, workers;
-        std::size_t waitCount = 0;
+        int waitCount = 0;
         std::atomic<bool> done{false};
         QueueTest queueTest(1000);
         auto setup = [&]() {
@@ -112,7 +112,7 @@ namespace Queue { namespace Tests
         };
         auto func1 = [&]() {
             setup();
-            std::size_t loops = 0;
+            int loops = 0;
             while (not done.load()) {
                 queueTest.shuffle();
                 ++loops;
@@ -121,7 +121,7 @@ namespace Queue { namespace Tests
         };
         auto func2 = [&]() {
             setup();
-            std::size_t loops = 0;
+            int loops = 0;
             while (not done.load()) {
                 queueTest.exchange();
                 ++loops;
