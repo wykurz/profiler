@@ -7,7 +7,7 @@ static void escape(void* p)
 }
 
 template <typename TimeType>
-void timeTest(std::size_t createCount_, std::size_t queryCount_)
+void timeTest(int createCount_, int queryCount_)
 {
     for (int i = 0; i < createCount_; ++i)
     {
@@ -45,8 +45,6 @@ struct TimeBenchFixture: public ::benchmark::Fixture
             timeTest<Time::RdtscTime>(state_.range(0), state_.range(1));
         }
     }
-
-  private:
 };
 
 BENCHMARK_DEFINE_F(TimeBenchFixture,     HighResTimeTest)(benchmark::State& state_) {     highResTimeTest(state_); }
