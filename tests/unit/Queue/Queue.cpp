@@ -7,7 +7,7 @@ namespace Queue { namespace Test {
 
     BOOST_AUTO_TEST_CASE(PushPull)
     {
-        std::vector<Node<int>> v;
+        std::vector<Queue<int>::Node> v;
         for (int i = 0; i < 10; ++i) v.push_back(i);
         Queue<int> q(&v[0], 10);
         for (auto& e : v) q.push(&e);
@@ -23,7 +23,7 @@ namespace Queue { namespace Test {
 
     BOOST_AUTO_TEST_CASE(Extract)
     {
-        std::vector<Node<int>> v;
+        std::vector<Queue<int>::Node> v;
         for (int i = 0; i < 10; ++i) v.push_back(i);
         Queue<int> q(&v[0], 10);
         for (auto& e : v) q.push(&e);

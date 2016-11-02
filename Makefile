@@ -12,6 +12,9 @@ TEST_DIR=$(BUILD_DIR)/tests
 DOCS_DIR=$(BUILD_DIR)/docs
 LIBPROFILER=$(BUILD_DIR)/lib/lib$(LIBNAME).so
 LIBPATH=$(abspath $(dir $(LIBPROFILER)))
+DEPDIR := .dependencies
+DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.Td
+POSTCOMPILE = mv -f $(DEPDIR)/$*.Td $(DEPDIR)/$*.d
 
 all: lib unit stress perf docs
 
@@ -35,9 +38,10 @@ $(TEST_DIR)/perf: $(PERF_TESTS_OBJ) $(LIBPROFILER)
 	@mkdir -p $(TEST_DIR)
 	$(CXX) $(CFLAGS) $(LFLAGS) -l$(LIBNAME) -L$(LIBPATH) -Wl,-R$(LIBPATH) -o $@ $^ -Wl,-Bstatic -L$(LIBDIRS) -lbenchmark -Wl,-Bdynamic
 
-$(OBJ_DIR)/tests/perf/%.o: tests/perf/%.cpp
+$(OBJ_DIR)/tests/perf/%.o: tests/perf/%.cpp $(DEPDIR)/%.d
 	@mkdir -p $(dir $@)
 	$(CXX) $(CFLAGS) $(INC) -I$(INCDIRS) -c -o $@ $<
+	-$(POSTCOMPILE)
 
 #
 # Stress tests
@@ -52,9 +56,10 @@ $(TEST_DIR)/stress: $(STRESS_TESTS_OBJ) $(LIBPROFILER)
 	@mkdir -p $(TEST_DIR)
 	$(CXX) $(CFLAGS) $(LFLAGS) -lboost_unit_test_framework -l$(LIBNAME) -L$(LIBPATH) -Wl,-R$(LIBPATH) -o $@ $^
 
-$(OBJ_DIR)/tests/stress/%.o: tests/stress/%.cpp
+$(OBJ_DIR)/tests/stress/%.o: tests/stress/%.cpp $(DEPDIR)/%.d
 	@mkdir -p $(dir $@)
 	$(CXX) -DBOOST_TEST_DYN_LINK $(CFLAGS) $(INC) -c -o $@ $<
+	-$(POSTCOMPILE)
 
 #
 # Unit tests
@@ -69,9 +74,11 @@ $(TEST_DIR)/unit_tests: $(UNIT_TESTS_OBJ) $(LIBPROFILER)
 	@mkdir -p $(TEST_DIR)
 	$(CXX) $(CFLAGS) $(LFLAGS) -lboost_unit_test_framework -l$(LIBNAME) -L$(LIBPATH) -Wl,-R$(LIBPATH) -o $@ $^
 
-$(OBJ_DIR)/tests/unit/%.o: tests/unit/%.cpp
+$(OBJ_DIR)/tests/unit/%.o: tests/unit/%.cpp $(DEPDIR)/%.d
 	@mkdir -p $(dir $@)
 	$(CXX) -DBOOST_TEST_DYN_LINK $(CFLAGS) $(INC) -c -o $@ $<
+	-$(POSTCOMPILE)
+
 
 #
 # Profiler library
@@ -85,11 +92,23 @@ $(LIBPROFILER): $(PROFILER_OBJ)
 	@mkdir -p $(dir $@)
 	$(CXX) -shared $(CFLAGS) $(LFLAGS) -o $@ $^
 
-$(OBJ_DIR)/profiler/%.o: profiler/%.cpp
+$(OBJ_DIR)/profiler/%.o: profiler/%.cpp $(DEPDIR)/%.d
 	@mkdir -p $(dir $@)
 	$(CXX) -fPIC $(CFLAGS) $(INC) -c -o $@ $<
+	-$(POSTCOMPILE)
+
+#
+# Headers
+#
+$(DEPDIR)/%.d:
+	@mkdir -p $(DEPDIR)
+
+.PRECIOUS: $(DEPDIR)/%.d
+
+ALL_SRC=$(wildcard **/*.cpp)
+-include $(patsubst %, $(DEPDIR)/%.d, $(basename $(ALL_SRC)))
 
 clean:
 	@rm build -rf
 
-.PHONY : all lib unit stress clean docs
+.PHONY : all lib headers unit stress clean docs

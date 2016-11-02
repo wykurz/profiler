@@ -1,6 +1,7 @@
 #ifndef CONTROL_RECORDMANAGER_H
 #define CONTROL_RECORDMANAGER_H
 
+#include <Control/Arena.h>
 #include <Queue/Queue.h>
 #include <Record/Record.h>
 #include <cassert>
@@ -11,62 +12,73 @@ namespace Control
     template <typename Record_>
     struct RecordManager
     {
-        using This = RecordManager<Record_>;
-        using RecordStorageType = Record::RecordStorage<Record_>;
-        using RecordQueue = typename RecordStorageType::RecordQueue;
-        using RecordNode = typename RecordStorageType::RecordNode;
-        using RecordType = typename RecordStorageType::RecordType;
+        using Record = Record_;
+        using This = RecordManager<Record>;
+        using Queue = Queue::Queue<Record>;
+        using Node = typename Queue::Node;
+
         struct RecordHolder
         {
-            RecordHolder(This& manager_, RecordNode* record_ = nullptr)
+            RecordHolder(This& manager_, Node* node_ = nullptr)
               : _manager(manager_),
-                _record(record_)
+                _node(node_)
             { }
             ~RecordHolder()
             {
-                if (this->isValid()) _manager.retireRecord(_record);
+                if (this->isValid()) _manager.retireRecord(*_node);
             }
             bool isValid() const
             {
-                return nullptr != _record;
+                return nullptr != _node;
             }
-            RecordType& getRecord()
+            Record& getRecord()
             {
-                assert(_record);
-                return _record->value;
+                assert(_node);
+                return _node->value;
             }
           private:
             This& _manager;
-            RecordNode* const _record;
+            Node* const _node;
         };
-        RecordManager(RecordStorageType& recordStorage_)
-          : _recordStorage(recordStorage_),
-            _dirty(recordStorage_.getNodeBase(), recordStorage_.size())
+
+        RecordManager(Arena& arena_)
+          : _arena(arena_),
+            _dirty(arena_.basePtr<Node>())
         { }
         RecordManager(const This&) = delete;
+
         RecordHolder getRecord()
         {
-            auto recordNode = _recordStorage.getFreeRecordNode();
-            if (!recordNode)
+            if (!_currentBlock || _currentBlock->size() < _nextRecord)
+            {
+                _currentBlock = _arena.acquire<Node>();
+                _nextRecord = 0;
+            }
+            if (!_currentBlock)
             {
                 ++_droppedRecords;
                 return RecordHolder(*this);
             }
-            return RecordHolder(*this, recordNode);
+            return RecordHolder(*this, &(*_currentBlock)[_nextRecord]);
         }
-        void retireRecord(RecordNode* record_)
+
+        void retireRecord(Node& node_)
         {
-            _dirty.push(record_);
+            _dirty.push(&node_);
         }
-        RecordNode* extractDirtyRecords()
+
+        Node* extractDirtyRecords()
         {
             return _dirty.extract();
         }
+
       private:
-        RecordStorageType& _recordStorage;
+        Arena& _arena;
         // TODO: add padding
+        Arena::Block<Node>* _currentBlock = nullptr;
+        std::size_t _nextRecord = 0;
         std::size_t _droppedRecords = 0;
-        RecordQueue _dirty;
+        Queue _dirty;
     };
 
 }

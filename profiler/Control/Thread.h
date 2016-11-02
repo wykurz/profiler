@@ -16,12 +16,10 @@ namespace Control
 
     struct Thread
     {
-        using RecordStorageType = Record::RecordStorage<Record::Record>;
-        using RecordManagerType = RecordManager<Record::Record>;
         template <typename ManagerType_>
         Thread(ManagerType_& manager_)
           : _holder(manager_.addThread(*this)),
-            _recordManager(manager_.getRecordStorage())
+            _recordManager(_arena)
         {
             if (!_holder) { } // TODO - handle failure case
         }
@@ -30,13 +28,17 @@ namespace Control
         template <typename RecordType_>
         RecordManager<RecordType_>& getRecordManager();
       private:
-        ThreadHolder* _holder;
-        RecordManagerType _recordManager;
+        Arena _arena;
+        ThreadHolder* const _holder;
+        RecordManager<Record::Record> _recordManager;
     };
 
     template <>
     inline RecordManager<Record::Record>& Thread::getRecordManager<Record::Record>()
     {
+        // TODO:
+        //   1) Store record managers as a tuple based on list of record types
+        //   2) Use C++11 mpl http://pdimov.com/cpp2/simple_cxx11_metaprogramming.html
         return _recordManager;
     }
 
@@ -50,7 +52,7 @@ namespace Control
         }
         Thread* thread = nullptr;
       private:
-        std::unique_ptr<std::mutex> _lock{new std::mutex()};
+        std::unique_ptr<std::mutex> _lock = std::make_unique<std::mutex>();
     };
 
     using ThreadArray = std::vector<ThreadHolder>;

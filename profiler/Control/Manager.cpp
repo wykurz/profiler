@@ -13,7 +13,6 @@ namespace Control
     }
 
     // TODO: How should we deal with infinite # of threads
-    // TODO: Will we have multiple of those function?
     ThreadHolder* Manager::addThread(Thread& thread_)
     {
         ThreadHolder* res = nullptr;
@@ -27,11 +26,6 @@ namespace Control
         }
         if (!res) ++_droppedThreads;
         return res;
-    }
-
-    Manager::RecordStorageType& Manager::getRecordStorage()
-    {
-        return _recordStorage;
     }
 
     Manager& getManager()

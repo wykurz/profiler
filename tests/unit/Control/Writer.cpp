@@ -11,21 +11,12 @@ namespace Control { namespace Test
 namespace
 {
 
-    using RecordStorageType = Record::RecordStorage<Record::Record>;
-
     struct MockManager
     {
-        static constexpr int NumRecords = 10;
         ThreadHolder* addThread(Thread& thread_)
         {
             return nullptr;
         }
-        RecordStorageType& getRecordStorage()
-        {
-            return _recordStorage;
-        }
-      private:
-        RecordStorageType _recordStorage{NumRecords};
     };
 
     using MemBuffer = std::shared_ptr<std::stringstream>;
