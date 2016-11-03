@@ -9,7 +9,7 @@ namespace Queue { namespace Test {
     {
         std::vector<Queue<int>::Node> v;
         for (int i = 0; i < 10; ++i) v.push_back(i);
-        Queue<int> q(&v[0], 10);
+        Queue<int> q(&v[0]);
         for (auto& e : v) q.push(&e);
         BOOST_CHECK_EQUAL(10, q.size());
         for (int i = 9; 0 <= i; --i)
@@ -25,7 +25,7 @@ namespace Queue { namespace Test {
     {
         std::vector<Queue<int>::Node> v;
         for (int i = 0; i < 10; ++i) v.push_back(i);
-        Queue<int> q(&v[0], 10);
+        Queue<int> q(&v[0]);
         for (auto& e : v) q.push(&e);
         BOOST_CHECK_EQUAL(10, q.size());
         auto ni = q.extract();

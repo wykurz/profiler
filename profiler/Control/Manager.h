@@ -31,7 +31,7 @@ namespace Control
         ThreadArray _threadArray{MaxThreads};
         std::size_t _droppedThreads = {0};
         Writer _writer{Output::Ptr(new FileOut("blah")), _threadArray};
-        std::thread _writerThread{[this](){ this->_writer.run(); }};
+        // std::thread _writerThread{[this](){ this->_writer.run(); }};
     };
 
     Manager& getManager();

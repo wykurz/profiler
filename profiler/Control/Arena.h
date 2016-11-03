@@ -2,7 +2,9 @@
 #define CONTROL_ARENA_H
 
 #include <array>
+#include <cassert>
 #include <memory>
+#include <sstream>
 
 namespace Control
 {
@@ -14,6 +16,7 @@ namespace Control
     {
         constexpr static std::size_t BlockSize = 1024;
 
+        Arena() = default;
         Arena(const Arena&) = delete;
         Arena(Arena&&) = delete;
 
@@ -26,10 +29,12 @@ namespace Control
             using TBlock = Block<T_>;
             if (std::align(alignof(TBlock), sizeof(TBlock), _next, _bytesLeft))
             {
-                // TODO: verify
-                return reinterpret_cast<TBlock*>(_next);
+                auto res = reinterpret_cast<TBlock*>(_next);
+                _next = res + 1;
+                _bytesLeft -= sizeof(TBlock);
+                return res;
             }
-            throw std::exception();
+            return nullptr;
         }
 
         template <typename T_>
@@ -46,20 +51,21 @@ namespace Control
         T_* basePtr() const
         {
             using TBlock = Block<T_>;
-            void* tmpBase = _base;
-            std::size_t tmpBytesLeft = _bytesLeft;
-            if (std::align(alignof(TBlock), sizeof(TBlock), tmpBase, tmpBytesLeft))
+            void* base = const_cast<char*>(_buffer);
+            std::size_t bytes = _bytesLeft;
+            if (std::align(alignof(TBlock), sizeof(TBlock), base, bytes))
             {
-                return (*reinterpret_cast<TBlock*>(tmpBase))[0];
+                return &(*reinterpret_cast<TBlock*>(base))[0];
             }
-            throw std::exception();
+            std::stringstream ss;
+            ss << "Failed to obtain base pointer for type " << typeid(T_).name() << ", " << sizeof(TBlock);
+            throw std::runtime_error(ss.str());
         }
 
       private:
         // TODO: Need to make this dynamic
         constexpr static std::size_t BufferSize = 100000;
         char _buffer[BufferSize];
-        void* _base;
         void* _next = _buffer;
         std::size_t _bytesLeft = BufferSize;
     };

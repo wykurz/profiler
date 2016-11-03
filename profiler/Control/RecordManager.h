@@ -6,6 +6,8 @@
 #include <Record/Record.h>
 #include <cassert>
 
+#include <iostream>
+
 namespace Control
 {
 
@@ -49,7 +51,7 @@ namespace Control
 
         RecordHolder getRecord()
         {
-            if (!_currentBlock || _currentBlock->size() < _nextRecord)
+            if (!_currentBlock || _currentBlock->size() <= _nextRecord)
             {
                 _currentBlock = _arena.acquire<Node>();
                 _nextRecord = 0;
@@ -59,16 +61,18 @@ namespace Control
                 ++_droppedRecords;
                 return RecordHolder(*this);
             }
-            return RecordHolder(*this, &(*_currentBlock)[_nextRecord]);
+            return RecordHolder(*this, &(*_currentBlock)[_nextRecord++]);
         }
 
         void retireRecord(Node& node_)
         {
+            std::cout << "Retire record " << &node_ << std::endl;
             _dirty.push(&node_);
         }
 
         Node* extractDirtyRecords()
         {
+            std::cout << "extractDirtyRecords" << std::endl;
             return _dirty.extract();
         }
 
