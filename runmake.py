@@ -1,3 +1,4 @@
+import argparse
 from os import path, walk
 import fnmatch
 import time
@@ -25,26 +26,29 @@ def get_files():
                 for ffile in fnmatch.filter(files, pat)]
     return res
 
-def build():
+def build(target):
     with open('blog', 'w') as outfile:
         call(['make', '-j4', 'clean'], stderr=outfile, stdout=outfile)
-        call(['make', '-j4', 'unit'], stderr=outfile, stdout=outfile)
+        call(['make', '-j4', target], stderr=outfile, stdout=outfile)
 
 def main():
+    parser = argparse.ArgumentParser(description='Contionously build profiler.')
+    parser.add_argument('--target', default='all', help='an integer for the accumulator')
+    args = parser.parse_args()
     try:
         files = get_files()
         checkers = [FileChange(ffile) for ffile in files]
-        build()
+        build(args.target)
         while True:
             nfiles = get_files()
             if files != nfiles:
                 files = nfiles
                 checkers = [FileChange(ffile) for ffile in files]
-                build()
+                build(args.target)
                 continue
             if any([c.has_changed() for c in checkers]):
                 checkers = [FileChange(ffile) for ffile in files]
-                build()
+                build(args.target)
                 continue
             time.sleep(0.1)
 

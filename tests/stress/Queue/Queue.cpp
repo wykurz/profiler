@@ -16,11 +16,11 @@ namespace Queue { namespace Tests
     BOOST_AUTO_TEST_CASE(Basic)
     {
         int n = 1000;
-        std::vector<Node<int>> data;
+        std::vector<Queue<int>::Node> data;
         for (int i = 0; i < n; ++i) data.push_back(std::move(i));
-        Queue<int> queue(&data[0], n);
+        Queue<int> queue(&data[0]);
         for (int i = 0; i < n; ++i) queue.push(&data[i]);
-        std::vector<Node<int>> data2;
+        std::vector<Queue<int>::Node> data2;
         for (int i = 0; i < n; ++i) {
             auto iptr = queue.pull();
             BOOST_REQUIRE(iptr);
@@ -34,7 +34,7 @@ namespace Queue { namespace Tests
     struct QueueTest
     {
         using QueueType = Queue<int>;
-        using NodeType = QueueType::NodeType;
+        using NodeType = QueueType::Node;
 
         static constexpr int numQueues = 10;
 
@@ -43,7 +43,7 @@ namespace Queue { namespace Tests
         {
             for (int i = 0; i < size_; ++i) {
                 data[i] = i;
-                queues.emplace_back(&data[0], size_);
+                queues.emplace_back(&data[0]);
                 queues[0].push(&data[i]);
             }
         }
