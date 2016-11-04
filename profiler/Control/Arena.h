@@ -5,6 +5,7 @@
 #include <cassert>
 #include <memory>
 #include <sstream>
+#include <vector>
 
 namespace Control
 {
@@ -16,7 +17,9 @@ namespace Control
     {
         constexpr static std::size_t BlockSize = 1024;
 
-        Arena() = default;
+        Arena(std::size_t bufferSize_)
+          : _buffer(bufferSize_)
+        { }
         Arena(const Arena&) = delete;
         Arena(Arena&&) = delete;
 
@@ -51,7 +54,7 @@ namespace Control
         T_* basePtr() const
         {
             using TBlock = Block<T_>;
-            void* base = const_cast<char*>(_buffer);
+            void* base = const_cast<char*>(_buffer.data());
             std::size_t bytes = _bytesLeft;
             if (std::align(alignof(TBlock), sizeof(TBlock), base, bytes))
             {
@@ -64,10 +67,9 @@ namespace Control
 
       private:
         // TODO: Need to make this dynamic
-        constexpr static std::size_t BufferSize = 100000;
-        char _buffer[BufferSize];
-        void* _next = _buffer;
-        std::size_t _bytesLeft = BufferSize;
+        std::vector<char> _buffer;
+        void* _next = _buffer.data();
+        std::size_t _bytesLeft = _buffer.size();
     };
 
 }

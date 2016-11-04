@@ -18,19 +18,15 @@ namespace Control
     {
         template <typename ManagerType_>
         Thread(ManagerType_& manager_)
-          : _holder(manager_.addThread(*this)),
-            _recordManager(_arena)
-        {
-            if (!_holder) { } // TODO - handle failure case
-        }
+          : _arena(manager_.addThread(*this))
+        { }
         Thread(const Thread&) = delete;
         ~Thread();
         template <typename RecordType_>
         RecordManager<RecordType_>& getRecordManager();
       private:
-        Arena _arena;
-        ThreadHolder* const _holder;
-        RecordManager<Record::Record> _recordManager;
+        Arena& _arena;
+        RecordManager<Record::Record> _recordManager{_arena};
     };
 
     template <>

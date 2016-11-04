@@ -13,19 +13,18 @@ namespace Control
     }
 
     // TODO: How should we deal with infinite # of threads
-    ThreadHolder* Manager::addThread(Thread& thread_)
+    Arena& Manager::addThread(Thread& thread_)
     {
-        ThreadHolder* res = nullptr;
-        auto count = MaxSlotSearches;
-        while (!res && 0 < count--) {
+        int count = MaxThreads;
+        while (0 < count--) {
             auto& holder = _threadArray[_currentThread++];
             auto lk = holder.lock();
             if (holder.thread) continue;
             holder.thread = &thread_;
-            res = &holder;
+            return _arena;
         }
-        if (!res) ++_droppedThreads;
-        return res;
+        ++_droppedThreads;
+        return _empty;
     }
 
     Manager& getManager()

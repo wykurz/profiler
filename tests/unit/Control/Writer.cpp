@@ -3,6 +3,7 @@
 #include <Instrumentation/StatsScope.h>
 #include <boost/test/unit_test.hpp>
 #include <cassert>
+#include <thread>
 #include <unordered_map>
 
 namespace Control { namespace Test
@@ -13,10 +14,11 @@ namespace
 
     struct MockManager
     {
-        ThreadHolder* addThread(Thread& thread_)
+        Arena& addThread(Thread& thread_)
         {
-            return nullptr;
+            return arena;
         }
+        Arena arena{100000};
     };
 
     using MemBuffer = std::shared_ptr<std::stringstream>;
@@ -42,26 +44,28 @@ namespace
 
     BOOST_AUTO_TEST_SUITE(WriterTests)
 
-    // BOOST_AUTO_TEST_CASE(Basic)
-    // {
-    //     MockManager manager;
-    //     Thread thread(manager);
-    //     {
-    //         Scope::StatsScope scope(thread.template getRecordManager<Record::Record>(), "test");
-    //     }
-    //     ThreadArray threadArray(1);
-    //     auto& holder = threadArray[0];
-    //     {
-    //         auto lk = holder.lock();
-    //         BOOST_REQUIRE(!holder.thread);
-    //         holder.thread = &thread;
-    //     }
-    //     BufferMap buffers;
-    //     Writer writer(Output::Ptr(new MemoryOut(buffers, "test")), threadArray);
-    //     writer.run();
-    //     BOOST_REQUIRE(buffers["test"].get());
-    //     BOOST_CHECK(0 < buffers["test"]->str().size());
-    // }
+    BOOST_AUTO_TEST_CASE(Basic)
+    {
+        MockManager manager;
+        Thread thread(manager);
+        {
+            Scope::StatsScope scope(thread.template getRecordManager<Record::Record>(), "test");
+        }
+        ThreadArray threadArray(1);
+        auto& holder = threadArray[0];
+        {
+            auto lk = holder.lock();
+            BOOST_REQUIRE(!holder.thread);
+            holder.thread = &thread;
+        }
+        BufferMap buffers;
+        Writer writer(Output::Ptr(new MemoryOut(buffers, "test")), threadArray, std::chrono::microseconds(100000));
+        std::thread writerThread{[&writer](){ writer.run(); }};
+        writer.stop();
+        writerThread.join();
+        BOOST_REQUIRE(buffers["test"].get());
+        BOOST_CHECK(0 < buffers["test"]->str().size());
+    }
 
     BOOST_AUTO_TEST_SUITE_END()
 }
