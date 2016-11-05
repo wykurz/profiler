@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-namespace Queue
+namespace Profiler { namespace Queue
 {
 
     // TODO: run clang undef. behavior sanitizer
@@ -44,6 +44,7 @@ namespace Queue
         const std::uint32_t tag = 0;
     };
 
+}
 }
 
 #endif

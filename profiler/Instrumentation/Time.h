@@ -5,7 +5,7 @@
 #include <iostream>
 #include <chrono>
 
-namespace Time {
+namespace Profiler { namespace Time {
 
     template <typename ClockType_>
     struct Time
@@ -43,6 +43,7 @@ namespace Time {
 
     using RdtscTime = Time<RdtscClock>;
 
+}
 }
 
 #endif

@@ -6,7 +6,7 @@
 #include <chrono>
 #include <ostream>
 
-namespace Record
+namespace Profiler { namespace Record
 {
 
     using TimeDelta = std::chrono::duration<double>;
@@ -62,6 +62,7 @@ namespace Record
     // TODO: Add a type list type that has all records available
     //       We'll need a for_each functionality...
 
+}
 }
 
 #endif

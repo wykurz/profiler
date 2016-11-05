@@ -3,7 +3,7 @@
 #include <array>
 #include <atomic>
 
-namespace Control
+namespace Profiler { namespace Control
 {
 
     Manager::~Manager()
@@ -38,4 +38,5 @@ namespace Control
         return manager;
     }
 
+}
 }

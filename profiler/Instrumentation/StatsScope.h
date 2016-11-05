@@ -6,7 +6,7 @@
 #include <Instrumentation/Time.h>
 #include <Record/Record.h>
 
-namespace Scope
+namespace Profiler { namespace Scope
 {
 
     using ScopeTime = Time::RdtscTime;
@@ -28,6 +28,7 @@ namespace Scope
         const ScopeTime _time = ScopeTime();
     };
 
+}
 }
 
 #ifndef NO_MACROS

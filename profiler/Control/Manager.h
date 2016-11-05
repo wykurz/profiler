@@ -10,7 +10,7 @@
 #include <condition_variable>
 #include <thread>
 
-namespace Control
+namespace Profiler { namespace Control
 {
 
     struct Thread;
@@ -43,6 +43,7 @@ namespace Control
 
     Manager& getManager();
 
+}
 }
 
 #endif

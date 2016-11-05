@@ -3,7 +3,7 @@
 
 #include <algorithm>
 
-namespace Algorithms
+namespace Profiler { namespace Algorithms
 {
 
     template <typename Container_, typename Type_, typename Func_>
@@ -12,6 +12,7 @@ namespace Algorithms
         return std::accumulate(std::begin(container_), std::end(container_), initial_, func_);
     }
 
+}
 }
 
 #endif

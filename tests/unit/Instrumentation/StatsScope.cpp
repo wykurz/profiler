@@ -3,7 +3,7 @@
 #include <Instrumentation/StatsScope.h>
 #include <boost/test/unit_test.hpp>
 
-namespace Instrumentation { namespace Test
+namespace Profiler { namespace Instrumentation { namespace Test
 {
 
 namespace
@@ -54,4 +54,4 @@ namespace
 
 }
 }
-
+}

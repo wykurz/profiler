@@ -1,7 +1,7 @@
 #include <Queue/Queue.h>
 #include <boost/test/unit_test.hpp>
 
-namespace Queue { namespace Test {
+namespace Profiler { namespace Queue { namespace Test {
 
     BOOST_AUTO_TEST_SUITE(QueueTests)
 
@@ -40,4 +40,4 @@ namespace Queue { namespace Test {
 
 }
 }
-
+}

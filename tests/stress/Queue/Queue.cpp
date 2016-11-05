@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include <thread>
 
-namespace Queue { namespace Tests
+namespace Profiler { namespace Queue { namespace Tests
 {
 
     BOOST_AUTO_TEST_CASE(Basic)
@@ -146,5 +146,6 @@ namespace Queue { namespace Tests
 
     BOOST_AUTO_TEST_SUITE_END()
 
+}
 }
 }

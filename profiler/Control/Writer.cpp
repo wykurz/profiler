@@ -5,7 +5,7 @@
 #include <mutex>
 #include <thread>
 
-namespace Control
+namespace Profiler { namespace Control
 {
 
     Writer::Writer(Output::Ptr out_, ThreadArray& threadArray_, std::chrono::microseconds sleepTime_)
@@ -39,4 +39,5 @@ namespace Control
         _done.store(true, std::memory_order_release);
     }
 
+}
 }

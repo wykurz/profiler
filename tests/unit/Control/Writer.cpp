@@ -6,7 +6,7 @@
 #include <thread>
 #include <unordered_map>
 
-namespace Control { namespace Test
+namespace Profiler { namespace Control { namespace Test
 {
 
 namespace
@@ -68,5 +68,6 @@ namespace
     }
 
     BOOST_AUTO_TEST_SUITE_END()
+}
 }
 }

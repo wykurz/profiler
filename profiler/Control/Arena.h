@@ -7,7 +7,7 @@
 #include <sstream>
 #include <vector>
 
-namespace Control
+namespace Profiler { namespace Control
 {
 
     /**
@@ -73,6 +73,7 @@ namespace Control
         std::size_t _bytesLeft = _buffer.size();
     };
 
+}
 }
 
 #endif

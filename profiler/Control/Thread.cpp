@@ -3,7 +3,7 @@
 #include <array>
 #include <atomic>
 
-namespace Control
+namespace Profiler { namespace Control
 {
 
     Thread::~Thread()
@@ -18,4 +18,5 @@ namespace Control
         return thread;
     }
 
+}
 }

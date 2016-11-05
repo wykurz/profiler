@@ -2,7 +2,7 @@
 #include <Log/Log.h>
 #include <Record/Record.h>
 
-namespace Scope
+namespace Profiler { namespace Scope
 {
 
     void StatsScope::record()
@@ -15,4 +15,5 @@ namespace Scope
         holder.getRecord() = Record::Record(_name, _time.delta());
     }
 
+}
 }

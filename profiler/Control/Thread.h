@@ -9,7 +9,7 @@
 #include <mutex>
 #include <vector>
 
-namespace Control
+namespace Profiler { namespace Control
 {
 
     struct ThreadHolder;
@@ -53,6 +53,7 @@ namespace Control
 
     using ThreadArray = std::vector<ThreadHolder>;
 
+}
 }
 
 #endif

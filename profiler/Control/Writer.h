@@ -6,7 +6,7 @@
 #include <memory>
 #include <mutex>
 
-namespace Control
+namespace Profiler { namespace Control
 {
 
     struct Output
@@ -55,6 +55,7 @@ namespace Control
         std::atomic<bool> _done{false};
     };
 
+}
 }
 
 #endif

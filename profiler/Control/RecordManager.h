@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-namespace Control
+namespace Profiler { namespace Control
 {
 
     template <typename Record_>
@@ -86,6 +86,7 @@ namespace Control
         Queue _dirty;
     };
 
+}
 }
 
 #endif

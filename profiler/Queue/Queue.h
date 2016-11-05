@@ -6,7 +6,7 @@
 #include <cassert>
 #include <Queue/TaggedPtr.h>
 
-namespace Queue
+namespace Profiler { namespace Queue
 {
 
     template <typename T_>
@@ -116,6 +116,7 @@ namespace Queue
         return size;
     }
 
+}
 }
 
 #endif
