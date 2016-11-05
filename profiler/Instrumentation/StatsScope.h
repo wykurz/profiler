@@ -30,8 +30,18 @@ namespace Scope
 
 }
 
-// TODO: this defines a temp. variable, we need to name it!
-#define STATS_SCOPE() Scope::StatsScope(Control::getThread().template getRecordManager<Record::Record>(), \
-                                        __PRETTY_FUNCTION__)
+#ifndef NO_MACROS
+
+#define _CAT(a, b) _CAT_I(a, b)
+#define _CAT_I(a, b) _CAT_II(~, a ## b)
+#define _CAT_II(p, res) res
+#define _UNIQUE_NAME(base) _CAT(base, __COUNTER__)
+
+#define STATS_SCOPE()                                                     \
+    Scope::StatsScope _UNIQUE_NAME(statsScope)(                           \
+        Control::getThread().template getRecordManager<Record::Record>(), \
+        __PRETTY_FUNCTION__)
+
+#endif // NO_MACROS
 
 #endif
