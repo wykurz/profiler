@@ -8,8 +8,8 @@ namespace Control
 
     Manager::~Manager()
     {
-        // _writer.stop();
-        // _writerThread.join();
+        stopWriter();
+        _writerThread.join();
     }
 
     // TODO: How should we deal with infinite # of threads
@@ -25,6 +25,11 @@ namespace Control
         }
         ++_droppedThreads;
         return _empty;
+    }
+
+    void Manager::stopWriter()
+    {
+        _writer.stop();
     }
 
     Manager& getManager()

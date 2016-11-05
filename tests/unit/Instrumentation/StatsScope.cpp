@@ -25,9 +25,17 @@ namespace
         testFunc2();
     }
 
+    struct Fixture
+    {
+        Fixture()
+        {
+            Control::getManager().stopWriter();
+        }
+    };
+
 }
 
-    BOOST_AUTO_TEST_SUITE(StatsScopeTests)
+    BOOST_FIXTURE_TEST_SUITE(StatsScopeTests, Fixture)
 
     BOOST_AUTO_TEST_CASE(Basic)
     {

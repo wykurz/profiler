@@ -25,6 +25,11 @@ namespace Control
 
         Arena& addThread(Thread& thread_);
 
+        /**
+         * Use for test purposes - will top the writer thread. The writer thread may not be restarted.
+         */
+        void stopWriter();
+
       private:
         Arena _arena{100000};
         Arena _empty{0};
@@ -33,7 +38,7 @@ namespace Control
         ThreadArray _threadArray{MaxThreads};
         std::size_t _droppedThreads = {0};
         Writer _writer{Output::Ptr(new FileOut("blah")), _threadArray, std::chrono::microseconds(100000)};
-        // std::thread _writerThread{[this](){ this->_writer.run(); }};
+        std::thread _writerThread{[this](){ this->_writer.run(); }};
     };
 
     Manager& getManager();
