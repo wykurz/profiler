@@ -9,7 +9,7 @@ namespace Scope
     {
         auto holder = _recordManager.getRecord();
         if (!holder.isValid()) {
-            DLOG() << "No valid holder!";
+            DLOG("No valid holder!");
             return;
         }
         holder.getRecord() = Record::Record(_name, _time.delta());

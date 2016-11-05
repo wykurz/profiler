@@ -3,7 +3,10 @@
 
 #include <iostream>
 
-// TODO: for release this should compile out
-#define DLOG() std::cerr << "\n" << __PRETTY_FUNCTION__ << " :: "
+#ifdef DEBUG
+#define DLOG(x) do { std::cerr << __PRETTY_FUNCTION__ << " :: " << x << std::endl; } while (false);
+#else
+#define DLOG(x) do { } while (false);
+#endif
 
 #endif

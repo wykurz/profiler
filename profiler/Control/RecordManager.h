@@ -2,6 +2,7 @@
 #define CONTROL_RECORDMANAGER_H
 
 #include <Control/Arena.h>
+#include <Log/Log.h>
 #include <Queue/Queue.h>
 #include <Record/Record.h>
 #include <cassert>
@@ -66,13 +67,13 @@ namespace Control
 
         void retireRecord(Node& node_)
         {
-            std::cout << "Retire record " << &node_ << std::endl;
+            DLOG("Retire record " << &node_);
             _dirty.push(&node_);
         }
 
         Node* extractDirtyRecords()
         {
-            std::cout << "extractDirtyRecords" << std::endl;
+            DLOG("extractDirtyRecords");
             return _dirty.extract();
         }
 

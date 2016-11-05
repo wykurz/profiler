@@ -4,8 +4,12 @@ LIBNAME=cxxprof
 CXX=clang++-3.8
 DOXYGEN=doxygen
 INC=-Iprofiler
-# CFLAGS=-std=c++14 -g -O3 -Wall
-CFLAGS=-std=c++14 -g -O0 -Wall
+CFLAGS=-std=c++14 -g -Wall
+ifeq ($(DEBUG), 1)
+  CFLAGS+=-O0 -DDEBUG
+else
+  CFLAGS+=-O3
+endif
 LFLAGS=-lpthread -latomic
 BUILD_DIR=build
 OBJ_DIR=$(BUILD_DIR)/obj
