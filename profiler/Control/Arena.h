@@ -46,9 +46,10 @@ namespace Control
         }
 
         /**
-         * Base pointer for a given type.
+         * Base pointer for a given type T. It is guaranteed to have proper alignment to type T_. All elements in a
+         * Block<T> will have positive offset from base pointer.
          *
-         * Garanteed to never change during the lifetime of the arena.
+         * Base pointer is guaranteed to never change during the lifetime of the arena.
          */
         template <typename T_>
         T_* basePtr() const

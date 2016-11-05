@@ -1,6 +1,6 @@
+#include <Algorithms/FoldLeft.h>
 #include <Instrumentation/StatsScope.h>
 #include <Queue/Queue.h>
-#include <Utils/Algorithm.h>
 #include <boost/test/unit_test.hpp>
 #include <array>
 #include <chrono>
@@ -81,7 +81,7 @@ namespace Queue { namespace Tests
 
         void check() const
         {
-            int size = Utils::foldLeft(queues, 0, [](int v, const QueueType& q) {
+            int size = Algorithms::foldLeft(queues, 0, [](int v, const QueueType& q) {
                     return v + q.size(); });
             BOOST_CHECK_EQUAL(data.size(), size);
             BOOST_CHECK_GT(shuffles, 0);

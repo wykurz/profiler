@@ -1,10 +1,9 @@
-#ifndef UTILS_ALGORITHM_H
-#define UTILS_ALGORITHM_H
+#ifndef ALGORITHMS_FOLDLEFT_H
+#define ALGORITHMS_FOLDLEFT_H
 
 #include <algorithm>
 
-
-namespace Utils
+namespace Algorithms
 {
 
     template <typename Container_, typename Type_, typename Func_>
