@@ -27,9 +27,16 @@ def get_files():
     return res
 
 def build(target):
+
     with open('blog', 'w') as outfile:
-        call(['make', '-j4', 'clean'], stderr=outfile, stdout=outfile)
-        call(['make', '-j4', target], stderr=outfile, stdout=outfile)
+        def do_call(cmd):
+            outfile.seek(0)
+            outfile.truncate()
+            call(cmd.split(' '), stderr=outfile, stdout=outfile)
+        cmds = ['make -j4 clean', 'make -j4 lib', 'make -j4 {}'.format(target)]
+        for cmd in cmds:
+            if do_call(cmd):
+                break
 
 def main():
     parser = argparse.ArgumentParser(description='Contionously build profiler.')
