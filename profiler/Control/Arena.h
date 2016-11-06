@@ -1,6 +1,7 @@
 #ifndef CONTROL_ARENA_H
 #define CONTROL_ARENA_H
 
+#include <Algorithms/FreeMap.h>
 #include <array>
 #include <cassert>
 #include <memory>
@@ -67,7 +68,7 @@ namespace Profiler { namespace Control
         }
 
       private:
-        // TODO: Need to make this dynamic
+        // Algorithms::FreeMap freeMap;
         std::vector<char> _buffer;
         void* _next = _buffer.data();
         std::size_t _bytesLeft = _buffer.size();

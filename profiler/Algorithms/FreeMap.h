@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <cassert>
 
-namespace Profiler { namespace Algorithms { namespace Test
+namespace Profiler { namespace Algorithms
 {
 
     struct FreeMap
@@ -68,7 +68,6 @@ namespace Profiler { namespace Algorithms { namespace Test
         std::vector<char> data;
     };
 
-}
 }
 }
 

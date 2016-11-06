@@ -1,4 +1,4 @@
-#include <Algorithms/BitMask.h>
+#include <Algorithms/FreeMap.h>
 #include <Exception/Exception.h>
 #include <boost/test/unit_test.hpp>
 
@@ -44,7 +44,7 @@ namespace
 
 }
 
-    BOOST_FIXTURE_TEST_SUITE(BitMaskStressTests, Fixture)
+    BOOST_FIXTURE_TEST_SUITE(FreeMapStressTests, Fixture)
 
     BOOST_AUTO_TEST_CASE(Patterns)
     {
