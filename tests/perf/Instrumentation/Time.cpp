@@ -20,13 +20,14 @@ void timeTest(int createCount_, int queryCount_)
     }
 }
 
+using namespace Profiler::Time;
 struct TimeBenchFixture: public ::benchmark::Fixture
 {
     void highResTimeTest(benchmark::State& state_)
     {
         while (state_.KeepRunning())
         {
-            timeTest<Time::HighResTime>(state_.range(0), state_.range(1));
+            timeTest<HighResTime>(state_.range(0), state_.range(1));
         }
     }
 
@@ -34,7 +35,7 @@ struct TimeBenchFixture: public ::benchmark::Fixture
     {
         while (state_.KeepRunning())
         {
-            timeTest<Time::Time<std::chrono::system_clock>>(state_.range(0), state_.range(1));
+            timeTest<Time<std::chrono::system_clock>>(state_.range(0), state_.range(1));
         }
     }
 
@@ -42,7 +43,7 @@ struct TimeBenchFixture: public ::benchmark::Fixture
     {
         while (state_.KeepRunning())
         {
-            timeTest<Time::RdtscTime>(state_.range(0), state_.range(1));
+            timeTest<RdtscTime>(state_.range(0), state_.range(1));
         }
     }
 };
