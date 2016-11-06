@@ -53,7 +53,7 @@ namespace Profiler { namespace Algorithms { namespace Test
         bool isFree(std::size_t index_)
         {
             assert(index_ / 8 < data.size());
-            return !data[index_ / 8] & (1 << (index_ % 8));
+            return !(data[index_ / 8] & (1 << (index_ % 8)));
         }
 
         std::string str() const
