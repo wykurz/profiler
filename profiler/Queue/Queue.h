@@ -17,29 +17,30 @@ namespace Profiler { namespace Queue
         struct Node
         {
             Node() = default;
-            Node(const Type& value_)
-              : value(value_)
-            { }
-            Node(Type&& value_)
-              : value(std::move(value_))
-            { }
-            Node(const Node&) = default;
-            Node& operator=(const Node&) = default;
-            Node(Node&&) = default;
+            Node(const Node& node_) = delete;
+            Node(Node&&) = delete;
+            Node* getNext() const
+            {
+                return _next.load(std::memory_order_acquire);
+            }
+            void setNext(Node* node_)
+            {
+                return _next.store(node_, std::memory_order_release);
+            }
             std::uint32_t getTag() const
             {
-                return tag;
+                return _tag.load(std::memory_order_acquire);
             }
-            Node* next{nullptr}; // Assumes no concurrency!
             Type value;
           private:
             friend Queue<Type>;
             void updateTag()
             {
-                // Allow the tag to overflow, we're using unsigned int for that:
-                tag += 1;
+                // Allow the tag to overflow, we're using unsigned int for that.
+                _tag.fetch_add(1, std::memory_order_release);
             }
-            std::uint32_t tag = 0;
+            std::atomic<Node*> _next{nullptr};
+            std::atomic<std::uint32_t> _tag{0};
         };
 
         Queue(Node* baseNode_)
@@ -72,7 +73,7 @@ namespace Profiler { namespace Queue
         auto headPtr = _head.load(std::memory_order_relaxed);
         auto nodePtr = TaggedPtr<Node>(_baseNode, node_);
         do {
-            node_->next = unpackPtr(headPtr);
+            node_->setNext(unpackPtr(headPtr));
         }
         while(!_head.compare_exchange_weak(headPtr, nodePtr,
                                            std::memory_order_release,
@@ -83,11 +84,11 @@ namespace Profiler { namespace Queue
     typename Queue<T_>::Node* Queue<T_>::pull()
     {
         auto nodePtr = _head.load(std::memory_order_acquire);
-        while (!nodePtr.isNull() && !_head.compare_exchange_weak(nodePtr, TaggedPtr<Node>(_baseNode, unpackPtr(nodePtr)->next)))
+        while (!nodePtr.isNull() && !_head.compare_exchange_weak(nodePtr, TaggedPtr<Node>(_baseNode, unpackPtr(nodePtr)->getNext())))
             ; // empty
         if (nodePtr.isNull()) return nullptr;
         auto node = unpackPtr(nodePtr);
-        node->next = nullptr;
+        node->setNext(nullptr);
         return node;
     }
 
@@ -111,7 +112,7 @@ namespace Profiler { namespace Queue
         auto node = unpackPtr(nodePtr);
         while (node) {
             ++size;
-            node = node->next;
+            node = node->getNext();
         }
         return size;
     }

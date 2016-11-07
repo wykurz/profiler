@@ -44,7 +44,7 @@ namespace
         BOOST_REQUIRE(recordNode);
         int size = 0;
         while (recordNode) {
-            recordNode = recordNode->next;
+            recordNode = recordNode->getNext();
             ++size;
         }
         BOOST_CHECK_EQUAL(3, size);

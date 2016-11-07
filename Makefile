@@ -6,7 +6,9 @@ DOXYGEN=doxygen
 INC=-Iprofiler
 CFLAGS=-std=c++14 -g -Wall
 ifeq ($(DEBUG), 1)
-  CFLAGS+=-O0 -DDEBUG
+  # CFLAGS+=-O3 -fsanitize=address -fsanitize=thread -fsanitize=undefined -fno-omit-frame-pointer -DDEBUG
+  CFLAGS+=-O3 -fsanitize=thread -fsanitize=undefined -fno-omit-frame-pointer -DDEBUG
+  export ASAN_OPTIONS=check_initialization_order=1
 else
   CFLAGS+=-O3
 endif

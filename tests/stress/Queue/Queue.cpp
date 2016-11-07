@@ -13,21 +13,23 @@
 namespace Profiler { namespace Queue { namespace Tests
 {
 
+    BOOST_AUTO_TEST_SUITE(WriterTests)
+
     BOOST_AUTO_TEST_CASE(Basic)
     {
         int n = 1000;
-        std::vector<Queue<int>::Node> data;
-        for (int i = 0; i < n; ++i) data.push_back(std::move(i));
+        std::vector<Queue<int>::Node> data(n);
+        for (int i = 0; i < n; ++i) data[i].value = i;
         Queue<int> queue(&data[0]);
         for (int i = 0; i < n; ++i) queue.push(&data[i]);
-        std::vector<Queue<int>::Node> data2;
+        std::vector<int> dataVals;
         for (int i = 0; i < n; ++i) {
             auto iptr = queue.pull();
             BOOST_REQUIRE(iptr);
-            data2.push_back(*iptr);
+            dataVals.push_back(iptr->value);
         }
         for (int i = 0; i < n; ++i) {
-            BOOST_CHECK_EQUAL(data[i].value, data2[n - i - 1].value);
+            BOOST_CHECK_EQUAL(data[i].value, dataVals[n - i - 1]);
         }
     }
 
@@ -42,7 +44,7 @@ namespace Profiler { namespace Queue { namespace Tests
           : data(size_)
         {
             for (int i = 0; i < size_; ++i) {
-                data[i] = i;
+                data[i].value = i;
                 queues.emplace_back(&data[0]);
                 queues[0].push(&data[i]);
             }
@@ -72,8 +74,8 @@ namespace Profiler { namespace Queue { namespace Tests
             idx = (idx + 1) % numQueues;
             while (nodePtr) {
                 auto head = nodePtr;
-                nodePtr = nodePtr->next;
-                head->next = nullptr;
+                nodePtr = nodePtr->getNext();
+                head->setNext(nullptr);
                 queues[idx].push(head);
             }
             ++exchanges;
@@ -93,8 +95,6 @@ namespace Profiler { namespace Queue { namespace Tests
         std::atomic<int> shuffles = {0};
         std::atomic<int> exchanges = {0};
     };
-
-    BOOST_AUTO_TEST_SUITE(WriterTests)
 
     BOOST_AUTO_TEST_CASE(Shuffle)
     {
@@ -117,7 +117,7 @@ namespace Profiler { namespace Queue { namespace Tests
                 queueTest.shuffle();
                 ++loops;
             }
-            BOOST_CHECK_GT(loops, 0);
+            assert(0 < loops);
         };
         auto func2 = [&]() {
             setup();
@@ -126,7 +126,7 @@ namespace Profiler { namespace Queue { namespace Tests
                 queueTest.exchange();
                 ++loops;
             }
-            BOOST_CHECK_GT(loops, 0);
+            assert(0 < loops);
         };
         std::vector<std::unique_ptr<std::thread>> threads;
         threads.push_back(std::unique_ptr<std::thread>(new std::thread(func2)));

@@ -26,7 +26,7 @@ namespace Profiler { namespace Control
                 auto recordNode = thread.template getRecordManager<Record::Record>().extractDirtyRecords();
                 while (recordNode) {
                     _out->get() << recordNode->value;
-                    recordNode = recordNode->next;
+                    recordNode = recordNode->getNext();
                 }
             }
             std::this_thread::sleep_for(_sleepTime);

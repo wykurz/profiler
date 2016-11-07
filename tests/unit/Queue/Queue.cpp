@@ -7,8 +7,9 @@ namespace Profiler { namespace Queue { namespace Test {
 
     BOOST_AUTO_TEST_CASE(PushPull)
     {
-        std::vector<Queue<int>::Node> v;
-        for (int i = 0; i < 10; ++i) v.push_back(i);
+        int n = 10;
+        std::vector<Queue<int>::Node> v(n);
+        for (int i = 0; i < 10; ++i) v[i].value = i;
         Queue<int> q(&v[0]);
         for (auto& e : v) q.push(&e);
         BOOST_CHECK_EQUAL(10, q.size());
@@ -23,13 +24,14 @@ namespace Profiler { namespace Queue { namespace Test {
 
     BOOST_AUTO_TEST_CASE(Extract)
     {
-        std::vector<Queue<int>::Node> v;
-        for (int i = 0; i < 10; ++i) v.push_back(i);
+        int n = 10;
+        std::vector<Queue<int>::Node> v(n);
+        for (int i = 0; i < 10; ++i) v[i].value = i;
         Queue<int> q(&v[0]);
         for (auto& e : v) q.push(&e);
         BOOST_CHECK_EQUAL(10, q.size());
         auto ni = q.extract();
-        for (int i = 9; 0 <= i; ni = ni->next, --i)
+        for (int i = 9; 0 <= i; ni = ni->getNext(), --i)
         {
             BOOST_REQUIRE(ni);
             BOOST_CHECK_EQUAL(i, ni->value);
