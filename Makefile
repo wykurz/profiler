@@ -5,12 +5,23 @@ CXX=clang++-3.8
 DOXYGEN=doxygen
 INC=-Iprofiler
 CFLAGS=-std=c++14 -g -Wall
-ifeq ($(DEBUG), 1)
-  # CFLAGS+=-O3 -fsanitize=address -fsanitize=thread -fsanitize=undefined -fno-omit-frame-pointer -DDEBUG
-  CFLAGS+=-O3 -fsanitize=thread -fsanitize=undefined -fno-omit-frame-pointer -DDEBUG
-  export ASAN_OPTIONS=check_initialization_order=1
+ifdef DEBUG
+  CFLAGS+=-O1 -fno-omit-frame-pointer -DDEBUG
 else
   CFLAGS+=-O3
+endif
+ifdef ASAN
+  CFLAGS+=-fsanitize=address
+  export ASAN_OPTIONS=check_initialization_order=1
+endif
+ifdef MSAN
+  CFLAGS+=-fsanitize=memory # pie ?
+endif
+ifdef TSAN
+  CFLAGS+=-fsanitize=thread
+endif
+ifdef USAN
+  CFLAGS+=-fsanitize=undefined
 endif
 LFLAGS=-lpthread -latomic
 BUILD_DIR=build

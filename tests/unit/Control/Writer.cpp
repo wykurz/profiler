@@ -21,23 +21,20 @@ namespace
         Arena arena{100000};
     };
 
-    using MemBuffer = std::shared_ptr<std::stringstream>;
-    using BufferMap = std::unordered_map<std::string, MemBuffer>;
+    using BufferMap = std::unordered_map<std::string, std::stringstream*>;
 
     struct MemoryOut : Output
     {
         MemoryOut(BufferMap& buffers_, const char* name_)
-          : _out(std::make_shared<std::stringstream>())
         {
-            buffers_[name_] = _out;
+            buffers_[name_] = &_out;
         }
         virtual std::ostream& get()
         {
-            assert(_out.get());
-            return *_out;
+            return _out;
         }
       private:
-        MemBuffer _out;
+        std::stringstream _out;
     };
 
 }
@@ -63,7 +60,7 @@ namespace
         std::thread writerThread{[&writer](){ writer.run(); }};
         writer.stop();
         writerThread.join();
-        BOOST_REQUIRE(buffers["test"].get());
+        BOOST_REQUIRE(buffers["test"]);
         BOOST_CHECK(0 < buffers["test"]->str().size());
     }
 
