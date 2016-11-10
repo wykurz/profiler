@@ -2,6 +2,7 @@
 #define EXCEPTION_EXCEPTION_H
 
 #include <stdexcept>
+#include <string>
 
 namespace Profiler { namespace Exception
 {

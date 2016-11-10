@@ -5,6 +5,7 @@
 #include <Log/Log.h>
 #include <algorithm>
 #include <cassert>
+#include <string>
 
 namespace Profiler { namespace Algorithms
 {
