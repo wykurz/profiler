@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cassert>
 #include <string>
+#include <vector>
 
 namespace Profiler { namespace Algorithms
 {
