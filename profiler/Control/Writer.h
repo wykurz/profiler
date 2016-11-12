@@ -11,8 +11,7 @@ namespace Profiler { namespace Control
 
     struct Output
     {
-        virtual ~Output()
-        { }
+        virtual ~Output() = default;
         using Ptr = std::unique_ptr<Output>;
         virtual std::ostream& get() = 0;
     };
