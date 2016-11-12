@@ -5,7 +5,7 @@ LIB=$(BUILD_DIR)/lib/lib$(NAME).so
 LIB_DIRS?=/usr/lib
 INC_DIRS?=/usr/include
 
-CXX=clang++-3.8
+CXX=clang++
 DOXYGEN=doxygen
 CFLAGS=-std=c++14 -g -Wall -stdlib=libc++
 LFLAGS=-lpthread -latomic
