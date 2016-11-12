@@ -20,7 +20,7 @@ ifdef ASAN
   export ASAN_OPTIONS=check_initialization_order=1
 endif
 ifdef MSAN
-  CFLAGS+=-fsanitize=memory # pie ?
+  CFLAGS+=-fsanitize=memory -fsanitize-memory-track-origins=2
 endif
 ifdef TSAN
   CFLAGS+=-fsanitize=thread
