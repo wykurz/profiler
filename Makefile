@@ -1,10 +1,15 @@
-LIBDIRS?=/usr/lib
-INCDIRS?=/usr/include
-LIBNAME=cxxprof
+NAME=cxxprof
+BUILD_DIR=build
+LIB=$(BUILD_DIR)/lib/lib$(NAME).so
+
+LIB_DIRS?=/usr/lib
+INC_DIRS?=/usr/include
+
 CXX=clang++-3.8
 DOXYGEN=doxygen
-INC=-Iprofiler
-CFLAGS=-std=c++14 -g -Wall
+CFLAGS=-std=c++14 -g -Wall -stdlib=libc++
+LFLAGS=-lpthread -latomic
+
 ifdef DEBUG
   CFLAGS+=-O1 -fno-omit-frame-pointer -DDEBUG
 else
@@ -23,13 +28,16 @@ endif
 ifdef USAN
   CFLAGS+=-fsanitize=undefined
 endif
-LFLAGS=-lpthread -latomic
-BUILD_DIR=build
+
 OBJ_DIR=$(BUILD_DIR)/obj
 TEST_DIR=$(BUILD_DIR)/tests
 DOCS_DIR=$(BUILD_DIR)/docs
-LIBPROFILER=$(BUILD_DIR)/lib/lib$(LIBNAME).so
-LIBPATH=$(abspath $(dir $(LIBPROFILER)))
+
+LIB_DIRS+=$(abspath $(dir $(LIB)))
+LIB_FLAG=$(foreach dir, $(LIB_DIRS), -L$(dir))
+INC_FLAG=-Iprofiler $(foreach dir, $(INC_DIRS), -I$(dir))
+
+RPATH_FLAG=$(foreach dir, $(LIB_DIRS), -Wl,-R$(dir))
 
 all: lib unit stress perf docs
 
@@ -49,13 +57,13 @@ PERF_TESTS_OBJ=$(patsubst %.cpp, $(OBJ_DIR)/%.o, $(PERF_TESTS_SRC))
 perf: $(TEST_DIR)/perf
 	./build/tests/perf
 
-$(TEST_DIR)/perf: $(PERF_TESTS_OBJ) $(LIBPROFILER)
+$(TEST_DIR)/perf: $(PERF_TESTS_OBJ) $(LIB)
 	@mkdir -p $(TEST_DIR)
-	$(CXX) $(CFLAGS) $(LFLAGS) -l$(LIBNAME) -L$(LIBPATH) -Wl,-R$(LIBPATH) -o $@ $^ -Wl,-Bstatic -L$(LIBDIRS) -lbenchmark -Wl,-Bdynamic
+	$(CXX) $(CFLAGS) $(LFLAGS) -l$(NAME) $(RPATH_FLAG) -o $@ $^ -Wl,-Bstatic $(LIB_FLAG) -lbenchmark -Wl,-Bdynamic
 
 $(OBJ_DIR)/tests/perf/%.o: tests/perf/%.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(CFLAGS) $(INC) -I$(INCDIRS) -c -o $@ $<
+	$(CXX) $(CFLAGS) $(INC_FLAG) -c -o $@ $<
 
 #
 # Stress tests
@@ -66,13 +74,13 @@ STRESS_TESTS_OBJ=$(patsubst %.cpp, $(OBJ_DIR)/%.o, $(STRESS_TESTS_SRC))
 stress: $(TEST_DIR)/stress
 	./build/tests/stress --show_progress --log_level=test_suite
 
-$(TEST_DIR)/stress: $(STRESS_TESTS_OBJ) $(LIBPROFILER)
+$(TEST_DIR)/stress: $(STRESS_TESTS_OBJ) $(LIB)
 	@mkdir -p $(TEST_DIR)
-	$(CXX) $(CFLAGS) $(LFLAGS) -lboost_unit_test_framework -l$(LIBNAME) -L$(LIBPATH) -Wl,-R$(LIBPATH) -o $@ $^
+	$(CXX) $(CFLAGS) $(LFLAGS) -lboost_unit_test_framework -l$(NAME) $(LIB_FLAG) $(RPATH_FLAG) -o $@ $^
 
 $(OBJ_DIR)/tests/stress/%.o: tests/stress/%.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) -DBOOST_TEST_DYN_LINK $(CFLAGS) $(INC) -c -o $@ $<
+	$(CXX) -DBOOST_TEST_DYN_LINK $(CFLAGS) $(INC_FLAG) -c -o $@ $<
 
 #
 # Unit tests
@@ -83,13 +91,13 @@ UNIT_TESTS_OBJ=$(patsubst %.cpp, $(OBJ_DIR)/%.o, $(UNIT_TESTS_SRC))
 unit: $(TEST_DIR)/unit_tests
 	./build/tests/unit_tests --show_progress --log_level=test_suite
 
-$(TEST_DIR)/unit_tests: $(UNIT_TESTS_OBJ) $(LIBPROFILER)
+$(TEST_DIR)/unit_tests: $(UNIT_TESTS_OBJ) $(LIB)
 	@mkdir -p $(TEST_DIR)
-	$(CXX) $(CFLAGS) $(LFLAGS) -lboost_unit_test_framework -l$(LIBNAME) -L$(LIBPATH) -Wl,-R$(LIBPATH) -o $@ $^
+	$(CXX) $(CFLAGS) $(LFLAGS) -lboost_unit_test_framework -l$(NAME) $(LIB_FLAG) $(RPATH_FLAG) -o $@ $^
 
 $(OBJ_DIR)/tests/unit/%.o: tests/unit/%.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) -DBOOST_TEST_DYN_LINK $(CFLAGS) $(INC) -c -o $@ $<
+	$(CXX) -DBOOST_TEST_DYN_LINK $(CFLAGS) $(INC_FLAG) -c -o $@ $<
 
 #
 # Profiler library
@@ -97,15 +105,15 @@ $(OBJ_DIR)/tests/unit/%.o: tests/unit/%.cpp
 PROFILER_SRC=$(wildcard profiler/**/*.cpp)
 PROFILER_OBJ=$(patsubst %.cpp, $(OBJ_DIR)/%.o, $(PROFILER_SRC))
 
-lib: $(LIBPROFILER)
+lib: $(LIB)
 
-$(LIBPROFILER): $(PROFILER_OBJ)
+$(LIB): $(PROFILER_OBJ)
 	@mkdir -p $(dir $@)
-	$(CXX) -shared $(CFLAGS) $(LFLAGS) -o $@ $^
+	$(CXX) -shared $(CFLAGS) $(LFLAGS) $(LIB_FLAG) -o $@ $^
 
 $(OBJ_DIR)/profiler/%.o: profiler/%.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) -fPIC $(CFLAGS) $(INC) -c -o $@ $<
+	$(CXX) -fPIC $(CFLAGS) $(INC_FLAG) -c -o $@ $<
 
 clean:
 	@rm build -rf
