@@ -1,7 +1,8 @@
 #ifndef ALGORITHMS_FOLDLEFT_H
 #define ALGORITHMS_FOLDLEFT_H
 
-#include <algorithm>
+#include <iterator>
+#include <numeric>
 
 namespace Profiler { namespace Algorithms
 {
