@@ -11,6 +11,9 @@ matrix:
             apt:
               packages:
                 clang-3.8
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.8
           env:
             - DEBUG=1
 
