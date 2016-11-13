@@ -27,5 +27,7 @@ before_install:
   - sudo apt-get install -y --force-yes libboost-test-dev
   - ./install_benchmark.sh
 
+cache: benchmark
+
 script:
   - make
