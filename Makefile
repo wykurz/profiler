@@ -45,7 +45,7 @@ all: lib unit stress perf docs
 # Doxygen docs
 #
 docs:
-	@mkdir -p $(TEST_DIR)
+	@mkdir -p $(DOCS_DIR)
 	$(DOXYGEN) Doxyfile
 
 #
