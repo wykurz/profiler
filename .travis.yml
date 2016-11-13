@@ -1,4 +1,4 @@
-dist: trusty
+dist: precise
 language: cpp
 
 # NOTE: The COMPILER variable is unused. It simply makes the display on
@@ -9,6 +9,10 @@ matrix:
     - compiler: clang
       addons:
         apt:
+          packages:
+            - clang-3.8
+            - libc++-dev
+            - libc++abi-dev
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.8
