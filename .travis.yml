@@ -4,16 +4,16 @@ language: cpp
 # NOTE: The COMPILER variable is unused. It simply makes the display on
 # travis-ci.org more readable.
 matrix:
-    include:
-        # Clang w/ libc++
-        - compiler: clang
-          addons:
-            apt:
-              sources:
-                - ubuntu-toolchain-r-test
-                - llvm-toolchain-precise-3.8
-          env:
-            - DEBUG=1
+  include:
+    # Clang w/ libc++
+    - compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.8
+      env:
+        - DEBUG=1
 
 script:
-    - make
+  - make
