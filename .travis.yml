@@ -1,4 +1,4 @@
-dist: precise
+dist: trusty
 language: cpp
 
 # NOTE: The COMPILER variable is unused. It simply makes the display on
