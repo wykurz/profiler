@@ -2,6 +2,7 @@
 set -ex
 if [ -d benchmark ]; then
     cd benchmark
+    ls
     sudo make install
 else
     git clone https://github.com/google/benchmark.git
