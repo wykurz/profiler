@@ -1,12 +1,14 @@
-dist: trusty
 language: cpp
+sudo: required
+dist: trusty
 
 # NOTE: The COMPILER variable is unused. It simply makes the display on
 # travis-ci.org more readable.
 matrix:
   include:
     # Clang w/ libc++
-    - compiler: clang
+    - os: linux
+      compiler: clang
       addons:
         apt:
           packages:
@@ -18,6 +20,10 @@ matrix:
             - llvm-toolchain-precise-3.8
       env:
         - DEBUG=1
+
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -y --force-yes libboost1.55-dev
 
 script:
   - make
