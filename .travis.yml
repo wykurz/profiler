@@ -16,6 +16,7 @@ matrix:
             - libc++-dev
             - libc++abi-dev
             - doxygen
+            - graphviz
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.8
