@@ -6,7 +6,25 @@ dist: trusty
 # travis-ci.org more readable.
 matrix:
   include:
-    # Clang w/ libc++
+    # - clang w/ libc++
+    # - release
+    - os: linux
+      compiler: clang
+      addons:
+        apt:
+          packages:
+            - clang-3.8
+            - libc++-dev
+            - libc++abi-dev
+            - doxygen
+            - graphviz
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.8
+
+    # - clang w/ libc++
+    # - debug
+    # - ASAN, USAN
     - os: linux
       compiler: clang
       addons:
@@ -21,7 +39,58 @@ matrix:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.8
       env:
-        - DEBUG=1
+        - DEBUG=1 ASAN=1 USAN=1
+
+    # - clang w/ libc++
+    # - debug
+    # - MSAN
+    - os: linux
+      compiler: clang
+      addons:
+        apt:
+          packages:
+            - clang-3.8
+            - libc++-dev
+            - libc++abi-dev
+            - doxygen
+            - graphviz
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.8
+      env:
+        - DEBUG=1 MSAN=1
+
+    # - clang w/ libc++
+    # - debug
+    # - TSAN
+    - os: linux
+      compiler: clang
+      addons:
+        apt:
+          packages:
+            - clang-3.8
+            - libc++-dev
+            - libc++abi-dev
+            - doxygen
+            - graphviz
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.8
+      env:
+        - DEBUG=1 TSAN=1
+
+    # - g++
+    # - release
+    - os: linux
+      compiler: gcc
+      addons:
+        apt:
+          packages:
+            - g++-6
+            - doxygen
+            - graphviz
+          sources:
+            - ubuntu-toolchain-r-test
 
 before_install:
   - sudo apt-get update -qq

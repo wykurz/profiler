@@ -38,7 +38,7 @@ ifeq ($(USE_LIBCXX), 1)
 endif
 
 ifdef DEBUG
-  CFLAGS+=-O1 -fno-omit-frame-pointer -DDEBUG
+  CFLAGS+=-O2 -fno-omit-frame-pointer -DDEBUG
 else
   CFLAGS+=-O3
 endif
