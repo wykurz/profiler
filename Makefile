@@ -86,7 +86,7 @@ perf: $(TEST_DIR)/perf
 
 $(TEST_DIR)/perf: $(PERF_TESTS_OBJ) $(LIB)
 	@mkdir -p $(TEST_DIR)
-	$(CXX) $(CFLAGS) $(LFLAGS) -lsupc++ -lbenchmark -l$(NAME) $(RPATH_FLAG) -o $@ $^ -Wl,-Bstatic $(LIB_FLAG) -Wl,-Bdynamic
+	$(CXX) $(CFLAGS) $(LFLAGS) -lsupc++ -l$(NAME) $(RPATH_FLAG) -o $@ $^ -Wl,-Bstatic $(LIB_FLAG) -lbenchmark -Wl,-Bdynamic
 
 $(OBJ_DIR)/tests/perf/%.o: tests/perf/%.cpp
 	@mkdir -p $(dir $@)
@@ -103,7 +103,7 @@ stress: $(TEST_DIR)/stress
 
 $(TEST_DIR)/stress: $(STRESS_TESTS_OBJ) $(LIB)
 	@mkdir -p $(TEST_DIR)
-	$(CXX) $(CFLAGS) $(LFLAGS) -lboost_unit_test_framework -l$(NAME) $(LIB_FLAG) $(RPATH_FLAG) -o $@ $^
+	$(CXX) $(CFLAGS) $(LFLAGS) -l$(NAME) -lboost_unit_test_framework $(LIB_FLAG) $(RPATH_FLAG) -o $@ $^
 
 $(OBJ_DIR)/tests/stress/%.o: tests/stress/%.cpp
 	@mkdir -p $(dir $@)
@@ -120,7 +120,7 @@ unit: $(TEST_DIR)/unit_tests
 
 $(TEST_DIR)/unit_tests: $(UNIT_TESTS_OBJ) $(LIB)
 	@mkdir -p $(TEST_DIR)
-	$(CXX) $(CFLAGS) $(LFLAGS) -lboost_unit_test_framework -l$(NAME) $(LIB_FLAG) $(RPATH_FLAG) -o $@ $^
+	$(CXX) $(CFLAGS) $(LFLAGS) -l$(NAME) -lboost_unit_test_framework $(LIB_FLAG) $(RPATH_FLAG) -o $@ $^
 
 $(OBJ_DIR)/tests/unit/%.o: tests/unit/%.cpp
 	@mkdir -p $(dir $@)
