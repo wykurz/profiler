@@ -20,6 +20,8 @@ matrix:
             - graphviz
           sources:
             - ubuntu-toolchain-r-test
+      env:
+        - CC=clang-3.8 CXX=clang++-3.8
 
     # - clang w/ libc++
     # - debug
@@ -37,7 +39,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
       env:
-        - DEBUG=1 ASAN=1 USAN=1
+        - CC=clang-3.8 CXX=clang++-3.8 DEBUG=1 ASAN=1 USAN=1
 
     # - clang w/ libc++
     # - debug
@@ -55,7 +57,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
       env:
-        - DEBUG=1 MSAN=1
+        - CC=clang-3.8 CXX=clang++-3.8 DEBUG=1 MSAN=1
 
     # - clang w/ libc++
     # - debug
@@ -73,7 +75,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
       env:
-        - DEBUG=1 TSAN=1
+        - CC=clang-3.8 CXX=clang++-3.8 DEBUG=1 TSAN=1
 
     # - g++
     # - release
@@ -88,7 +90,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
       env:
-        - CXX=g++-6
+        - CC=gcc-6 CXX=g++-6
 
 before_install:
   - sudo apt-get update -qq
