@@ -86,7 +86,7 @@ perf: $(TEST_DIR)/perf
 
 $(TEST_DIR)/perf: $(PERF_TESTS_OBJ) $(LIB)
 	@mkdir -p $(TEST_DIR)
-	$(CXX) $(CFLAGS) $(LFLAGS) -lsupc++ -l$(NAME) $(RPATH_FLAG) -o $@ $^ -Wl,-Bstatic $(LIB_FLAG) -lbenchmark -Wl,-Bdynamic
+	$(CXX) $(CFLAGS) $(LFLAGS) -l$(NAME) $(RPATH_FLAG) -o $@ $^ -Wl,-Bstatic $(LIB_FLAG) -lsupc++ -lbenchmark -Wl,-Bdynamic
 
 $(OBJ_DIR)/tests/perf/%.o: tests/perf/%.cpp
 	@mkdir -p $(dir $@)
