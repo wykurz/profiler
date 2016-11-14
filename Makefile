@@ -7,7 +7,7 @@ INC_DIRS?=/usr/include
 
 CXX?=clang++
 DOXYGEN?=doxygen
-CFLAGS?=-std=c++14 -g -Wall
+CFLAGS?=-std=c++14 -g -Wall -pthread
 
 # Use libc++ w/ Clang by default:
 ifndef USE_LIBCXX
@@ -28,7 +28,7 @@ ifeq ($(USE_LIBCXX), 1)
   endif
 endif
 
-LFLAGS?=-lpthread -latomic
+LFLAGS?=-latomic
 ifeq ($(USE_LIBCXX), 1)
   ifneq (,$(findstring clang, $(CXX)))
     # Clang: do nothing
