@@ -1,14 +1,41 @@
-NAME=cxxprof
-BUILD_DIR=build
+NAME?=cxxprof
+BUILD_DIR?=build
 LIB=$(BUILD_DIR)/lib/lib$(NAME).so
 
 LIB_DIRS?=/usr/lib
 INC_DIRS?=/usr/include
 
-CXX=clang++
-DOXYGEN=doxygen
-CFLAGS=-std=c++14 -g -Wall -stdlib=libc++
-LFLAGS=-lpthread -latomic
+CXX?=clang++
+DOXYGEN?=doxygen
+CFLAGS?=-std=c++14 -g -Wall
+
+# Use libc++ w/ Clang by default:
+ifndef USE_LIBCXX
+  ifneq (,$(findstring clang, $(CXX)))
+    USE_LIBCXX=1
+  else
+    USE_LIBCXX=0
+  endif
+endif
+
+# Using libc++
+ifeq ($(USE_LIBCXX), 1)
+  ifneq (,$(findstring clang, $(CXX)))
+    # Clang:
+    CFLAGS+=-stdlib=libc++
+  else
+    CFLAGS+=-nostdinc++ -nodefaultlibs
+  endif
+endif
+
+LFLAGS?=-lpthread -latomic
+ifeq ($(USE_LIBCXX), 1)
+  ifneq (,$(findstring clang, $(CXX)))
+    # Clang: do nothing
+  else
+    LFLAGS+=-lc++ -lsupc++ -lm -lc -lgcc_s -lgcc
+  endif
+endif
 
 ifdef DEBUG
   CFLAGS+=-O1 -fno-omit-frame-pointer -DDEBUG
@@ -17,7 +44,7 @@ else
 endif
 ifdef ASAN
   CFLAGS+=-fsanitize=address
-  export ASAN_OPTIONS=check_initialization_order=1
+  export ASAN_OPTIONS=check_initialization_order=1,detect_stack_use_after_return=1
 endif
 ifdef MSAN
   CFLAGS+=-fsanitize=memory -fsanitize-memory-track-origins=2
@@ -59,7 +86,7 @@ perf: $(TEST_DIR)/perf
 
 $(TEST_DIR)/perf: $(PERF_TESTS_OBJ) $(LIB)
 	@mkdir -p $(TEST_DIR)
-	$(CXX) $(CFLAGS) $(LFLAGS) -l$(NAME) $(RPATH_FLAG) -o $@ $^ -Wl,-Bstatic $(LIB_FLAG) -lsupc++ -lbenchmark -Wl,-Bdynamic
+	$(CXX) $(CFLAGS) $(LFLAGS) -lsupc++ -lbenchmark -l$(NAME) $(RPATH_FLAG) -o $@ $^ -Wl,-Bstatic $(LIB_FLAG) -Wl,-Bdynamic
 
 $(OBJ_DIR)/tests/perf/%.o: tests/perf/%.cpp
 	@mkdir -p $(dir $@)
