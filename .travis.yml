@@ -21,7 +21,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
       env:
-        - CC=clang-3.8 CXX=clang++-3.8
+        - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8
 
     # - clang w/ libc++
     # - debug
@@ -39,7 +39,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
       env:
-        - CC=clang-3.8 CXX=clang++-3.8 DEBUG=1 ASAN=1 USAN=1
+        - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8 DEBUG=1 ASAN=1 USAN=1
 
     # - clang w/ libc++
     # - debug
@@ -57,7 +57,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
       env:
-        - CC=clang-3.8 CXX=clang++-3.8 DEBUG=1 MSAN=1
+        - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8 DEBUG=1 MSAN=1
 
     # - clang w/ libc++
     # - debug
@@ -75,7 +75,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
       env:
-        - CC=clang-3.8 CXX=clang++-3.8 DEBUG=1 TSAN=1
+        - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8 DEBUG=1 TSAN=1
 
     # - g++
     # - release
@@ -90,16 +90,16 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
       env:
-        - CC=gcc-6 CXX=g++-6
+        - C_COMPILER=gcc-6 CXX_COMPILER=g++-6
 
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y --force-yes libboost-test-dev
 
 before_script:
-  - ./install_cmake.sh
-  - ./install_llvm.sh
-  - ./install_benchmark.sh
+  - CC=$C_COMPILER CXX=$CXX_COMPILER ./install_cmake.sh
+  - CC=$C_COMPILER CXX=$CXX_COMPILER ./install_llvm.sh
+  - CC=$C_COMPILER CXX=$CXX_COMPILER ./install_benchmark.sh
 
 cache:
   # Use a one week timeout 60 * 24 * 7 = 10080 min:
@@ -109,7 +109,7 @@ cache:
     - benchmark
 
 script:
-  - make
+  - CC=$C_COMPILER CXX=$CXX_COMPILER make
 
 notifications:
   email: false
