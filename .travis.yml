@@ -95,6 +95,7 @@ before_install:
   - sudo apt-get install -y --force-yes libboost-test-dev
 
 before_script:
+  - ./install_cmake.sh
   - ./install_llvm.sh
   - ./install_benchmark.sh
 
