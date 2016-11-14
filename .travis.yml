@@ -91,6 +91,7 @@ matrix:
             - ubuntu-toolchain-r-test
       env:
         - C_COMPILER=gcc-6 CXX_COMPILER=g++-6
+        - BENCHMARK_FLAGS="-fuse-ld=gold"
 
 before_install:
   - sudo apt-get update -qq
