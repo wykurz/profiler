@@ -8,6 +8,7 @@ cd llvm/build
 cmake -DCMAKE_C_COMPILER=${CC} \
       -DCMAKE_CXX_COMPILER=${CXX} \
       -DCMAKE_INSTALL_PREFIX=/usr \
+      -DLIBCXX_ABI_UNSTABLE=ON \
       -DCMAKE_BUILD_TYPE=Release \
       ..
 make cxx -j2

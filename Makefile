@@ -42,18 +42,21 @@ ifdef DEBUG
 else
   CFLAGS+=-O3
 endif
+
+SAN_COMMON=-fsanitize-blacklist=sanitize_blacklist.txt
 ifdef ASAN
-  CFLAGS+=-fsanitize=address
+  CFLAGS+=-fsanitize=address $(SAN_COMMON)
   export ASAN_OPTIONS=check_initialization_order=1,detect_stack_use_after_return=1
 endif
 ifdef MSAN
-  CFLAGS+=-fsanitize=memory -fsanitize-memory-track-origins=2
+  CFLAGS+=-fsanitize=memory -fsanitize-memory-track-origins=2 $(SAN_COMMON)
 endif
 ifdef TSAN
-  CFLAGS+=-fsanitize=thread
+  CFLAGS+=-fsanitize=thread $(SAN_COMMON)
 endif
 ifdef USAN
-  CFLAGS+=-fsanitize=undefined
+  CFLAGS+=-fsanitize=undefined $(SAN_COMMON)
+  export USAN_OPTIONS=print_stacktrace=1
 endif
 
 OBJ_DIR=$(BUILD_DIR)/obj
