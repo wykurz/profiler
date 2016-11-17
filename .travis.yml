@@ -87,13 +87,13 @@ before_script:
   - ./install_cmake.sh
   - CC=$C_COMPILER CXX=$CXX_COMPILER ./install_llvm.sh
   - CC=$C_COMPILER CXX=$CXX_COMPILER ./install_benchmark.sh
-  - if [ -n "$COVERAGE" ]; then ./install_coverage.sh fi
+  - if [ -n "${COVERAGE}" ]; then ./install_coverage.sh fi
 
 script:
   - CC=$C_COMPILER CXX=$CXX_COMPILER make
 
 after_success:
-  - if [ -n "$COVERAGE" ]; then ./upload_coverage.sh fi
+  - if [ -n "${COVERAGE}" ]; then ./upload_coverage.sh fi
 
 notifications:
   email: false
