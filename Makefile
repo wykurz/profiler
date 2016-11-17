@@ -40,7 +40,12 @@ endif
 ifdef DEBUG
   CFLAGS+=-O2 -fno-omit-frame-pointer -DDEBUG
 else
-  CFLAGS+=-O3
+  ifdef COVERAGE
+    CFLAGS+=-O0 --coverage
+    LFLAGS+=--coverage
+  else
+    CFLAGS+=-O3
+  endif
 endif
 
 SAN_COMMON=-fsanitize-blacklist=sanitize_blacklist.txt
