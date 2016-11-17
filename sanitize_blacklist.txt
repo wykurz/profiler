@@ -1,1 +1,2 @@
-src:*/boost/include/*
+src:*/boost/*
+interceptor_via_lib:libboost_unit_test_framework.so

@@ -45,25 +45,6 @@ matrix:
 
     # - clang w/ libc++
     # - debug
-    # - MSAN
-    - os: linux
-      compiler: clang
-      addons:
-        apt:
-          packages:
-            - clang-3.8
-            - libc++-dev
-            - libc++abi-dev
-            - doxygen
-            - graphviz
-          sources:
-            - ubuntu-toolchain-r-test
-      env:
-        - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8 DEBUG=1 MSAN=1
-        - BENCHMARK_FLAGS="-stdlib=libc++"
-
-    # - clang w/ libc++
-    # - debug
     # - TSAN
     - os: linux
       compiler: clang
