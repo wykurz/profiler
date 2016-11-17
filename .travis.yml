@@ -77,6 +77,21 @@ matrix:
       env:
         - C_COMPILER=gcc-6 CXX_COMPILER=g++-6
         - BENCHMARK_FLAGS="-fuse-ld=gold"
+
+    # - g++
+    # - coverage
+    - os: linux
+      compiler: gcc
+      addons:
+        apt:
+          packages:
+            - g++-6
+            - doxygen
+            - graphviz
+          sources:
+            - ubuntu-toolchain-r-test
+      env:
+        - C_COMPILER=gcc-6 CXX_COMPILER=g++-6
         - COVERAGE=1
 
 before_install:
