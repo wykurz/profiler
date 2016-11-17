@@ -84,9 +84,7 @@ before_install:
   - sudo apt-get install -y --force-yes libboost-test-dev
 
 before_script:
-  - if [ -n "${COVERAGE}" ]; then
-    ./install_coverage.sh
-    fi
+  - test $COVERAGE && ./install_coverage.sh
   - ./install_cmake.sh
   - CC=$C_COMPILER CXX=$CXX_COMPILER ./install_llvm.sh
   - CC=$C_COMPILER CXX=$CXX_COMPILER ./install_benchmark.sh
@@ -95,9 +93,7 @@ script:
   - CC=$C_COMPILER CXX=$CXX_COMPILER make
 
 after_success:
-  - if [ -n "${COVERAGE}" ]; then
-    ./upload_coverage.sh
-    fi
+  - test $COVERAGE && ./upload_coverage.sh
 
 notifications:
   email: false
