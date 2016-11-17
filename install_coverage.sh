@@ -5,5 +5,5 @@ if [ -n "$COVERAGE" ]; then
     tar xf lcov_1.11.orig.tar.gz
     sudo make -C lcov-1.11/ install
     gem install coveralls-lcov
-    lcov --directory . --zerocounters
+    lcov --gcov-tool $GCOV --directory . --zerocounters
 fi

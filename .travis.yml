@@ -91,7 +91,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
       env:
-        - C_COMPILER=gcc-6 CXX_COMPILER=g++-6
+        - C_COMPILER=gcc-6 CXX_COMPILER=g++-6 GCOV=gcov-6
         - COVERAGE=1
 
 before_install:
