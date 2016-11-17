@@ -23,6 +23,7 @@ matrix:
       env:
         - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8
         - BENCHMARK_FLAGS="-stdlib=libc++"
+        - COVERAGE=1
 
     # - clang w/ libc++
     # - debug
