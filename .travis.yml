@@ -23,7 +23,6 @@ matrix:
       env:
         - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8
         - BENCHMARK_FLAGS="-stdlib=libc++"
-        - COVERAGE=1
 
     # - clang w/ libc++
     # - debug
@@ -78,13 +77,14 @@ matrix:
       env:
         - C_COMPILER=gcc-6 CXX_COMPILER=g++-6
         - BENCHMARK_FLAGS="-fuse-ld=gold"
+        - COVERAGE=1
 
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y --force-yes libboost-test-dev
 
 before_script:
-  - test $COVERAGE && ./install_coverage.sh
+  - ./install_coverage.sh
   - ./install_cmake.sh
   - CC=$C_COMPILER CXX=$CXX_COMPILER ./install_llvm.sh
   - CC=$C_COMPILER CXX=$CXX_COMPILER ./install_benchmark.sh
@@ -93,7 +93,7 @@ script:
   - CC=$C_COMPILER CXX=$CXX_COMPILER make
 
 after_success:
-  - test $COVERAGE && ./upload_coverage.sh
+  - ./upload_coverage.sh
 
 notifications:
   email: false
