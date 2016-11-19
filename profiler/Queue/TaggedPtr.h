@@ -8,7 +8,7 @@ namespace Profiler { namespace Queue
 
     // TODO: run clang undef. behavior sanitizer
     template <typename T_>
-    struct alignas(sizeof(std::intptr_t)) TaggedPtr
+    struct alignas(alignof(std::intptr_t)) TaggedPtr
     {
         TaggedPtr() = default;
         TaggedPtr(const T_* base_, const T_* ptr_)

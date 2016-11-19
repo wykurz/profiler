@@ -2,8 +2,9 @@
 #define CONTROL_ARENA_H
 
 #include <Algorithms/FreeMap.h>
+#include <Exception/Exception.h>
 #include <array>
-#include <cassert>
+#include <cstddef>
 #include <memory>
 #include <sstream>
 #include <vector>
@@ -16,16 +17,17 @@ namespace Profiler { namespace Control
      */
     struct Arena
     {
-        constexpr static std::size_t BlockSize = 1024;
+        constexpr static std::size_t BlockSize = 1024 * 32;
+        template <typename T_> using Block = std::array<T_, BlockSize / sizeof(T_)>;
+        using BlockHolder = std::aligned_storage<BlockSize, alignof(std::max_align_t)>::type;
 
+        // TODO: Write tests to check we actually handle size 0
         Arena(std::size_t bufferSize_)
-          : _buffer(bufferSize_)
+          : _nblocks(bufferSize_ / sizeof(BlockHolder)),
+            _buffer(_nblocks * sizeof(BlockHolder))
         { }
-        Arena(const Arena&) = delete;
         Arena(Arena&&) = delete;
-
-        template <typename T_>
-        using Block = std::array<T_, BlockSize>;
+        Arena(const Arena&) = delete;
 
         template <typename T_>
         Block<T_>* acquire()
@@ -42,34 +44,49 @@ namespace Profiler { namespace Control
         }
 
         template <typename T_>
-        void release(Block<T_> block_)
+        void release(Block<T_>* block_)
         {
+            PROFILER_ASSERT(block_);
+            // TODO: ...
         }
 
         /**
-         * Base pointer for a given type T. It is guaranteed to have proper alignment to type T_. All elements in a
-         * Block<T> will have positive offset from base pointer.
+         * Base pointer for a given type T. All elements in a Block<T> will have positive offset from base pointer.
          *
          * Base pointer is guaranteed to never change during the lifetime of the arena.
          */
         template <typename T_>
-        T_* basePtr() const
+        T_* basePtr()
         {
-            using TBlock = Block<T_>;
-            void* base = const_cast<char*>(_buffer.data());
-            std::size_t bytes = _bytesLeft;
-            if (std::align(alignof(TBlock), sizeof(TBlock), base, bytes))
-            {
-                return &(*reinterpret_cast<TBlock*>(base))[0];
-            }
-            std::stringstream ss;
-            ss << "Failed to obtain base pointer for type " << typeid(T_).name() << ", " << sizeof(TBlock);
-            throw std::runtime_error(ss.str());
+            PROFILER_ASSERT(_buffer.data() % alignof(T_) == 0);
+            return static_cast<T_*>(_buffer.data());
         }
 
       private:
-        // Algorithms::FreeMap freeMap;
-        std::vector<char> _buffer;
+        struct alignas(BlockHolder) Buffer
+        {
+            Buffer(std::size_t size_)
+              : _buffer(size_)
+            { }
+            void* data()
+            {
+                return _buffer.data();
+            }
+            const void* data() const
+            {
+                return _buffer.data();
+            }
+            std::size_t size() const
+            {
+                return _buffer.size();
+            }
+          private:
+            std::vector<char> _buffer;
+        };
+
+        const std::size_t _nblocks;
+        Algorithms::FreeMap freeMap{_nblocks};
+        Buffer _buffer;
         void* _next = _buffer.data();
         std::size_t _bytesLeft = _buffer.size();
     };
