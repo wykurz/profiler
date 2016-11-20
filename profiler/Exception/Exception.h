@@ -27,7 +27,7 @@ namespace Profiler { namespace Exception
 // TODO: Replace all assertions with this?
 
 #ifdef DEBUG
-#define PROFILER_ASSERT(x) if (!(x)) throw LogicError(__PRETTY_FUNCTION__);
+#define PROFILER_ASSERT(x) if (!(x)) throw Profiler::Exception::LogicError(__PRETTY_FUNCTION__);
 #else
 #define PROFILER_ASSERT(x) do { } while (false);
 #endif

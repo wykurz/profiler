@@ -21,7 +21,6 @@ namespace Profiler { namespace Control
         template <typename T_> using Block = std::array<T_, BlockSize / sizeof(T_)>;
         using BlockHolder = std::aligned_storage<BlockSize, alignof(std::max_align_t)>::type;
 
-        // TODO: Write tests to check we actually handle size 0
         Arena(std::size_t bufferSize_)
           : _nblocks(bufferSize_ / sizeof(BlockHolder)),
             _buffer(_nblocks * sizeof(BlockHolder))
@@ -32,22 +31,19 @@ namespace Profiler { namespace Control
         template <typename T_>
         Block<T_>* acquire()
         {
-            using TBlock = Block<T_>;
-            if (std::align(alignof(TBlock), sizeof(TBlock), _next, _bytesLeft))
-            {
-                auto res = reinterpret_cast<TBlock*>(_next);
-                _next = res + 1;
-                _bytesLeft -= sizeof(TBlock);
-                return res;
-            }
-            return nullptr;
+            static_assert(alignof(BlockHolder) % alignof(Block<T_>) == 0,
+                          "Block<T> alignement not congruent to BlockHolder alignment.");
+            int freeIdx = _freeMap.firstFree();
+            if (freeIdx < 0) return nullptr;
+            _freeMap.set(freeIdx, false);
+            return reinterpret_cast<Block<T_>*>(getHolder(freeIdx));
         }
 
         template <typename T_>
         void release(Block<T_>* block_)
         {
             PROFILER_ASSERT(block_);
-            // TODO: ...
+            _freeMap.set(getIndex(block_), true);
         }
 
         /**
@@ -58,7 +54,7 @@ namespace Profiler { namespace Control
         template <typename T_>
         T_* basePtr()
         {
-            PROFILER_ASSERT(_buffer.data() % alignof(T_) == 0);
+            PROFILER_ASSERT(reinterpret_cast<std::uintptr_t>(_buffer.data()) % alignof(T_) == 0);
             return static_cast<T_*>(_buffer.data());
         }
 
@@ -84,8 +80,20 @@ namespace Profiler { namespace Control
             std::vector<char> _buffer;
         };
 
+        BlockHolder* getHolder(int index_)
+        {
+            return static_cast<BlockHolder*>(_buffer.data()) + index_;
+        }
+
+        int getIndex(void* ptr_) const
+        {
+            const auto offset = reinterpret_cast<std::intptr_t>(ptr_) - reinterpret_cast<std::intptr_t>(_buffer.data());
+            PROFILER_ASSERT(0 <= offset && offset % sizeof(BlockHolder) == 0);
+            return offset / sizeof(BlockHolder);
+        }
+
         const std::size_t _nblocks;
-        Algorithms::FreeMap freeMap{_nblocks};
+        Algorithms::FreeMap _freeMap{_nblocks};
         Buffer _buffer;
         void* _next = _buffer.data();
         std::size_t _bytesLeft = _buffer.size();
