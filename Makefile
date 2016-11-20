@@ -48,6 +48,10 @@ else
   endif
 endif
 
+ifdef LOG
+  CFLAGS+=-DLOG
+endif
+
 SAN_COMMON=-fsanitize-blacklist=sanitize_blacklist.txt
 ifdef ASAN
   CFLAGS+=-fsanitize=address $(SAN_COMMON)

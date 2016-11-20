@@ -65,6 +65,26 @@ matrix:
         - LIBCXX=1
         - BENCHMARK_FLAGS="-stdlib=libc++"
 
+    # - clang w/ libc++
+    # - debug + log
+    # - TSAN
+    - os: linux
+      compiler: clang
+      addons:
+        apt:
+          packages:
+            - clang-3.8
+            - libc++-dev
+            - libc++abi-dev
+            - doxygen
+            - graphviz
+          sources:
+            - ubuntu-toolchain-r-test
+      env:
+        - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8 DEBUG=1 LOG=1 TSAN=1
+        - LIBCXX=1
+        - BENCHMARK_FLAGS="-stdlib=libc++"
+
     # - g++
     # - release
     - os: linux
