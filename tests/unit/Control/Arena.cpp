@@ -35,7 +35,7 @@ namespace Profiler { namespace Control { namespace Test
         std::set<std::uintptr_t> dirty;
         auto verifyAcquire = [&dirty](void* ptr_) {
             // Verify that the acquire address doens't conflict with what was previously acquired.
-            auto iptr = reinterpret_cast<std::intptr_t>(ptr_);
+            auto iptr = reinterpret_cast<std::uintptr_t>(ptr_);
             if (dirty.find(iptr) != dirty.end()) return 1;
             dirty.insert(iptr);
             auto next = dirty.upper_bound(iptr);
@@ -47,7 +47,7 @@ namespace Profiler { namespace Control { namespace Test
         };
         auto verifyRelease = [&dirty](void* ptr_) {
             // Verify that releas is of a valid address
-            auto iptr = reinterpret_cast<std::intptr_t>(ptr_);
+            auto iptr = reinterpret_cast<std::uintptr_t>(ptr_);
             if (0 == dirty.erase(iptr)) return 1;
             return 0;
         };

@@ -42,7 +42,10 @@ namespace Profiler { namespace Control
         template <typename T_>
         void release(Block<T_>* block_)
         {
+            // Technically we don't need to require a typed pointer and could use void*, but we reserve the right to
+            // allow potential future optimizations.
             PROFILER_ASSERT(block_);
+            PROFILER_ASSERT(!_freeMap.isFree(getIndex(block_)));
             _freeMap.set(getIndex(block_), true);
         }
 
