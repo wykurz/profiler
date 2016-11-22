@@ -2,3 +2,4 @@ build
 .gdb_history
 *waf*
 *log
+compile_commands.json
