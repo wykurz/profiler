@@ -90,7 +90,7 @@ docs:
 #
 # Perf tests
 #
-PERF_TESTS_SRC=$(wildcard tests/perf/**/*.cpp)
+PERF_TESTS_SRC=$(wildcard tests/perf/**/*.cpp) tests/perf/Main.cpp
 PERF_TESTS_OBJ=$(patsubst %.cpp, $(OBJ_DIR)/%.o, $(PERF_TESTS_SRC))
 
 perf: $(TEST_DIR)/perf
