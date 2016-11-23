@@ -2,18 +2,16 @@
 #define CONTROL_MANAGER_H
 
 #include <Control/RecordManager.h>
+#include <Control/Thread.h>
 #include <Control/Writer.h>
 #include <Queue/Queue.h>
 #include <Record/Record.h>
 #include <cassert>
 #include <chrono>
-#include <condition_variable>
 #include <thread>
 
 namespace Profiler { namespace Control
 {
-
-    struct Thread;
 
     struct Manager
     {
@@ -23,7 +21,7 @@ namespace Profiler { namespace Control
         Manager(const Manager&) = delete;
         ~Manager();
 
-        Arena& addThread(Thread& thread_);
+        ThreadAllocation addThread();
 
         /**
          * Use for test purposes - will top the writer thread. The writer thread may not be restarted.

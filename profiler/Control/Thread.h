@@ -12,21 +12,17 @@
 namespace Profiler { namespace Control
 {
 
-    struct ThreadHolder;
+    struct ThreadAllocation;
 
     struct Thread
     {
-        template <typename ManagerType_>
-        Thread(ManagerType_& manager_)
-          : _arena(manager_.addThread(*this))
-        { }
+        Thread(const ThreadAllocation& allocation_);
         Thread(const Thread&) = delete;
         ~Thread();
         template <typename RecordType_>
         RecordManager<RecordType_>& getRecordManager();
       private:
-        Arena& _arena;
-        RecordManager<Record::Record> _recordManager{_arena};
+        RecordManager<Record::Record> _recordManager;
     };
 
     template <>
@@ -49,6 +45,33 @@ namespace Profiler { namespace Control
         Thread* thread = nullptr;
       private:
         std::unique_ptr<std::mutex> _lock = std::make_unique<std::mutex>();
+    };
+
+    struct ThreadAllocation
+    {
+        ThreadAllocation(std::unique_lock<std::mutex>&& lock_, Arena& arena_, ThreadHolder& holder_)
+          : _lock(std::move(lock_)), _arena(arena_), _holder(&holder_)
+        { }
+        ThreadAllocation()
+          : _arena(empty()), _holder(nullptr)
+        { }
+        Arena& getArena() const
+        {
+            return _arena;
+        }
+        void setThread(Thread& thread_) const
+        {
+            if (_holder) _holder->thread = &thread_;
+        }
+      private:
+        static Arena& empty()
+        {
+            static Arena empty(0);
+            return empty;
+        }
+        std::unique_lock<std::mutex> _lock;
+        Arena& _arena;
+        ThreadHolder* const _holder;
     };
 
     using ThreadArray = std::vector<ThreadHolder>;

@@ -1,4 +1,5 @@
 #include <Control/Manager.h>
+#include <Control/Thread.h>
 #include <Log/Log.h>
 #include <array>
 #include <atomic>
@@ -12,19 +13,17 @@ namespace Profiler { namespace Control
         _writerThread.join();
     }
 
-    // TODO: How should we deal with infinite # of threads
-    Arena& Manager::addThread(Thread& thread_)
+    ThreadAllocation Manager::addThread()
     {
         int count = MaxThreads;
         while (0 < count--) {
             auto& holder = _threadArray[_currentThread++];
             auto lk = holder.lock();
             if (holder.thread) continue;
-            holder.thread = &thread_;
-            return _arena;
+            return {std::move(lk), _arena, holder};
         }
         ++_droppedThreads;
-        return _empty;
+        return {};
     }
 
     void Manager::stopWriter()

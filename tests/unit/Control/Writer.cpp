@@ -14,11 +14,13 @@ namespace
 
     struct MockManager
     {
-        Arena& addThread(Thread& thread_)
+        ThreadAllocation addThread()
         {
-            return arena;
+            return {{}, arena, _scratchHolder};
         }
         Arena arena{100000};
+      private:
+        ThreadHolder _scratchHolder;
     };
 
     using BufferMap = std::unordered_map<std::string, std::stringstream*>;
@@ -44,7 +46,7 @@ namespace
     BOOST_AUTO_TEST_CASE(Basic)
     {
         MockManager manager;
-        Thread thread(manager);
+        Thread thread(manager.addThread());
         {
             Scope::StatsScope scope(thread.template getRecordManager<Record::Record>(), "test");
         }
