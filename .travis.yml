@@ -128,7 +128,13 @@ before_script:
   - CC=$C_COMPILER CXX=$CXX_COMPILER ./install_benchmark.sh
 
 script:
-  - CC=$C_COMPILER CXX=$CXX_COMPILER make
+  - if [ -n "$TSAN" ]; then
+      # Thread sanitizer doesn't work well with bencharks
+      CC=$C_COMPILER CXX=$CXX_COMPILER make unit
+      CC=$C_COMPILER CXX=$CXX_COMPILER make stress
+    else
+      CC=$C_COMPILER CXX=$CXX_COMPILER make
+    fi
 
 after_success:
   - ./upload_coverage.sh
