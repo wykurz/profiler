@@ -128,7 +128,7 @@ before_script:
   - CC=$C_COMPILER CXX=$CXX_COMPILER ./install_benchmark.sh
 
 script:
-  - if [ -n "$TSAN" ]; then
+  - if [ -n "${TSAN}" ]; then
       CC=$C_COMPILER CXX=$CXX_COMPILER make unit
       CC=$C_COMPILER CXX=$CXX_COMPILER make stress
     else
