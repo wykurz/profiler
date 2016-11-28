@@ -4,6 +4,8 @@ project("PROFILER")
 add_compile_options(-std=c++14 -stdlib=libc++ -Wall)
 
 find_package(Threads)
+# Add libc++ dependency in case the library is in non-standard location. Making the dependency explicit will force
+# cmake to pass proper -L flags.
 find_library(LIBCXX c++)
 
 include_directories(${PROFILER_SOURCE_DIR}/profiler)
@@ -15,13 +17,26 @@ target_link_libraries(cxxprofiler "-stdlib=libc++" ${CMAKE_THREAD_LIBS_INIT} ${L
 find_package(Boost 1.59.0 REQUIRED COMPONENTS unit_test_framework)
 include_directories(${Boost_INCLUDE_DIRS})
 
-file(GLOB unit_tests_src "tests/unit/**/*.cpp" "tests/unit/*.cpp")
+file(GLOB unit_tests_src "tests/unit/**/*.cpp" "tests/unit/Main.cpp")
 add_executable(unit_tests ${unit_tests_src})
 target_compile_definitions(unit_tests PRIVATE BOOST_TEST_DYN_LINK)
 target_link_libraries(unit_tests cxxprofiler "-stdlib=libc++" ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${LIBCXX})
 
+file(GLOB stress_tests_src "tests/stress/**/*.cpp" "tests/stress/Main.cpp")
+add_executable(stress_tests ${stress_tests_src})
+target_compile_definitions(stress_tests PRIVATE BOOST_TEST_DYN_LINK)
+target_link_libraries(stress_tests cxxprofiler "-stdlib=libc++" ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${LIBCXX})
+
+find_library(BENCHMARK benchmark)
+include_directories(${BENCHMARK_INCLUDE_DIRS})
+
+file(GLOB perf_tests_src "tests/perf/**/*.cpp" "tests/perf/Main.cpp")
+add_executable(perf_tests ${perf_tests_src})
+target_link_libraries(perf_tests cxxprofiler "-stdlib=libc++" ${BENCHMARK} ${CMAKE_THREAD_LIBS_INIT} ${LIBCXX})
+
 enable_testing()
 add_test(unit unit_tests)
+add_test(stress stress_tests)
 
 # link_directories(${PROFILER_SOURCE_DIR}/profiler)
 
