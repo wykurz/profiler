@@ -22,7 +22,7 @@ add_library(cxxprofiler SHARED ${PROFILER_SRC})
 target_link_libraries(cxxprofiler "-stdlib=libc++" ${CMAKE_THREAD_LIBS_INIT} ${LIBCXX})
 
 # TODO: Should we make boost optional?
-find_package(Boost 1.59.0 REQUIRED COMPONENTS unit_test_framework)
+find_package(Boost 1.58.0 REQUIRED COMPONENTS unit_test_framework)
 include_directories(${Boost_INCLUDE_DIRS})
 
 file(GLOB unit_tests_src "tests/unit/**/*.cpp" "tests/unit/Main.cpp")
