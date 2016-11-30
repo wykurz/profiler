@@ -22,7 +22,7 @@ matrix:
             - ubuntu-toolchain-r-test
       env:
         - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8
-        - USE_LIBCXX=1
+        - LIBCXX=1
         - BENCHMARK_FLAGS="-stdlib=libc++"
 
     # - clang w/ libc++
@@ -42,7 +42,7 @@ matrix:
             - ubuntu-toolchain-r-test
       env:
         - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8 DEBUG=1 ASAN=1 USAN=1
-        - USE_LIBCXX=1
+        - LIBCXX=1
         - BENCHMARK_FLAGS="-stdlib=libc++"
 
     # - clang w/ libc++
@@ -62,7 +62,7 @@ matrix:
             - ubuntu-toolchain-r-test
       env:
         - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8 DEBUG=1 TSAN=1
-        - USE_LIBCXX=1
+        - LIBCXX=1
         - BENCHMARK_FLAGS="-stdlib=libc++"
 
     # - clang w/ libc++
@@ -82,7 +82,7 @@ matrix:
             - ubuntu-toolchain-r-test
       env:
         - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8 DEBUG=1 LOG=1 TSAN=1
-        - USE_LIBCXX=1
+        - LIBCXX=1
         - BENCHMARK_FLAGS="-stdlib=libc++"
 
     # - g++
@@ -130,7 +130,7 @@ before_script:
 script:
   - mkdir build
   - cd build
-  - CC=$C_COMPILER CXX=$CXX_COMPILER cmake -DUSE_LIBCXX=$USE_LIBCXX ..
+  - CC=$C_COMPILER CXX=$CXX_COMPILER cmake -DUSE_LIBCXX=$LIBCXX ..
   - make -j2 VERBOSE=1
   - ./tests/unit_tests --show_progress --log_level=test_suite
   - ./tests/stress_tests --show_progress --log_level=test_suite
