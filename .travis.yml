@@ -132,11 +132,11 @@ script:
   - cd build
   - CC=$C_COMPILER CXX=$CXX_COMPILER cmake ..
   - make -j2 VERBOSE=1
-  - ./unit_tests
-  - ./stress_tests
+  - ./tests/unit_tests --show_progress --log_level=test_suite
+  - ./tests/stress_tests --show_progress --log_level=test_suite
   - CC=$C_COMPILER CXX=$CXX_COMPILER make stress
   - if [ -z "${TSAN}" ]; then
-      ./perf_tests
+      ./tests/perf_tests
     fi
 
 after_success:
