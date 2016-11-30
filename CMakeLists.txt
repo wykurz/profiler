@@ -1,12 +1,14 @@
 cmake_minimum_required(VERSION 2.8)
-project("Profiler")
+project("profiler")
 
 set(VERSION_MAJOR 0 CACHE STRING "Project major version number.")
 set(VERSION_MINOR 0 CACHE STRING "Project minor version number.")
 set(VERSION_PATCH 1 CACHE STRING "Project patch version number.")
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
-add_compile_options(-std=c++14 -stdlib=libc++ -Wall)
+option(USE_LIBCXX "Use libc++ (instead of stdlibc++). Enables sanitizer build types." OFF)
+
+add_compile_options(-std=c++14 -Wall)
 # Release builds
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O2 -fno-omit-frame-pointer -DDEBUG")
 # Debug builds
@@ -15,19 +17,26 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 set(CMAKE_CXX_FLAGS_COVERAGE "${CMAKE_CXX_FLAGS} -O0 --coverage")
 set(CMAKE_EXE_LINKER_FLAGS_COVERAGE "${CMAKE_EXE_LINKER_FLAGS} --coverage")
 set(CMAKE_SHARED_LINKER_FLAGS_COVERAGE "${CMAKE_SHARED_LINKER_FLAGS} --coverage")
-# Sanitizer builds
-set(CMAKE_CXX_FLAGS_ASAN_USAN "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address,undefined")
-set(CMAKE_CXX_FLAGS_TSAN "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=thread")
 
 find_package(Threads REQUIRED)
-# Add libc++ dependency in case the library is in non-standard location. Making the dependency explicit will force
-# cmake to pass proper -L flags.
-find_library(LIBCXX c++)
 
-include_directories(${Profiler_SOURCE_DIR}/profiler)
-file(GLOB Profiler_SRC "profiler/**/*.cpp")
-add_library(cxxprofiler SHARED ${Profiler_SRC})
-target_link_libraries(cxxprofiler "-stdlib=libc++" ${CMAKE_THREAD_LIBS_INIT} ${LIBCXX})
+include_directories(${profiler_SOURCE_DIR}/profiler)
+file(GLOB profiler_SRC "profiler/**/*.cpp")
+add_library(cxxprofiler SHARED ${profiler_SRC})
+
+if (USE_LIBCXX)
+  add_compile_options(-stdlib=libc++)
+  # Add libc++ dependency in case the library is in non-standard location. Making the dependency explicit will force
+  # cmake to pass proper -L flags.
+  find_library(LIBCXX c++)
+  # Sanitizer builds
+  set(CMAKE_CXX_FLAGS_ASAN_USAN "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address,undefined")
+  set(CMAKE_CXX_FLAGS_TSAN "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=thread")
+  # Profiler library link:
+  target_link_libraries(cxxprofiler ${CMAKE_THREAD_LIBS_INIT} ${LIBCXX})
+else ()
+  target_link_libraries(cxxprofiler ${CMAKE_THREAD_LIBS_INIT} -latomic)
+endif ()
 
 add_subdirectory(tests)
 
