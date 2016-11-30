@@ -1,6 +1,6 @@
 enable_testing()
 
-find_package(Boost 1.58.0 COMPONENTS unit_test_framework)
+find_package(Boost 1.54.0 COMPONENTS unit_test_framework)
 include_directories(${Boost_INCLUDE_DIRS})
 
 if (Boost_FOUND)
