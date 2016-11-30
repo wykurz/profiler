@@ -130,13 +130,12 @@ before_script:
 script:
   - mkdir build
   - cd build
-  - CC=$C_COMPILER CXX=$CXX_COMPILER cmake ..
+  - CC=$C_COMPILER CXX=$CXX_COMPILER cmake -DUSE_LIBCXX=${USE_LIBCXX} ..
   - make -j2 VERBOSE=1
   - ./tests/unit_tests --show_progress --log_level=test_suite
   - ./tests/stress_tests --show_progress --log_level=test_suite
-  - CC=$C_COMPILER CXX=$CXX_COMPILER make stress
   - if [ -z "${TSAN}" ]; then
-      ./tests/perf_tests
+      ./tests/perf_tests;
     fi
 
 after_success:
