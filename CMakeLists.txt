@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 2.8)
 project("Profiler")
 
+set(VERSION_MAJOR 0 CACHE STRING "Project major version number.")
+set(VERSION_MINOR 0 CACHE STRING "Project minor version number.")
+set(VERSION_PATCH 1 CACHE STRING "Project patch version number.")
+mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
+
 add_compile_options(-std=c++14 -stdlib=libc++ -Wall)
 # Release builds
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O2 -fno-omit-frame-pointer -DDEBUG")
@@ -25,3 +30,19 @@ add_library(cxxprofiler SHARED ${Profiler_SRC})
 target_link_libraries(cxxprofiler "-stdlib=libc++" ${CMAKE_THREAD_LIBS_INIT} ${LIBCXX})
 
 add_subdirectory(tests)
+
+find_package(Doxygen)
+if (Doxygen_FOUND)
+  set(doxyfile.in ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
+  set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+  set(doxygen_main_page ${CMAKE_CURRENT_SOURCE_DIR}/README.md)
+  configure_file(${doxyfile.in} ${doxyfile} @ONLY)
+  add_custom_target(
+    docs ALL
+    COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "Generating API documentation with Doxygen"
+    VERBATIM)
+else ()
+  message(STATUS "Doxygen not found, building documentation disabled")
+endif ()
