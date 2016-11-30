@@ -22,7 +22,7 @@ matrix:
             - ubuntu-toolchain-r-test
       env:
         - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8
-        - LIBCXX=1
+        - USE_LIBCXX=1
         - BENCHMARK_FLAGS="-stdlib=libc++"
 
     # - clang w/ libc++
@@ -42,7 +42,7 @@ matrix:
             - ubuntu-toolchain-r-test
       env:
         - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8 DEBUG=1 ASAN=1 USAN=1
-        - LIBCXX=1
+        - USE_LIBCXX=1
         - BENCHMARK_FLAGS="-stdlib=libc++"
 
     # - clang w/ libc++
@@ -62,7 +62,7 @@ matrix:
             - ubuntu-toolchain-r-test
       env:
         - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8 DEBUG=1 TSAN=1
-        - LIBCXX=1
+        - USE_LIBCXX=1
         - BENCHMARK_FLAGS="-stdlib=libc++"
 
     # - clang w/ libc++
@@ -82,7 +82,7 @@ matrix:
             - ubuntu-toolchain-r-test
       env:
         - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8 DEBUG=1 LOG=1 TSAN=1
-        - LIBCXX=1
+        - USE_LIBCXX=1
         - BENCHMARK_FLAGS="-stdlib=libc++"
 
     # - g++
@@ -128,10 +128,15 @@ before_script:
   - CC=$C_COMPILER CXX=$CXX_COMPILER ./install_benchmark.sh
 
 script:
-  - CC=$C_COMPILER CXX=$CXX_COMPILER make unit
+  - mkdir build
+  - cd build
+  - CC=$C_COMPILER CXX=$CXX_COMPILER cmake ..
+  - make -j2 VERBOSE=1
+  - ./unit_tests
+  - ./stress_tests
   - CC=$C_COMPILER CXX=$CXX_COMPILER make stress
   - if [ -z "${TSAN}" ]; then
-      CC=$C_COMPILER CXX=$CXX_COMPILER make perf;
+      ./perf_tests
     fi
 
 after_success:
