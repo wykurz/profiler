@@ -136,6 +136,8 @@ before_script:
 script:
   - mkdir build
   - cd build
+  - cmake --version
+  - which cmake
   - CC=${C_COMPILER} CXX=${CXX_COMPILER} cmake -DUSE_LIBCXX=${LIBCXX} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DLOG=${LOG} ..
   - make VERBOSE=1
   - ./tests/unit_tests --show_progress --log_level=test_suite
