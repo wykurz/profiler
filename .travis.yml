@@ -24,6 +24,7 @@ matrix:
         - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8
         - LIBCXX=1
         - BENCHMARK_FLAGS="-stdlib=libc++"
+        - BUILD_TYPE=release
 
     # - clang w/ libc++
     # - debug
@@ -41,9 +42,10 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
       env:
-        - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8 DEBUG=1 ASAN=1 USAN=1
+        - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8
         - LIBCXX=1
         - BENCHMARK_FLAGS="-stdlib=libc++"
+        - BUILD_TYPE=asan_usan
 
     # - clang w/ libc++
     # - debug
@@ -61,9 +63,10 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
       env:
-        - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8 DEBUG=1 TSAN=1
+        - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8
         - LIBCXX=1
         - BENCHMARK_FLAGS="-stdlib=libc++"
+        - BUILD_TYPE=tsan
 
     # - clang w/ libc++
     # - debug + log
@@ -81,9 +84,11 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
       env:
-        - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8 DEBUG=1 LOG=1 TSAN=1
+        - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8
         - LIBCXX=1
         - BENCHMARK_FLAGS="-stdlib=libc++"
+        - BUILD_TYPE=tsan
+        - LOG=1
 
     # - g++
     # - release
@@ -100,6 +105,7 @@ matrix:
       env:
         - C_COMPILER=gcc-6 CXX_COMPILER=g++-6
         - BENCHMARK_FLAGS="-fuse-ld=gold"
+        - BUILD_TYPE=release
 
     # - g++
     # - coverage
@@ -115,7 +121,7 @@ matrix:
             - ubuntu-toolchain-r-test
       env:
         - C_COMPILER=gcc-6 CXX_COMPILER=g++-6 GCOV=gcov-6
-        - COVERAGE=1
+        - BUILD_TYPE=coverage
 
 before_install:
   - sudo apt-get update -qq
@@ -130,11 +136,7 @@ before_script:
 script:
   - mkdir build
   - cd build
-  - echo ${C_COMPILER}
-  - echo ${CXX_COMPILER}
-  - echo ${LIBCXX}
-  - echo "CC=${C_COMPILER} CXX=${CXX_COMPILER} cmake -DUSE_LIBCXX=${LIBCXX} .."
-  - CC=${C_COMPILER} CXX=${CXX_COMPILER} cmake -DUSE_LIBCXX=${LIBCXX} ..
+  - CC=${C_COMPILER} CXX=${CXX_COMPILER} cmake -DUSE_LIBCXX=${LIBCXX} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DLOG=${LOG} ..
   - make -j2 VERBOSE=1
   - ./tests/unit_tests --show_progress --log_level=test_suite
   - ./tests/stress_tests --show_progress --log_level=test_suite
