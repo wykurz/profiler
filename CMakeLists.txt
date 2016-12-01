@@ -8,7 +8,7 @@ mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
 option(USE_LIBCXX "Use libc++ (instead of stdlibc++). Enables sanitizer build types." OFF)
 
-add_compile_options(-std=c++14 -Wall)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall")
 # Release builds
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O2 -fno-omit-frame-pointer -DDEBUG")
 # Debug builds
@@ -26,7 +26,7 @@ add_library(cxxprofiler SHARED ${profiler_SRC})
 
 if (USE_LIBCXX)
   message(STATUS "Configuring project to use libc++")
-  add_compile_options(-stdlib=libc++)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
   # Add libc++ dependency in case the library is in non-standard location. Making the dependency explicit will force
   # cmake to pass proper -L flags.
   find_library(LIBCXX c++)
