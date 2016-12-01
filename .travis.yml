@@ -5,6 +5,7 @@ dist: trusty
 # NOTE: The COMPILER variable is unused. It simply makes the display on
 # travis-ci.org more readable.
 matrix:
+-  include:
     # - clang w/ libc++
     # - release
     - os: linux
