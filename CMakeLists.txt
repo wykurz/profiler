@@ -25,6 +25,7 @@ file(GLOB profiler_SRC "profiler/**/*.cpp")
 add_library(cxxprofiler SHARED ${profiler_SRC})
 
 if (USE_LIBCXX)
+  message(STATUS "Configuring project to use libc++")
   add_compile_options(-stdlib=libc++)
   # Add libc++ dependency in case the library is in non-standard location. Making the dependency explicit will force
   # cmake to pass proper -L flags.
@@ -35,6 +36,7 @@ if (USE_LIBCXX)
   # Profiler library link:
   target_link_libraries(cxxprofiler ${CMAKE_THREAD_LIBS_INIT} ${LIBCXX})
 else ()
+  message(STATUS "Configuring project to use stdlibc++, sanitizer builds disabled")
   target_link_libraries(cxxprofiler ${CMAKE_THREAD_LIBS_INIT} -latomic)
 endif ()
 

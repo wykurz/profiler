@@ -5,17 +5,6 @@ dist: trusty
 # NOTE: The COMPILER variable is unused. It simply makes the display on
 # travis-ci.org more readable.
 matrix:
-  include:
-    # - canary
-    - os: linux
-      compiler: clang
-      addons:
-        apt:
-      env:
-        - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8
-        - LIBCXX=1
-        - BENCHMARK_FLAGS="-stdlib=libc++"
-
     # - clang w/ libc++
     # - release
     - os: linux
@@ -134,8 +123,8 @@ before_install:
 before_script:
   - ./install_coverage.sh
   - ./install_cmake.sh
-  - CC=$C_COMPILER CXX=$CXX_COMPILER ./install_llvm.sh
-  - CC=$C_COMPILER CXX=$CXX_COMPILER ./install_benchmark.sh
+  - CC=${C_COMPILER} CXX=${CXX_COMPILER} ./install_llvm.sh
+  - CC=${C_COMPILER} CXX=${CXX_COMPILER} ./install_benchmark.sh
 
 script:
   - mkdir build
