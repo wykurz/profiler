@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 set -ex
-if [ "$LIBCXX" == "1" ]; then
+if [ "${LIBCXX}" == "1" ]; then
     git clone --depth=1 https://github.com/llvm-mirror/llvm.git llvm
     git clone --depth=1 https://github.com/llvm-mirror/libcxx.git llvm/projects/libcxx
     git clone --depth=1 https://github.com/llvm-mirror/libcxxabi.git llvm/projects/libcxxabi
