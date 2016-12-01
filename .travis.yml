@@ -6,6 +6,16 @@ dist: trusty
 # travis-ci.org more readable.
 matrix:
   include:
+    # - canary
+    - os: linux
+      compiler: clang
+      addons:
+        apt:
+      env:
+        - C_COMPILER=clang-3.8 CXX_COMPILER=clang++-3.8
+        - LIBCXX=1
+        - BENCHMARK_FLAGS="-stdlib=libc++"
+
     # - clang w/ libc++
     # - release
     - os: linux
@@ -130,6 +140,10 @@ before_script:
 script:
   - mkdir build
   - cd build
+  - echo ${C_COMPILER}
+  - echo ${CXX_COMPILER}
+  - echo ${LIBCXX}
+  - echo "CC=${C_COMPILER} CXX=${CXX_COMPILER} cmake -DUSE_LIBCXX=${LIBCXX} .."
   - CC=${C_COMPILER} CXX=${CXX_COMPILER} cmake -DUSE_LIBCXX=${LIBCXX} ..
   - make -j2 VERBOSE=1
   - ./tests/unit_tests --show_progress --log_level=test_suite
