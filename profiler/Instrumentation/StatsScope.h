@@ -38,9 +38,9 @@ namespace Profiler { namespace Scope
 #define _CAT_II(p, res) res
 #define _UNIQUE_NAME(base) _CAT(base, __COUNTER__)
 
-#define STATS_SCOPE()                                                     \
-    Scope::StatsScope _UNIQUE_NAME(statsScope)(                           \
-        Control::getThread().template getRecordManager<Record::Record>(), \
+#define STATS_SCOPE()                                                                         \
+    Profiler::Scope::StatsScope _UNIQUE_NAME(statsScope)(                                     \
+        Profiler::Control::getThread().template getRecordManager<Profiler::Record::Record>(), \
         __PRETTY_FUNCTION__)
 
 #endif // NO_MACROS

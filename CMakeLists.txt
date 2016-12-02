@@ -39,6 +39,7 @@ else ()
 endif ()
 
 add_subdirectory(tests)
+add_subdirectory(examples)
 
 find_package(Doxygen)
 if (Doxygen_FOUND)

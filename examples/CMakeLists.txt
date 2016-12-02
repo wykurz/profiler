@@ -1,0 +1,8 @@
+file(GLOB examples **/*.cpp)
+foreach (example ${examples})
+  string(REGEX REPLACE "/[^/]+.cpp" "" tmp ${example})
+  string(REGEX REPLACE ".*/" "" testname ${tmp})
+  file(GLOB example_src "${testname}/*.cpp")
+  add_executable(${testname} ${example_src})
+  target_link_libraries(${testname} cxxprofiler ${LIBCXX})
+endforeach ()
