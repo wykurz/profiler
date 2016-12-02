@@ -14,9 +14,6 @@ matrix:
         apt:
           packages:
             - clang-3.8
-            - libc++-dev
-            - libc++abi-dev
-            - libboost-all-dev
             - doxygen
             - graphviz
           sources:
@@ -36,9 +33,6 @@ matrix:
         apt:
           packages:
             - clang-3.8
-            - libc++-dev
-            - libc++abi-dev
-            - libboost-all-dev
             - doxygen
             - graphviz
           sources:
@@ -58,9 +52,6 @@ matrix:
         apt:
           packages:
             - clang-3.8
-            - libc++-dev
-            - libc++abi-dev
-            - libboost-all-dev
             - doxygen
             - graphviz
           sources:
@@ -80,9 +71,6 @@ matrix:
         apt:
           packages:
             - clang-3.8
-            - libc++-dev
-            - libc++abi-dev
-            - libboost-all-dev
             - doxygen
             - graphviz
           sources:
@@ -104,7 +92,6 @@ matrix:
             - g++-6
             - doxygen
             - graphviz
-            - libboost-all-dev
           sources:
             - ubuntu-toolchain-r-test
       env:
@@ -122,7 +109,6 @@ matrix:
             - g++-6
             - doxygen
             - graphviz
-            - libboost-all-dev
           sources:
             - ubuntu-toolchain-r-test
       env:
@@ -131,11 +117,13 @@ matrix:
 
 before_install:
   - sudo apt-get update -qq
+  - sudo apt-get install -y --force-yes libboost-test-dev
   - sudo apt-get install -y gdb
 
 before_script:
   - ./install_coverage.sh
   - ./install_cmake.sh
+  - CC=${C_COMPILER} CXX=${CXX_COMPILER} ./install_llvm.sh
   - CC=${C_COMPILER} CXX=${CXX_COMPILER} ./install_benchmark.sh
   - ulimit -c unlimited -S # enable core dumps
 
