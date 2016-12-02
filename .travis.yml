@@ -16,6 +16,7 @@ matrix:
             - clang-3.8
             - libc++-dev
             - libc++abi-dev
+            - libboost-all-dev
             - doxygen
             - graphviz
           sources:
@@ -37,6 +38,7 @@ matrix:
             - clang-3.8
             - libc++-dev
             - libc++abi-dev
+            - libboost-all-dev
             - doxygen
             - graphviz
           sources:
@@ -58,6 +60,7 @@ matrix:
             - clang-3.8
             - libc++-dev
             - libc++abi-dev
+            - libboost-all-dev
             - doxygen
             - graphviz
           sources:
@@ -79,6 +82,7 @@ matrix:
             - clang-3.8
             - libc++-dev
             - libc++abi-dev
+            - libboost-all-dev
             - doxygen
             - graphviz
           sources:
@@ -100,6 +104,7 @@ matrix:
             - g++-6
             - doxygen
             - graphviz
+            - libboost-all-dev
           sources:
             - ubuntu-toolchain-r-test
       env:
@@ -117,6 +122,7 @@ matrix:
             - g++-6
             - doxygen
             - graphviz
+            - libboost-all-dev
           sources:
             - ubuntu-toolchain-r-test
       env:
@@ -125,7 +131,6 @@ matrix:
 
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -y --force-yes libboost-test-dev
   - sudo apt-get install -y gdb
 
 before_script:
