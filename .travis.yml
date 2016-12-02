@@ -136,7 +136,7 @@ script:
   - make -j2 VERBOSE=1
   - ./tests/unit_tests --show_progress --log_level=test_suite
   - ./tests/stress_tests --show_progress --log_level=test_suite
-  - if [ -z "${TSAN}" ]; then
+  - if [ "${BUILD_TYPE}" == "release" ]; then
       ./tests/perf_tests;
     fi
 
