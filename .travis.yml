@@ -136,7 +136,6 @@ before_install:
 before_script:
   - ./install_coverage.sh
   - ./install_cmake.sh
-  - CC=${C_COMPILER} CXX=${CXX_COMPILER} ./install_llvm.sh
   - CC=${C_COMPILER} CXX=${CXX_COMPILER} ./install_benchmark.sh
   - ulimit -c unlimited -S # enable core dumps
 
