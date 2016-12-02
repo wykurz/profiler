@@ -126,12 +126,14 @@ matrix:
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y --force-yes libboost-test-dev
+  - sudo apt-get install -y gdb
 
 before_script:
   - ./install_coverage.sh
   - ./install_cmake.sh
   - CC=${C_COMPILER} CXX=${CXX_COMPILER} ./install_llvm.sh
   - CC=${C_COMPILER} CXX=${CXX_COMPILER} ./install_benchmark.sh
+  - ulimit -c unlimited -S # enable core dumps
 
 script:
   - mkdir build
@@ -148,6 +150,10 @@ script:
 
 after_success:
   - ./upload_coverage.sh
+
+after_failure:
+  - COREFILE=$(find . -maxdepth 1 -name "core*" | head -n 1) # find core file
+  - if [[ -f "${COREFILE}" ]]; then gdb -c "${COREFILE}" example -ex "thread apply all bt" -ex "set pagination 0" -batch; fi
 
 notifications:
   email: false
