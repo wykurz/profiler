@@ -28,14 +28,11 @@ add_library(cxxprofiler SHARED ${profiler_SRC})
 if (USE_LIBCXX)
   message(STATUS "Configuring project to use libc++")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-  # Add libc++ dependency in case the library is in non-standard location. Making the dependency explicit will force
-  # cmake to pass proper -L flags.
-  find_library(LIBCXX c++)
   # Sanitizer builds
   set(CMAKE_CXX_FLAGS_ASAN_USAN "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -fsanitize=address,undefined")
   set(CMAKE_CXX_FLAGS_TSAN "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -fsanitize=thread")
   # Profiler library link:
-  target_link_libraries(cxxprofiler ${CMAKE_THREAD_LIBS_INIT} ${LIBCXX})
+  target_link_libraries(cxxprofiler ${CMAKE_THREAD_LIBS_INIT} supc++)
 else ()
   message(STATUS "Configuring project to use stdlibc++, sanitizer builds disabled")
   target_link_libraries(cxxprofiler ${CMAKE_THREAD_LIBS_INIT} -latomic)
