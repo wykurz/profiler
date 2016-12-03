@@ -1,3 +1,4 @@
+#include <Config/Config.h>
 #include <Control/Manager.h>
 #include <Control/Thread.h>
 #include <Log/Log.h>
@@ -6,6 +7,10 @@
 
 namespace Profiler { namespace Control
 {
+
+    Manager::Manager(const Config::Config& config_)
+      : _writer(Output::Ptr(new FileOut(config_.logFileName)), _threadArray, std::chrono::microseconds(100000))
+    { }
 
     Manager::~Manager()
     {
@@ -33,7 +38,7 @@ namespace Profiler { namespace Control
 
     Manager& getManager()
     {
-        static Manager manager;
+        static Manager manager(Config::getConfig());
         return manager;
     }
 

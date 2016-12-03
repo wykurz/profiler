@@ -1,6 +1,7 @@
 #ifndef CONTROL_MANAGER_H
 #define CONTROL_MANAGER_H
 
+#include <Config/Config.h>
 #include <Control/RecordManager.h>
 #include <Control/Thread.h>
 #include <Control/Writer.h>
@@ -17,7 +18,7 @@ namespace Profiler { namespace Control
     {
         static constexpr std::size_t MaxThreads = 1024;
 
-        Manager() = default;
+        Manager(const Config::Config& config_);
         Manager(const Manager&) = delete;
         ~Manager();
 
@@ -35,7 +36,7 @@ namespace Profiler { namespace Control
         std::atomic<int> _currentThread = {0};
         ThreadArray _threadArray{MaxThreads};
         std::size_t _droppedThreads = {0};
-        Writer _writer{Output::Ptr(new FileOut("blah")), _threadArray, std::chrono::microseconds(100000)};
+        Writer _writer;
         std::thread _writerThread{[this](){ this->_writer.run(); }};
     };
 

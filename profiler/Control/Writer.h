@@ -5,20 +5,21 @@
 #include <fstream>
 #include <memory>
 #include <mutex>
+#include <string>
 
 namespace Profiler { namespace Control
 {
 
     struct Output
     {
-        virtual ~Output() = default;
         using Ptr = std::unique_ptr<Output>;
+        virtual ~Output() = default;
         virtual std::ostream& get() = 0;
     };
 
     struct FileOut : Output
     {
-        FileOut(const char* name_)
+        FileOut(const std::string& name_)
           : _out(name_, std::fstream::binary | std::fstream::trunc)
         { }
         virtual std::ostream& get()
