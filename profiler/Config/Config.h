@@ -9,13 +9,12 @@ namespace Profiler { namespace Config
     struct Config
     {
         Config(std::string logFileName_);
-
+        bool operator!=(const Config& other_) const;
         const std::string logFileName;
     };
 
-    Config defaultConfig();
-
-    const Config& getConfig(const Config& config_ = defaultConfig());
+    const Config& getConfig();
+    const Config& getConfig(const Config& config_);
 
 }
 }

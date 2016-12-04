@@ -29,36 +29,6 @@ namespace Profiler { namespace Record
         return out_;
     }
 
-    // template <typename Record_>
-    // struct RecordStorage
-    // {
-    //     using RecordQueue = Queue::Queue<Record_>;
-    //     using RecordNode = typename RecordQueue::NodeType;
-    //     using RecordType = Record_;
-    //     RecordStorage(std::size_t size_)
-    //       : _arena(size_),
-    //         _free(this->getNodeBase(), this->size())
-    //     {
-    //         for (auto& block : _arena) _free.push(&block);
-    //     }
-    //     RecordStorage(const RecordStorage&) = delete;
-    //     std::size_t size() const
-    //     {
-    //         return _arena.size();
-    //     }
-    //     RecordNode* getNodeBase()
-    //     {
-    //         return &_arena[0];
-    //     }
-    //     RecordNode* getFreeRecordNode()
-    //     {
-    //         return _free.pull();
-    //     }
-    //   private:
-    //     std::vector<RecordNode> _arena;
-    //     Queue::Queue<Record_> _free;
-    // };
-
     // TODO: Add a type list type that has all records available
     //       We'll need a for_each functionality...
 

@@ -1,3 +1,4 @@
+#include <Config/Config.h>
 #include <Control/Thread.h>
 #include <Instrumentation/StatsScope.h>
 
