@@ -42,6 +42,7 @@ matrix:
         - LIBCXX=1
         - BENCHMARK_FLAGS="-stdlib=libc++"
         - BUILD_TYPE=asan_usan
+        - ASAN_OPTIONS=detect_leaks=0 # boost unit_test has leaks :(
 
     # - clang w/ libc++
     # - debug
