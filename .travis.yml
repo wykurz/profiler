@@ -115,6 +115,7 @@ matrix:
       env:
         - C_COMPILER=gcc-6 CXX_COMPILER=g++-6 GCOV=gcov-6
         - BUILD_TYPE=coverage
+        - COVERAGE=1
 
 before_install:
   - sudo apt-get update -qq
