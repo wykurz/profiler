@@ -140,6 +140,7 @@ script:
   - if [ "${BUILD_TYPE}" == "release" ]; then
       ./tests/perf_tests;
     fi
+  - cd ..
 
 after_success:
   - ./upload_coverage.sh
