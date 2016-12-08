@@ -1,9 +1,11 @@
+#include <Algorithms/Mpl.h>
 #include <Control/Writer.h>
 #include <Log/Log.h>
 #include <cassert>
 #include <chrono>
 #include <mutex>
 #include <thread>
+#include <utility>
 
 namespace Profiler { namespace Control
 {
@@ -23,11 +25,14 @@ namespace Profiler { namespace Control
                 auto lk = holder.lock();
                 if (!holder.thread) continue;
                 auto& thread = *(holder.thread);
-                auto recordNode = thread.template getRecordManager<Record::Record>().extractDirtyRecords();
-                while (recordNode) {
-                    _out->get() << recordNode->value;
-                    recordNode = recordNode->getNext();
-                }
+                auto extract = [&](auto typeInfo_) {
+                    auto recordNode = thread.template getRecordManager<typename decltype(typeInfo_)::Type>().extractDirtyRecords();
+                    while (recordNode) {
+                        this->_out->get() << recordNode->value;
+                        recordNode = recordNode->getNext();
+                    }
+                };
+                Mpl::apply<Mpl::TypeList<Record::Record> >(extract);
             }
             std::this_thread::sleep_for(_sleepTime);
         }
