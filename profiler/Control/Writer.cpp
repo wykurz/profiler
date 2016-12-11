@@ -25,16 +25,9 @@ namespace Profiler { namespace Control
         do {
             for (auto& holder : _threadArray) {
                 auto lk = holder.lock();
-                if (!holder.thread) continue;
-                // auto& thread = *(holder.thread);
-                // auto extract = [&](auto typeInfo_) {
-                //     auto recordNode = thread.template getThreadRecords<typename decltype(typeInfo_)::Type>().extractDirtyRecords();
-                //     while (recordNode) {
-                //         this->_out->get() << recordNode->value;
-                //         recordNode = recordNode->getNext();
-                //     }
-                // };
-                // Mpl::apply<Mpl::TypeList<Record::Record> >(extract);
+                if (!holder.recordExtractor) continue;
+                auto& recordExtractor = *(holder.recordExtractor);
+                recordExtractor.streamDirtyRecords(_out->get());
             }
             std::this_thread::sleep_for(_sleepTime);
         }

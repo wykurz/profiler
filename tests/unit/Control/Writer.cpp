@@ -55,8 +55,8 @@ namespace
         auto& holder = threadArray[0];
         {
             auto lk = holder.lock();
-            BOOST_REQUIRE(!holder.thread);
-            holder.thread = &threadRecords;
+            BOOST_REQUIRE(!holder.recordExtractor);
+            holder.recordExtractor = &threadRecords.getRecordManager();
         }
         BufferMap buffers;
         Writer writer(Output::Ptr(new MemoryOut(buffers, "test")), threadArray, std::chrono::microseconds(100000));

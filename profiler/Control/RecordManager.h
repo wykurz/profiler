@@ -14,7 +14,7 @@ namespace Profiler { namespace Control
     struct RecordExtractor
     {
         virtual std::type_index getRecordTypeHash() const = 0;
-        virtual void streamDirtyRecords(std::ostream out_) = 0;
+        virtual void streamDirtyRecords(std::ostream& out_) = 0;
     };
 
     template <typename Record_>
@@ -81,7 +81,7 @@ namespace Profiler { namespace Control
             return std::type_index(typeid(Record));
         }
 
-        virtual void streamDirtyRecords(std::ostream out_) override
+        virtual void streamDirtyRecords(std::ostream& out_) override
         {
             auto recordNode = extractDirtyRecords();
             while (recordNode) {

@@ -13,22 +13,18 @@ namespace Profiler { namespace Control
 {
 
     template <typename Record_>
-    struct ThreadRecords : ThreadRecordExtractor
+    struct ThreadRecords
     {
         using RecordManagerType = RecordManager<Record_>;
         ThreadRecords(const ThreadAllocation& allocation_)
           : _recordManager(allocation_.getArena())
         {
-            allocation_.setThread(*this);
+            allocation_.setRecordExtractor(_recordManager);
         }
         ThreadRecords(const ThreadRecords&) = delete;
-        virtual ~ThreadRecords()
+        ~ThreadRecords()
         {
             // TODO: Grab a slot-lock and deregister ourselves from Manager's thread buffer list
-        }
-        virtual RecordExtractor& getRecordExtractor() override
-        {
-            return _recordManager;
         }
         RecordManagerType& getRecordManager()
         {

@@ -9,19 +9,13 @@
 namespace Profiler { namespace Control
 {
 
-    struct ThreadRecordExtractor
-    {
-        virtual ~ThreadRecordExtractor() = default;
-        virtual RecordExtractor& getRecordExtractor() = 0;
-    };
-
     struct ThreadHolder
     {
         std::unique_lock<std::mutex> lock()
         {
             return std::unique_lock<std::mutex>(*_lock);
         }
-        ThreadRecordExtractor* thread = nullptr;
+        RecordExtractor* recordExtractor = nullptr;
       private:
         std::unique_ptr<std::mutex> _lock = std::make_unique<std::mutex>();
     };
@@ -38,9 +32,9 @@ namespace Profiler { namespace Control
         {
             return _arena;
         }
-        void setThread(ThreadRecordExtractor& thread_) const
+        void setRecordExtractor(RecordExtractor& recordExtractor_) const
         {
-            if (_holder) _holder->thread = &thread_;
+            if (_holder) _holder->recordExtractor = &recordExtractor_;
         }
       private:
         static Arena& empty()
