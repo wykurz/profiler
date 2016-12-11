@@ -6,24 +6,24 @@
 namespace Profiler { namespace Mpl
 {
 
-    template <typename... Args> struct TypeList { };
+    template <typename... Args_> struct TypeList { };
 
-    template <typename T> struct TypeInfo { using Type = T; };
+    template <typename T_> struct TypeInfo { using Type = T_; };
 
 namespace Internal
 {
 
-    template <typename... Args>
+    template <typename... Args_>
     struct Apply;
 
-    template <typename Arg, typename... Args>
-    struct Apply<TypeList<Arg, Args...> >
+    template <typename Arg_, typename... Args_>
+    struct Apply<TypeList<Arg_, Args_...> >
     {
-        template <typename Func>
-        static void run(const Func& func_)
+        template <typename Func_>
+        static void run(const Func_& func_)
         {
-            func_(TypeInfo<Arg>());
-            Apply<TypeList<Args...> >::run(func_);
+            func_(TypeInfo<Arg_>());
+            Apply<TypeList<Args_...> >::run(func_);
         }
 
     };
@@ -31,17 +31,17 @@ namespace Internal
     template <>
     struct Apply<TypeList<> >
     {
-        template <typename Func>
-        static void run(const Func& func_)
+        template <typename Func_>
+        static void run(const Func_& func_)
         { }
     };
 
 }
 
-    template <typename Types, typename Func>
-    void apply(const Func& func_)
+    template <typename Types_, typename Func_>
+    void apply(const Func_& func_)
     {
-        Internal::Apply<Types>::run(func_);
+        Internal::Apply<Types_>::run(func_);
     }
 
 }
