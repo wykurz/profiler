@@ -2,7 +2,7 @@
 #define INSTRUMENTATION_STATSSCOPE_H
 
 #include <Control/RecordManager.h>
-#include <Control/Thread.h>
+#include <Control/ThreadRecords.h>
 #include <Instrumentation/Time.h>
 #include <Log/Log.h>
 #include <Record/Record.h>

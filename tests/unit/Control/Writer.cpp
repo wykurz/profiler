@@ -1,4 +1,4 @@
-#include <Control/Thread.h>
+#include <Control/ThreadRecords.h>
 #include <Control/Writer.h>
 #include <Instrumentation/StatsScope.h>
 #include <boost/test/unit_test.hpp>

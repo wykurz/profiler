@@ -1,5 +1,5 @@
 #include <Control/Manager.h>
-#include <Control/Thread.h>
+#include <Control/ThreadRecords.h>
 #include <Instrumentation/StatsScope.h>
 #include <boost/test/unit_test.hpp>
 
