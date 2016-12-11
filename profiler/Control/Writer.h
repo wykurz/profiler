@@ -1,7 +1,7 @@
 #ifndef CONTROL_WRITER_H
 #define CONTROL_WRITER_H
 
-#include <Control/ThreadHandling.h>
+#include <Control/Manager.h>
 #include <atomic>
 #include <fstream>
 #include <memory>
@@ -31,6 +31,46 @@ namespace Profiler { namespace Control
         std::ofstream _out;
     };
 
+    struct Holder
+    {
+        std::unique_lock<std::mutex> lock()
+        {
+            return std::unique_lock<std::mutex>(*_lock);
+        }
+        RecordExtractor* recordExtractor = nullptr;
+      private:
+        std::unique_ptr<std::mutex> _lock = std::make_unique<std::mutex>();
+    };
+
+    struct Allocation
+    {
+        Allocation(std::unique_lock<std::mutex>&& lock_, Arena& arena_, Holder& holder_)
+          : _lock(std::move(lock_)), _arena(arena_), _holder(&holder_)
+        { }
+        Allocation()
+          : _arena(empty()), _holder(nullptr)
+        { }
+        Arena& getArena() const
+        {
+            return _arena;
+        }
+        void setRecordExtractor(RecordExtractor& recordExtractor_) const
+        {
+            if (_holder) _holder->recordExtractor = &recordExtractor_;
+        }
+      private:
+        static Arena& empty()
+        {
+            static Arena empty(0);
+            return empty;
+        }
+        std::unique_lock<std::mutex> _lock;
+        Arena& _arena;
+        Holder* const _holder;
+    };
+
+    using HolderArray = std::vector<Holder>;
+
     /**
      * Writer is responsible for collecting data from all the threads and writing it to the output.
      */
@@ -40,7 +80,7 @@ namespace Profiler { namespace Control
          * Writer takes output pointer, global thread array and time interval of how long it should sleep between each
          * activity period.
          */
-        Writer(Output::Ptr out_, ThreadArray& threadArray_, std::chrono::microseconds sleepTime_);
+        Writer(Output::Ptr out_, HolderArray& threadArray_, std::chrono::microseconds sleepTime_);
         Writer(const Writer&) = delete;
         /**
          * Puts worker in a loop periodically checking if any thread produced output that needs to be written to disk.
@@ -53,7 +93,7 @@ namespace Profiler { namespace Control
         void stop();
       private:
         const Output::Ptr _out;
-        ThreadArray& _threadArray;
+        HolderArray& _threadArray;
         const std::chrono::microseconds _sleepTime;
         std::atomic<bool> _done{false};
     };

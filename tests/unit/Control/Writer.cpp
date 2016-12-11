@@ -14,13 +14,13 @@ namespace
 
     struct MockManager
     {
-        ThreadAllocation addThreadRecords()
+        Allocation addThreadRecords()
         {
             return {{}, arena, _scratchHolder};
         }
         Arena arena{100000};
       private:
-        ThreadHolder _scratchHolder;
+        Holder _scratchHolder;
     };
 
     using BufferMap = std::unordered_map<std::string, std::stringstream*>;
@@ -51,7 +51,7 @@ namespace
             std::chrono::duration<double> timeDelta{0};
             Scope::record(threadRecords.getRecordManager(), Record::Record("test", timeDelta));
         }
-        ThreadArray threadArray(1);
+        HolderArray threadArray(1);
         auto& holder = threadArray[0];
         {
             auto lk = holder.lock();

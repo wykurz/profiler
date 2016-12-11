@@ -17,7 +17,7 @@ namespace Profiler { namespace Control
         _writerThread.join();
     }
 
-    ThreadAllocation Manager::addThreadRecords()
+    Allocation Manager::addThreadRecords()
     {
         int count = MaxThreads;
         while (0 < count--) {

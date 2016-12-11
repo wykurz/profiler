@@ -16,7 +16,7 @@ namespace Profiler { namespace Control
     struct ThreadRecords
     {
         using RecordManagerType = RecordManager<Record_>;
-        ThreadRecords(const ThreadAllocation& allocation_)
+        ThreadRecords(const Allocation& allocation_)
           : _recordManager(allocation_.getArena())
         {
             allocation_.setRecordExtractor(_recordManager);

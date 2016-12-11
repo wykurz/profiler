@@ -1,6 +1,5 @@
 #include <Algorithms/Mpl.h>
 #include <Control/Manager.h>
-#include <Control/ThreadHandling.h>
 #include <Control/Writer.h>
 #include <Log/Log.h>
 #include <cassert>
@@ -12,7 +11,7 @@
 namespace Profiler { namespace Control
 {
 
-    Writer::Writer(Output::Ptr out_, ThreadArray& threadArray_, std::chrono::microseconds sleepTime_)
+    Writer::Writer(Output::Ptr out_, HolderArray& threadArray_, std::chrono::microseconds sleepTime_)
       : _out(std::move(out_)),
         _threadArray(threadArray_),
         _sleepTime(sleepTime_)

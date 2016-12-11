@@ -2,7 +2,6 @@
 #define CONTROL_MANAGER_H
 
 #include <Config/Config.h>
-#include <Control/ThreadHandling.h>
 #include <Control/RecordManager.h>
 #include <Control/Writer.h>
 #include <Queue/Queue.h>
@@ -22,7 +21,7 @@ namespace Profiler { namespace Control
         Manager(const Manager&) = delete;
         ~Manager();
 
-        ThreadAllocation addThreadRecords();
+        Allocation addThreadRecords();
 
         /**
          * Use for test purposes - will stop the writer thread. The writer thread may not be restarted.
@@ -34,7 +33,7 @@ namespace Profiler { namespace Control
         Arena _empty{0};
         // TODO: Add alignment and padding?
         std::atomic<int> _currentThread = {0};
-        ThreadArray _threadArray{MaxThreads};
+        HolderArray _threadArray{MaxThreads};
         std::size_t _droppedThreads = {0};
         Writer _writer;
         std::thread _writerThread{[this](){ this->_writer.run(); }};
