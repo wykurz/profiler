@@ -1,6 +1,5 @@
 #include <Config/Config.h>
 #include <Control/Manager.h>
-#include <Control/Thread.h>
 #include <Log/Log.h>
 #include <array>
 #include <atomic>
@@ -18,7 +17,7 @@ namespace Profiler { namespace Control
         _writerThread.join();
     }
 
-    ThreadAllocation Manager::addThread()
+    ThreadAllocation Manager::addThreadRecords()
     {
         int count = MaxThreads;
         while (0 < count--) {

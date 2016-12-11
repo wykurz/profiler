@@ -1,4 +1,6 @@
 #include <Algorithms/Mpl.h>
+#include <Control/Manager.h>
+#include <Control/ThreadHandling.h>
 #include <Control/Writer.h>
 #include <Log/Log.h>
 #include <cassert>
@@ -24,15 +26,15 @@ namespace Profiler { namespace Control
             for (auto& holder : _threadArray) {
                 auto lk = holder.lock();
                 if (!holder.thread) continue;
-                auto& thread = *(holder.thread);
-                auto extract = [&](auto typeInfo_) {
-                    auto recordNode = thread.template getRecordManager<typename decltype(typeInfo_)::Type>().extractDirtyRecords();
-                    while (recordNode) {
-                        this->_out->get() << recordNode->value;
-                        recordNode = recordNode->getNext();
-                    }
-                };
-                Mpl::apply<Mpl::TypeList<Record::Record> >(extract);
+                // auto& thread = *(holder.thread);
+                // auto extract = [&](auto typeInfo_) {
+                //     auto recordNode = thread.template getThreadRecords<typename decltype(typeInfo_)::Type>().extractDirtyRecords();
+                //     while (recordNode) {
+                //         this->_out->get() << recordNode->value;
+                //         recordNode = recordNode->getNext();
+                //     }
+                // };
+                // Mpl::apply<Mpl::TypeList<Record::Record> >(extract);
             }
             std::this_thread::sleep_for(_sleepTime);
         }

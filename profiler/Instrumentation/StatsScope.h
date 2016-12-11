@@ -4,26 +4,36 @@
 #include <Control/RecordManager.h>
 #include <Control/Thread.h>
 #include <Instrumentation/Time.h>
+#include <Log/Log.h>
 #include <Record/Record.h>
 
 namespace Profiler { namespace Scope
 {
 
+    template <typename Record_>
+    void record(Control::RecordManager<Record_>& recordManager_, Record_&& record_)
+    {
+        auto holder = recordManager_.getRecord();
+        if (!holder.isValid()) {
+            DLOG("No valid holder!");
+            return;
+        }
+        holder.getRecord() = std::forward<Record_>(record_);
+    }
+
     using ScopeTime = Time::RdtscTime;
 
     struct StatsScope
     {
-        using RecordManagerType = Control::RecordManager<Record::Record>;
-        StatsScope(RecordManagerType& recordManager_, const char* name_)
-          : _recordManager(recordManager_), _name(name_)
+        StatsScope(const char* name_)
+          : _name(name_)
         { }
         ~StatsScope()
         {
-            record();
+            record(Control::getThreadRecords<Record::Record>().getRecordManager(),
+                   Record::Record(_name, _time.delta()));
         }
-        void record();
       private:
-        RecordManagerType& _recordManager;
         const char* _name;
         const ScopeTime _time = ScopeTime();
     };
@@ -38,10 +48,7 @@ namespace Profiler { namespace Scope
 #define _CAT_II(p, res) res
 #define _UNIQUE_NAME(base) _CAT(base, __COUNTER__)
 
-#define STATS_SCOPE()                                                                         \
-    Profiler::Scope::StatsScope _UNIQUE_NAME(statsScope)(                                     \
-        Profiler::Control::getThread().template getRecordManager<Profiler::Record::Record>(), \
-        __PRETTY_FUNCTION__)
+#define STATS_SCOPE() Profiler::Scope::StatsScope _UNIQUE_NAME(statsScope)(__PRETTY_FUNCTION__)
 
 #endif // NO_MACROS
 

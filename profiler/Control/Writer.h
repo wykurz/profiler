@@ -1,7 +1,8 @@
 #ifndef CONTROL_WRITER_H
 #define CONTROL_WRITER_H
 
-#include <Control/Thread.h>
+#include <Control/ThreadHandling.h>
+#include <atomic>
 #include <fstream>
 #include <memory>
 #include <mutex>

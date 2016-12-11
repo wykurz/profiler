@@ -2,8 +2,8 @@
 #define CONTROL_MANAGER_H
 
 #include <Config/Config.h>
+#include <Control/ThreadHandling.h>
 #include <Control/RecordManager.h>
-#include <Control/Thread.h>
 #include <Control/Writer.h>
 #include <Queue/Queue.h>
 #include <Record/Record.h>
@@ -22,10 +22,10 @@ namespace Profiler { namespace Control
         Manager(const Manager&) = delete;
         ~Manager();
 
-        ThreadAllocation addThread();
+        ThreadAllocation addThreadRecords();
 
         /**
-         * Use for test purposes - will top the writer thread. The writer thread may not be restarted.
+         * Use for test purposes - will stop the writer thread. The writer thread may not be restarted.
          */
         void stopWriter();
 

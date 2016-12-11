@@ -49,6 +49,7 @@ namespace Profiler { namespace Queue
             assert(_head.is_lock_free());
         }
 
+        Node* head() const;
         void push(Node* node_);
         Node* pull();
         Node* extract();
@@ -65,6 +66,12 @@ namespace Profiler { namespace Queue
         Node* const _baseNode;
         std::atomic<TaggedPtr<Node>> _head{TaggedPtr<Node>()};
     };
+
+    template <typename T_>
+    typename Queue<T_>::Node* Queue<T_>::head() const
+    {
+        return _head.load(std::memory_order_acquire);
+    }
 
     template <typename T_>
     void Queue<T_>::push(Node* node_)

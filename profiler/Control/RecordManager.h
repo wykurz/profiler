@@ -5,15 +5,20 @@
 #include <Log/Log.h>
 #include <Queue/Queue.h>
 #include <Record/Record.h>
-#include <cassert>
-
 #include <iostream>
+#include <typeindex>
 
 namespace Profiler { namespace Control
 {
 
+    struct RecordExtractor
+    {
+        virtual std::type_index getRecordTypeHash() const = 0;
+        virtual void streamDirtyRecords(std::ostream out_) = 0;
+    };
+
     template <typename Record_>
-    struct RecordManager
+    struct RecordManager : RecordExtractor
     {
         using Record = Record_;
         using This = RecordManager<Record>;
@@ -71,13 +76,27 @@ namespace Profiler { namespace Control
             _dirty.push(&node_);
         }
 
+        virtual std::type_index getRecordTypeHash() const override
+        {
+            return std::type_index(typeid(Record));
+        }
+
+        virtual void streamDirtyRecords(std::ostream out_) override
+        {
+            auto recordNode = extractDirtyRecords();
+            while (recordNode) {
+                out_ << recordNode->value;
+                recordNode = recordNode->getNext();
+            }
+        }
+
+      private:
         Node* extractDirtyRecords()
         {
             DLOG("extractDirtyRecords");
             return _dirty.extract();
         }
 
-      private:
         Arena& _arena;
         // TODO: add padding
         Arena::Block<Node>* _currentBlock = nullptr;

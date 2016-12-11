@@ -14,7 +14,7 @@ namespace
 
     struct MockManager
     {
-        ThreadAllocation addThread()
+        ThreadAllocation addThreadRecords()
         {
             return {{}, arena, _scratchHolder};
         }
@@ -46,16 +46,17 @@ namespace
     BOOST_AUTO_TEST_CASE(Basic)
     {
         MockManager manager;
-        Thread thread(manager.addThread());
+        ThreadRecords<Record::Record> threadRecords(manager.addThreadRecords());
         {
-            Scope::StatsScope scope(thread.template getRecordManager<Record::Record>(), "test");
+            std::chrono::duration<double> timeDelta{0};
+            Scope::record(threadRecords.getRecordManager(), Record::Record("test", timeDelta));
         }
         ThreadArray threadArray(1);
         auto& holder = threadArray[0];
         {
             auto lk = holder.lock();
             BOOST_REQUIRE(!holder.thread);
-            holder.thread = &thread;
+            holder.thread = &threadRecords;
         }
         BufferMap buffers;
         Writer writer(Output::Ptr(new MemoryOut(buffers, "test")), threadArray, std::chrono::microseconds(100000));
