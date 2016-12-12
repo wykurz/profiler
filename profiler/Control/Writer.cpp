@@ -15,6 +15,13 @@ namespace Profiler { namespace Control
         PROFILER_ASSERT(_out.get());
     }
 
+    Writer::~Writer()
+    {
+        PROFILER_ASSERT(_done.load(std::memory_order_acquire));
+        // One final run to capture any events that may have been missed due to notification timing
+        run();
+    }
+
     void Writer::run()
     {
         do {

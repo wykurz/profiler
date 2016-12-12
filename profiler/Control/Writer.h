@@ -43,6 +43,7 @@ namespace Profiler { namespace Control
          */
         Writer(Output::Ptr out_, HolderArray& threadArray_, std::chrono::microseconds sleepTime_);
         Writer(const Writer&) = delete;
+        ~Writer();
         /**
          * Puts worker in a loop periodically checking if any thread produced output that needs to be written to disk.
          * After iterating through all threads, worker will sleep for a fixed amount of time.
