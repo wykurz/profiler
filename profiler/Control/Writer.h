@@ -32,8 +32,6 @@ namespace Profiler { namespace Control
         std::ofstream _out;
     };
 
-    using HolderArray = std::vector<Holder>;
-
     /**
      * Writer is responsible for collecting data from all the threads and writing it to the output.
      */

@@ -19,6 +19,8 @@ namespace Profiler { namespace Control
         std::unique_ptr<std::mutex> _lock = std::make_unique<std::mutex>();
     };
 
+    using HolderArray = std::vector<Holder>;
+
 }
 }
 
