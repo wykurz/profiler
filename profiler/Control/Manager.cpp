@@ -1,8 +1,7 @@
 #include <Config/Config.h>
 #include <Control/Manager.h>
-#include <Log/Log.h>
-#include <array>
-#include <atomic>
+#include <Control/Writer.h>
+#include <chrono>
 
 namespace Profiler { namespace Control
 {

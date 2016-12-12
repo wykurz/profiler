@@ -1,10 +1,6 @@
-#include <Algorithms/Mpl.h>
-#include <Control/Manager.h>
 #include <Control/Writer.h>
-#include <Log/Log.h>
-#include <cassert>
+#include <Exception/Exception.h>
 #include <chrono>
-#include <mutex>
 #include <thread>
 #include <utility>
 
@@ -16,7 +12,7 @@ namespace Profiler { namespace Control
         _threadArray(threadArray_),
         _sleepTime(sleepTime_)
     {
-        assert(_out.get());
+        PROFILER_ASSERT(_out.get());
     }
 
     void Writer::run()

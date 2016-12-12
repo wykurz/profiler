@@ -1,13 +1,10 @@
 #ifndef CONTROL_MANAGER_H
 #define CONTROL_MANAGER_H
 
+#include <Control/Arena.h>
 #include <Config/Config.h>
-#include <Control/RecordManager.h>
 #include <Control/Writer.h>
-#include <Queue/Queue.h>
-#include <Record/Record.h>
-#include <cassert>
-#include <chrono>
+#include <atomic>
 #include <thread>
 
 namespace Profiler { namespace Control

@@ -1,6 +1,6 @@
 #include <Config/Config.h>
 #include <Exception/Exception.h>
-#include <atomic>
+#include <string>
 
 namespace Profiler { namespace Config
 {

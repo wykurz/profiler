@@ -1,8 +1,10 @@
 #ifndef CONTROL_WRITER_H
 #define CONTROL_WRITER_H
 
-#include <Control/Manager.h>
+#include <Control/Arena.h>
+#include <Control/RecordManager.h>
 #include <atomic>
+#include <chrono>
 #include <fstream>
 #include <memory>
 #include <mutex>

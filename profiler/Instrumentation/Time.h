@@ -2,8 +2,8 @@
 #define INSTRUMENTATION_TIME_H
 
 #include <Record/Record.h>
-#include <iostream>
 #include <chrono>
+#include <ratio>
 
 namespace Profiler { namespace Time {
 
