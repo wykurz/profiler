@@ -1,13 +1,12 @@
 #ifndef CONTROL_WRITER_H
 #define CONTROL_WRITER_H
 
-#include <Control/Arena.h>
-#include <Control/RecordManager.h>
+#include <Control/Allocation.h>
+#include <Control/Holder.h>
 #include <atomic>
 #include <chrono>
 #include <fstream>
 #include <memory>
-#include <mutex>
 #include <string>
 
 namespace Profiler { namespace Control
@@ -31,44 +30,6 @@ namespace Profiler { namespace Control
         }
       private:
         std::ofstream _out;
-    };
-
-    struct Holder
-    {
-        std::unique_lock<std::mutex> lock()
-        {
-            return std::unique_lock<std::mutex>(*_lock);
-        }
-        RecordExtractor* recordExtractor = nullptr;
-      private:
-        std::unique_ptr<std::mutex> _lock = std::make_unique<std::mutex>();
-    };
-
-    struct Allocation
-    {
-        Allocation(std::unique_lock<std::mutex>&& lock_, Arena& arena_, Holder& holder_)
-          : _lock(std::move(lock_)), _arena(arena_), _holder(&holder_)
-        { }
-        Allocation()
-          : _arena(empty()), _holder(nullptr)
-        { }
-        Arena& getArena() const
-        {
-            return _arena;
-        }
-        void setRecordExtractor(RecordExtractor& recordExtractor_) const
-        {
-            if (_holder) _holder->recordExtractor = &recordExtractor_;
-        }
-      private:
-        static Arena& empty()
-        {
-            static Arena empty(0);
-            return empty;
-        }
-        std::unique_lock<std::mutex> _lock;
-        Arena& _arena;
-        Holder* const _holder;
     };
 
     using HolderArray = std::vector<Holder>;
