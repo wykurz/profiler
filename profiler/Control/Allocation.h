@@ -1,5 +1,5 @@
-#ifndef ALLOCATION_H
-#define ALLOCATION_H
+#ifndef CONTROL_ALLOCATION_H
+#define CONTROL_ALLOCATION_H
 
 #include <Control/Arena.h>
 #include <Control/Holder.h>
@@ -8,6 +8,22 @@
 
 namespace Profiler { namespace Control
 {
+
+    struct Finalizer
+    {
+        Finalizer(Holder* holder_)
+            : _holder(holder_)
+        { }
+        ~Finalizer()
+        {
+            if (_holder) {
+                auto lk = _holder->lock();
+                _holder->finalize();
+            }
+        }
+      private:
+        Holder* const _holder;
+    };
 
     struct Allocation
     {
@@ -21,9 +37,10 @@ namespace Profiler { namespace Control
         {
             return _arena;
         }
-        void setRecordExtractor(RecordExtractor& recordExtractor_) const
+        Finalizer setRecordExtractor(RecordExtractor& recordExtractor_) const
         {
-            if (_holder) _holder->recordExtractor = &recordExtractor_;
+            if (_holder) _holder->setRecordExtractor(recordExtractor_);
+            return Finalizer(_holder);
         }
       private:
         static Arena& empty()

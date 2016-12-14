@@ -27,9 +27,7 @@ namespace Profiler { namespace Control
         do {
             for (auto& holder : _threadArray) {
                 auto lk = holder.lock();
-                if (!holder.recordExtractor) continue;
-                auto& recordExtractor = *(holder.recordExtractor);
-                recordExtractor.streamDirtyRecords(_out->get());
+                holder.getExtractorWrapper().streamDirtyRecords(_out->get());
             }
             std::this_thread::sleep_for(_sleepTime);
         }

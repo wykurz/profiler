@@ -22,7 +22,7 @@ namespace Profiler { namespace Control
         while (0 < count--) {
             auto& holder = _threadArray[_currentThread++];
             auto lk = holder.lock();
-            if (holder.recordExtractor) continue;
+            if (!holder.isEmpty()) continue;
             return {std::move(lk), _arena, holder};
         }
         ++_droppedThreads;

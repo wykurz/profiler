@@ -17,10 +17,9 @@ namespace Profiler { namespace Control
     {
         using RecordManagerType = RecordManager<Record_>;
         ThreadRecords(const Allocation& allocation_)
-          : _recordManager(allocation_.getArena())
-        {
-            allocation_.setRecordExtractor(_recordManager);
-        }
+          : _recordManager(allocation_.getArena()),
+            _finalizer(allocation_.setRecordExtractor(_recordManager))
+        { }
         ThreadRecords(const ThreadRecords&) = delete;
         ~ThreadRecords()
         {
@@ -33,6 +32,7 @@ namespace Profiler { namespace Control
 
       private:
         RecordManager<Record_> _recordManager;
+        Finalizer _finalizer;
     };
 
     template <typename Record_>

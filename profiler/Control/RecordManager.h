@@ -2,23 +2,63 @@
 #define CONTROL_RECORDMANAGER_H
 
 #include <Control/Arena.h>
+#include <Exception/Exception.h>
 #include <Log/Log.h>
 #include <Queue/Queue.h>
 #include <Record/Record.h>
 #include <iostream>
+#include <memory>
 #include <typeindex>
+#include <vector>
 
 namespace Profiler { namespace Control
 {
 
     struct RecordExtractor
     {
+        ~RecordExtractor() = default;
         virtual std::type_index getRecordTypeHash() const = 0;
         virtual void streamDirtyRecords(std::ostream& out_) = 0;
+        virtual std::unique_ptr<RecordExtractor> moveToFinalExtractor() = 0;
+    };
+
+namespace Internal
+{
+
+    template <typename Record_>
+    struct ManagerBase : RecordExtractor
+    {
+        using Record = Record_;
+        virtual std::type_index getRecordTypeHash() const override
+        {
+            return std::type_index(typeid(Record));
+        }
+    };
+
+}
+
+    template <typename Record_>
+    struct SimpleExtractor : Internal::ManagerBase<Record_>
+    {
+        using Record = Record_;
+        SimpleExtractor(std::vector<Record>&& records_)
+          : _records(records_)
+        { }
+        virtual void streamDirtyRecords(std::ostream& out_) override
+        {
+            for (auto& rec : _records) out_ << rec;
+        }
+        virtual std::unique_ptr<RecordExtractor> moveToFinalExtractor() override
+        {
+            throw Exception::LogicError("Attempting to finalize SimpleExtractor");
+        }
+      private:
+        // TODO: Use memory from the arena instead.
+        std::vector<Record> _records;
     };
 
     template <typename Record_>
-    struct RecordManager : RecordExtractor
+    struct RecordManager : Internal::ManagerBase<Record_>
     {
         using Record = Record_;
         using This = RecordManager<Record>;
@@ -76,11 +116,6 @@ namespace Profiler { namespace Control
             _dirty.push(&node_);
         }
 
-        virtual std::type_index getRecordTypeHash() const override
-        {
-            return std::type_index(typeid(Record));
-        }
-
         virtual void streamDirtyRecords(std::ostream& out_) override
         {
             auto recordNode = extractDirtyRecords();
@@ -88,6 +123,17 @@ namespace Profiler { namespace Control
                 out_ << recordNode->value;
                 recordNode = recordNode->getNext();
             }
+        }
+
+        virtual std::unique_ptr<RecordExtractor> moveToFinalExtractor() override
+        {
+            std::vector<Record> records;
+            auto recordNode = extractDirtyRecords();
+            while (recordNode) {
+                records.push_back(recordNode->value);
+                recordNode = recordNode->getNext();
+            }
+            return std::make_unique<SimpleExtractor<Record> >(std::move(records));
         }
 
       private:
