@@ -41,20 +41,26 @@ namespace Internal
     struct SimpleExtractor : Internal::ManagerBase<Record_>
     {
         using Record = Record_;
-        SimpleExtractor(std::vector<Record>&& records_)
+        using Queue = Queue::Queue<Record>;
+        using Node = typename Queue::Node;
+
+        SimpleExtractor(Node* const records_)
           : _records(records_)
         { }
         virtual void streamDirtyRecords(std::ostream& out_) override
         {
-            for (auto& rec : _records) out_ << rec;
+            auto recordNode = _records;
+            while (recordNode) {
+                out_ << recordNode->value;
+                recordNode = recordNode->getNext();
+            }
         }
         virtual std::unique_ptr<RecordExtractor> moveToFinalExtractor() override
         {
             throw Exception::LogicError("Attempting to finalize SimpleExtractor");
         }
       private:
-        // TODO: Use memory from the arena instead.
-        std::vector<Record> _records;
+        Node* const _records;
     };
 
     template <typename Record_>
@@ -127,13 +133,7 @@ namespace Internal
 
         virtual std::unique_ptr<RecordExtractor> moveToFinalExtractor() override
         {
-            std::vector<Record> records;
-            auto recordNode = extractDirtyRecords();
-            while (recordNode) {
-                records.push_back(recordNode->value);
-                recordNode = recordNode->getNext();
-            }
-            return std::make_unique<SimpleExtractor<Record> >(std::move(records));
+            return std::make_unique<SimpleExtractor<Record> >(extractDirtyRecords());
         }
 
       private:
