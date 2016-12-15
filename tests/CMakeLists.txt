@@ -1,7 +1,7 @@
 enable_testing()
 
 find_package(Boost 1.54.0 COMPONENTS unit_test_framework)
-include_directories(${Boost_INCLUDE_DIRS})
+include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
 if (Boost_FOUND)
   file(GLOB unit_tests_src "unit/**/*.cpp" "unit/Main.cpp")
@@ -21,7 +21,7 @@ endif ()
 
 find_library(Benchmark benchmark)
 if (Benchmark)
-  include_directories(${Benchmark_INCLUDE_DIRS})
+  include_directories(SYSTEM ${Benchmark_INCLUDE_DIRS})
   file(GLOB perf_tests_src "perf/**/*.cpp" "perf/Main.cpp")
   add_executable(perf_tests ${perf_tests_src})
   target_link_libraries(perf_tests cxxprofiler ${Benchmark} ${CMAKE_THREAD_LIBS_INIT} ${LIBCXX} supc++)

@@ -9,7 +9,11 @@ mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 option(USE_LIBCXX "Use libc++ (instead of stdlibc++). Enables sanitizer build types." OFF)
 
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weverything")
+else ()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+endif ()
 # Release builds
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
 # Debug builds
@@ -21,7 +25,7 @@ set(CMAKE_SHARED_LINKER_FLAGS_COVERAGE "${CMAKE_SHARED_LINKER_FLAGS} --coverage"
 
 find_package(Threads REQUIRED)
 
-include_directories(${profiler_SOURCE_DIR}/profiler)
+include_directories(SYSTEM ${profiler_SOURCE_DIR}/profiler)
 file(GLOB profiler_SRC "profiler/**/*.cpp")
 add_library(cxxprofiler SHARED ${profiler_SRC})
 
