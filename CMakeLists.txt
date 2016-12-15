@@ -9,11 +9,7 @@ mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 option(USE_LIBCXX "Use libc++ (instead of stdlibc++). Enables sanitizer build types." OFF)
 
 set(CMAKE_CXX_STANDARD 14)
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weverything")
-else ()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-endif ()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 # Release builds
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
 # Debug builds
