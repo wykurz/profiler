@@ -12,7 +12,7 @@ namespace Profiler { namespace Control
     struct Finalizer
     {
         Finalizer(Holder* holder_)
-            : _holder(holder_)
+          : _holder(holder_)
         { }
         ~Finalizer()
         {

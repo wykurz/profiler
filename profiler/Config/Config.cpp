@@ -6,7 +6,7 @@ namespace Profiler { namespace Config
 {
 
     Config::Config(std::string logFileName_)
-        : logFileName(logFileName_)
+      : logFileName(logFileName_)
     { }
 
     bool Config::operator!=(const Config& other_) const
