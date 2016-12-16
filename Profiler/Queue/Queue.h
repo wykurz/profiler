@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <atomic>
 #include <cassert>
-#include <Queue/TaggedPtr.h>
+#include <Profiler/Queue/TaggedPtr.h>
 
 namespace Profiler { namespace Queue
 {

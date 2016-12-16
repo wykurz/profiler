@@ -1,4 +1,4 @@
-#include <Instrumentation/StatsScope.h>
+#include <Profiler/Instrumentation/StatsScope.h>
 
 void f1()
 {

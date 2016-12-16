@@ -1,6 +1,6 @@
-#include <Control/ThreadRecords.h>
-#include <Control/Writer.h>
-#include <Instrumentation/StatsScope.h>
+#include <Profiler/Control/ThreadRecords.h>
+#include <Profiler/Control/Writer.h>
+#include <Profiler/Instrumentation/StatsScope.h>
 #include <boost/test/unit_test.hpp>
 #include <cassert>
 #include <thread>

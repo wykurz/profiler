@@ -1,8 +1,8 @@
 #ifndef ALGORITHMS_BITMASK_H
 #define ALGORITHMS_BITMASK_H
 
-#include <Exception/Exception.h>
-#include <Log/Log.h>
+#include <Profiler/Exception/Exception.h>
+#include <Profiler/Log/Log.h>
 #include <algorithm>
 #include <cassert>
 #include <string>

@@ -1,6 +1,6 @@
-#include <Algorithm/FoldLeft.h>
-#include <Instrumentation/StatsScope.h>
-#include <Queue/Queue.h>
+#include <Profiler/Algorithm/FoldLeft.h>
+#include <Profiler/Instrumentation/StatsScope.h>
+#include <Profiler/Queue/Queue.h>
 #include <boost/test/unit_test.hpp>
 #include <array>
 #include <chrono>

@@ -1,4 +1,4 @@
-#include <Instrumentation/Time.h>
+#include <Profiler/Instrumentation/Time.h>
 #include <benchmark/benchmark.h>
 
 template <typename TimeType>

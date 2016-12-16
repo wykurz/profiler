@@ -1,5 +1,5 @@
-#include <Config/Config.h>
-#include <Exception/Exception.h>
+#include <Profiler/Config/Config.h>
+#include <Profiler/Exception/Exception.h>
 #include <string>
 
 namespace Profiler { namespace Config

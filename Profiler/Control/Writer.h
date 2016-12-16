@@ -1,8 +1,8 @@
 #ifndef CONTROL_WRITER_H
 #define CONTROL_WRITER_H
 
-#include <Control/Allocation.h>
-#include <Control/Holder.h>
+#include <Profiler/Control/Allocation.h>
+#include <Profiler/Control/Holder.h>
 #include <atomic>
 #include <chrono>
 #include <fstream>

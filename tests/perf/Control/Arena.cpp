@@ -1,4 +1,4 @@
-#include <Control/Arena.h>
+#include <Profiler/Control/Arena.h>
 #include <benchmark/benchmark.h>
 
 using namespace Profiler::Control;

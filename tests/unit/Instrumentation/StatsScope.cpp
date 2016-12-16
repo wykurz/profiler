@@ -1,6 +1,6 @@
-#include <Control/Manager.h>
-#include <Control/ThreadRecords.h>
-#include <Instrumentation/StatsScope.h>
+#include <Profiler/Control/Manager.h>
+#include <Profiler/Control/ThreadRecords.h>
+#include <Profiler/Instrumentation/StatsScope.h>
 #include <boost/test/unit_test.hpp>
 
 namespace Profiler { namespace Instrumentation { namespace Test

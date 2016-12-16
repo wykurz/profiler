@@ -1,5 +1,5 @@
-#include <Control/Writer.h>
-#include <Exception/Exception.h>
+#include <Profiler/Control/Writer.h>
+#include <Profiler/Exception/Exception.h>
 #include <chrono>
 #include <thread>
 #include <utility>

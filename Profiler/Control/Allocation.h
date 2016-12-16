@@ -1,9 +1,9 @@
 #ifndef CONTROL_ALLOCATION_H
 #define CONTROL_ALLOCATION_H
 
-#include <Control/Arena.h>
-#include <Control/Holder.h>
-#include <Control/RecordManager.h>
+#include <Profiler/Control/Arena.h>
+#include <Profiler/Control/Holder.h>
+#include <Profiler/Control/RecordManager.h>
 #include <mutex>
 
 namespace Profiler { namespace Control

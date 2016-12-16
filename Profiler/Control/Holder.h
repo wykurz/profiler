@@ -1,7 +1,7 @@
 #ifndef CONTROL_HOLDER_H
 #define CONTROL_HOLDER_H
 
-#include <Control/RecordManager.h>
+#include <Profiler/Control/RecordManager.h>
 #include <atomic>
 #include <memory>
 #include <mutex>

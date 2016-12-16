@@ -1,7 +1,7 @@
 #ifndef RECORD_RECORD_H
 #define RECORD_RECORD_H
 
-#include <Queue/Queue.h>
+#include <Profiler/Queue/Queue.h>
 #include <array>
 #include <chrono>
 #include <cstring>

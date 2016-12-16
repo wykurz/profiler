@@ -1,7 +1,7 @@
 #ifndef INSTRUMENTATION_TIME_H
 #define INSTRUMENTATION_TIME_H
 
-#include <Record/Record.h>
+#include <Profiler/Record/Record.h>
 #include <chrono>
 #include <ratio>
 

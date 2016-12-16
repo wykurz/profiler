@@ -1,4 +1,4 @@
-#include <Control/Arena.h>
+#include <Profiler/Control/Arena.h>
 #include <unordered_set>
 #include <vector>
 #include <boost/test/unit_test.hpp>

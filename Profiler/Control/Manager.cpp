@@ -1,6 +1,6 @@
-#include <Config/Config.h>
-#include <Control/Manager.h>
-#include <Control/Writer.h>
+#include <Profiler/Config/Config.h>
+#include <Profiler/Control/Manager.h>
+#include <Profiler/Control/Writer.h>
 #include <chrono>
 
 namespace Profiler { namespace Control

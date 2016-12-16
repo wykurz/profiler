@@ -21,8 +21,8 @@ set(CMAKE_SHARED_LINKER_FLAGS_COVERAGE "${CMAKE_SHARED_LINKER_FLAGS} --coverage"
 
 find_package(Threads REQUIRED)
 
-include_directories(SYSTEM ${profiler_SOURCE_DIR}/profiler)
-file(GLOB profiler_SRC "profiler/**/*.cpp")
+include_directories(${profiler_SOURCE_DIR})
+file(GLOB profiler_SRC "Profiler/**/*.cpp")
 add_library(cxxprofiler SHARED ${profiler_SRC})
 
 if (USE_LIBCXX)

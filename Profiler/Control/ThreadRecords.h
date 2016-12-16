@@ -1,9 +1,9 @@
 #ifndef CONTROL_THREAD_H
 #define CONTROL_THREAD_H
 
-#include <Record/Record.h>
-#include <Control/Manager.h>
-#include <Control/RecordManager.h>
+#include <Profiler/Record/Record.h>
+#include <Profiler/Control/Manager.h>
+#include <Profiler/Control/RecordManager.h>
 #include <cassert>
 #include <memory>
 #include <mutex>

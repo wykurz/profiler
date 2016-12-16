@@ -1,11 +1,11 @@
 #ifndef INSTRUMENTATION_STATSSCOPE_H
 #define INSTRUMENTATION_STATSSCOPE_H
 
-#include <Control/RecordManager.h>
-#include <Control/ThreadRecords.h>
-#include <Instrumentation/Time.h>
-#include <Log/Log.h>
-#include <Record/Record.h>
+#include <Profiler/Control/RecordManager.h>
+#include <Profiler/Control/ThreadRecords.h>
+#include <Profiler/Instrumentation/Time.h>
+#include <Profiler/Log/Log.h>
+#include <Profiler/Record/Record.h>
 
 namespace Profiler { namespace Scope
 {

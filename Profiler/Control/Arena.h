@@ -1,8 +1,8 @@
 #ifndef CONTROL_ARENA_H
 #define CONTROL_ARENA_H
 
-#include <Algorithm/FreeMap.h>
-#include <Exception/Exception.h>
+#include <Profiler/Algorithm/FreeMap.h>
+#include <Profiler/Exception/Exception.h>
 #include <array>
 #include <cstddef>
 #include <memory>

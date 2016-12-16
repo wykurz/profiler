@@ -1,4 +1,4 @@
-#include <Queue/Queue.h>
+#include <Profiler/Queue/Queue.h>
 #include <boost/test/unit_test.hpp>
 
 namespace Profiler { namespace Queue { namespace Test {

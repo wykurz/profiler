@@ -1,11 +1,11 @@
 #ifndef CONTROL_MANAGER_H
 #define CONTROL_MANAGER_H
 
-#include <Control/Allocation.h>
-#include <Control/Arena.h>
-#include <Control/Holder.h>
-#include <Config/Config.h>
-#include <Control/Writer.h>
+#include <Profiler/Control/Allocation.h>
+#include <Profiler/Control/Arena.h>
+#include <Profiler/Control/Holder.h>
+#include <Profiler/Config/Config.h>
+#include <Profiler/Control/Writer.h>
 #include <atomic>
 #include <thread>
 
