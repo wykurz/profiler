@@ -4,7 +4,7 @@
 #include <iterator>
 #include <numeric>
 
-namespace Profiler { namespace Algorithms
+namespace Profiler { namespace Algorithm
 {
 
     template <typename Container_, typename Type_, typename Func_>

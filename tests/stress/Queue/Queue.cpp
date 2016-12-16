@@ -1,4 +1,4 @@
-#include <Algorithms/FoldLeft.h>
+#include <Algorithm/FoldLeft.h>
 #include <Instrumentation/StatsScope.h>
 #include <Queue/Queue.h>
 #include <boost/test/unit_test.hpp>
@@ -83,7 +83,7 @@ namespace Profiler { namespace Queue { namespace Tests
 
         void check() const
         {
-            int size = Algorithms::foldLeft(queues, 0, [](int v, const QueueType& q) {
+            int size = Algorithm::foldLeft(queues, 0, [](int v, const QueueType& q) {
                     return v + q.size(); });
             BOOST_CHECK_EQUAL(data.size(), size);
             BOOST_CHECK_GT(shuffles, 0);

@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-namespace Profiler { namespace Algorithms
+namespace Profiler { namespace Algorithm
 {
 
     struct FreeMap

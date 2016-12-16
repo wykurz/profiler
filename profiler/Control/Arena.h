@@ -1,7 +1,7 @@
 #ifndef CONTROL_ARENA_H
 #define CONTROL_ARENA_H
 
-#include <Algorithms/FreeMap.h>
+#include <Algorithm/FreeMap.h>
 #include <Exception/Exception.h>
 #include <array>
 #include <cstddef>
@@ -96,7 +96,7 @@ namespace Profiler { namespace Control
         }
 
         const std::size_t _nblocks;
-        Algorithms::FreeMap _freeMap{_nblocks};
+        Algorithm::FreeMap _freeMap{_nblocks};
         Buffer _buffer;
         void* _next = _buffer.data();
         std::size_t _bytesLeft = _buffer.size();
