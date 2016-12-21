@@ -1,3 +1,4 @@
+#include <Profiler/Decoder/Decoder.h>
 #include <Profiler/Instrumentation/StatsScope.h>
 
 void f1()
