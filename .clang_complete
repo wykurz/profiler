@@ -3,5 +3,5 @@
 -O3
 -Wall
 -fPIC
--I/home/mateusz/projects/profiler/Profiler
+-I/home/mateusz/projects/profiler
 -I/home/mateusz/tools/benchmark/include
