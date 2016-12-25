@@ -50,7 +50,7 @@ namespace
     void Manager::stopWriter()
     {
         _writer.stop();
-        _writerThread.join();
+        if (_writerThread.joinable()) _writerThread.join();
     }
 
     Manager& getManager()
