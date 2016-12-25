@@ -19,19 +19,6 @@ namespace Profiler { namespace Control
         virtual std::ostream& get() = 0;
     };
 
-    struct FileOut : Output
-    {
-        FileOut(const std::string& name_)
-          : _out(name_, std::fstream::binary | std::fstream::trunc)
-        { }
-        virtual std::ostream& get()
-        {
-            return _out;
-        }
-      private:
-        std::ofstream _out;
-    };
-
     /**
      * Writer is responsible for collecting data from all the threads and writing it to the output.
      */

@@ -5,13 +5,14 @@
 namespace Profiler { namespace Config
 {
 
-    Config::Config(std::string logFileName_)
-      : logFileName(logFileName_)
+    Config::Config(std::string binaryLogPrefix_, std::string yamlLogSuffix_)
+      : binaryLogPrefix(binaryLogPrefix_),
+        yamlLogSuffix(yamlLogSuffix_)
     { }
 
     bool Config::operator!=(const Config& other_) const
     {
-        return logFileName != other_.logFileName;
+        return binaryLogPrefix != other_.binaryLogPrefix or yamlLogSuffix != other_.yamlLogSuffix;
     }
 
 namespace
@@ -35,7 +36,7 @@ namespace
         return doGetConfig();
     }
 
-    const Config& getConfig(const Config& config_)
+    const Config& setConfig(const Config& config_)
     {
         auto& config = doGetConfig(config_);
         if (config != config_) throw Exception::Runtime("Config appears to have been already set to a different value");

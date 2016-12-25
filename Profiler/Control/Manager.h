@@ -23,7 +23,7 @@ namespace Profiler { namespace Control
         Allocation addThreadRecords();
 
         /**
-         * Use for test purposes - will stop the writer thread. The writer thread may not be restarted.
+         * Will stop the writer thread. The writer thread may not be restarted.
          */
         void stopWriter();
 

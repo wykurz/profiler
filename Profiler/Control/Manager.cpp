@@ -6,14 +6,32 @@
 namespace Profiler { namespace Control
 {
 
+namespace
+{
+
+    struct FileOut : Output
+    {
+        FileOut(const std::string& name_)
+          : _out(name_, std::fstream::binary | std::fstream::trunc)
+        { }
+        virtual std::ostream& get()
+        {
+            return _out;
+        }
+      private:
+        std::ofstream _out;
+    };
+
+}
+
+    // TODO: The Writer needs to be opening the log files using a name pattern
     Manager::Manager(const Config::Config& config_)
-      : _writer(Output::Ptr(new FileOut(config_.logFileName)), _threadArray, std::chrono::microseconds(100000))
+      : _writer(Output::Ptr(new FileOut(config_.binaryLogPrefix)), _threadArray, std::chrono::microseconds(100000))
     { }
 
     Manager::~Manager()
     {
         stopWriter();
-        _writerThread.join();
     }
 
     Allocation Manager::addThreadRecords()
@@ -32,6 +50,7 @@ namespace Profiler { namespace Control
     void Manager::stopWriter()
     {
         _writer.stop();
+        _writerThread.join();
     }
 
     Manager& getManager()

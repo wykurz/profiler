@@ -2,9 +2,11 @@
 #define DECODER_DECODER_H
 
 #include <Profiler/Algorithm/Mpl.h>
+#include <Profiler/Config/Config.h>
 #include <Profiler/Exception/Exception.h>
 #include <Profiler/Record/Record.h>
 #include <functional>
+#include <fstream>
 #include <iostream>
 #include <typeindex>
 #include <unordered_map>
@@ -28,7 +30,8 @@ namespace Internal
     {
         using NativeRecords = Mpl::TypeList<Record::Record>;
 
-        Decoder()
+        Decoder(const Config::Config& config_)
+            : _in(config_.binaryLogPrefix.c_str()), _out()
         {
             registerRecordTypes<NativeRecords>();
         }
@@ -41,17 +44,19 @@ namespace Internal
                 });
         }
 
-        void decodeStream(std::istream& in_, std::ostream& out_) const
+        void run()
         {
             std::string record;
-            in_ >> record;
+            _in >> record;
             auto it = _funcMap.find(record);
             if (it == _funcMap.end()) throw Exception::Runtime("Attempting to decode unknown record type.");
-            (it->second)(in_, out_);
+            (it->second)(_in, _out);
         }
 
       private:
         using DecodeFunc = std::function<void(std::istream&, std::ostream&)>;
+        std::ifstream _in;
+        std::ofstream _out;
         std::unordered_map<std::string, DecodeFunc> _funcMap;
     };
 
