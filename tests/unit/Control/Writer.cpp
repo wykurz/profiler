@@ -12,14 +12,23 @@ namespace Profiler { namespace Control { namespace Test
 namespace
 {
 
+    struct MockOutputs : OutputFactory
+    {
+        virtual Output::Ptr newOutput(Holder::Id extractorId_, Record::TypeId recordTypeId_) const override
+        {
+            return Output::Ptr();
+        }
+    };
+
     struct MockManager
     {
         Allocation addThreadRecords()
         {
-            return {{}, arena, _scratchHolder};
+            return {{}, arena, _scratchHolder, _outputs};
         }
         Arena arena{100000};
       private:
+        MockOutputs _outputs;
         Holder _scratchHolder;
     };
 
@@ -46,19 +55,19 @@ namespace
     BOOST_AUTO_TEST_CASE(Basic)
     {
         MockManager manager;
-        ThreadRecords<Record::Record> threadRecords(manager.addThreadRecords());
+        ThreadRecords<Record::TimeRecord> threadRecords(manager.addThreadRecords());
         {
             std::chrono::duration<double> timeDelta{0};
-            Scope::record(threadRecords.getRecordManager(), Record::Record("test", timeDelta));
+            Scope::record(threadRecords.getRecordManager(), Record::TimeRecord("test", timeDelta));
         }
         HolderArray threadArray(1);
         auto& holder = threadArray[0];
+        BufferMap buffers;
         {
             auto lk = holder.lock();
-            holder.setRecordExtractor(threadRecords.getRecordManager());
+            holder.setup(threadRecords.getRecordManager(), Output::Ptr(new MemoryOut(buffers, "test")));
         }
-        BufferMap buffers;
-        Writer writer(Output::Ptr(new MemoryOut(buffers, "test")), threadArray, std::chrono::microseconds(100000));
+        Writer writer(threadArray, std::chrono::microseconds(100000));
         std::thread writerThread{[&writer](){ writer.run(); }};
         writer.stop();
         writerThread.join();

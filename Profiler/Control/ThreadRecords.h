@@ -18,13 +18,9 @@ namespace Profiler { namespace Control
         using RecordManagerType = RecordManager<Record_>;
         ThreadRecords(const Allocation& allocation_)
           : _recordManager(allocation_.getArena()),
-            _finalizer(allocation_.setRecordExtractor(_recordManager))
+            _finalizer(allocation_.setupHolder(_recordManager))
         { }
         ThreadRecords(const ThreadRecords&) = delete;
-        ~ThreadRecords()
-        {
-            // TODO: Grab a slot-lock and deregister ourselves from Manager's thread buffer list
-        }
         RecordManagerType& getRecordManager()
         {
             return _recordManager;

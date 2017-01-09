@@ -34,6 +34,7 @@ namespace Profiler { namespace Control
         std::atomic<int> _currentThread = {0};
         HolderArray _threadArray{MaxThreads};
         std::size_t _droppedThreads = {0};
+        FileOutputs _fileOutputs;
         Writer _writer;
         std::thread _writerThread{[this](){ this->_writer.run(); }};
     };

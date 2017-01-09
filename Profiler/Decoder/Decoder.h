@@ -28,7 +28,7 @@ namespace Internal
 
     struct Decoder
     {
-        using NativeRecords = Mpl::TypeList<Record::Record>;
+        using NativeRecords = Mpl::TypeList<Record::TimeRecord>;
 
         Decoder(const Config::Config& config_)
             : _in(config_.binaryLogPrefix.c_str()), _out()

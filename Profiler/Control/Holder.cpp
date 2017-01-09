@@ -1,0 +1,36 @@
+#include <Profiler/Control/Holder.h>
+#include <fstream>
+#include <memory>
+
+namespace Profiler { namespace Control
+{
+
+    FileOutputs::FileOutputs(const Config::Config& config_)
+      : _config(config_)
+    { }
+
+namespace
+{
+
+    struct FileOut : Output
+    {
+        FileOut(const std::string& name_)
+          : _out(name_, std::fstream::binary | std::fstream::trunc)
+        { }
+        virtual std::ostream& get()
+        {
+            return _out;
+        }
+      private:
+        std::ofstream _out;
+    };
+
+}
+
+    Output::Ptr FileOutputs::newOutput(Holder::Id extractorId_, Record::TypeId recordTypeId_) const
+    {
+        return std::make_unique<FileOut>(_config.binaryLogPrefix + "." + std::to_string(extractorId_));
+    }
+
+}
+}

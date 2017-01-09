@@ -7,13 +7,10 @@
 namespace Profiler { namespace Control
 {
 
-    Writer::Writer(Output::Ptr out_, HolderArray& threadArray_, std::chrono::microseconds sleepTime_)
-      : _out(std::move(out_)),
-        _threadArray(threadArray_),
+    Writer::Writer(HolderArray& threadArray_, std::chrono::microseconds sleepTime_)
+      : _threadArray(threadArray_),
         _sleepTime(sleepTime_)
-    {
-        PROFILER_ASSERT(_out.get());
-    }
+    { }
 
     Writer::~Writer()
     {
@@ -27,7 +24,7 @@ namespace Profiler { namespace Control
         do {
             for (auto& holder : _threadArray) {
                 auto lk = holder.lock();
-                holder.getExtractorWrapper().streamDirtyRecords(_out->get());
+                holder.getPtr()->streamDirtyRecords();
             }
             std::this_thread::sleep_for(_sleepTime);
         }

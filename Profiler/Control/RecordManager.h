@@ -16,8 +16,8 @@ namespace Profiler { namespace Control
 
     struct RecordExtractor
     {
-        ~RecordExtractor() = default;
-        virtual std::type_index getRecordTypeHash() const = 0;
+        virtual ~RecordExtractor() = default;
+        virtual Record::TypeId getRecordId() const = 0;
         virtual void streamDirtyRecords(std::ostream& out_) = 0;
         virtual std::unique_ptr<RecordExtractor> moveToFinalExtractor() = 0;
     };
@@ -28,10 +28,10 @@ namespace Internal
     template <typename Record_>
     struct ManagerBase : RecordExtractor
     {
-        using Record = Record_;
-        virtual std::type_index getRecordTypeHash() const override
+        using RecordType = Record_;
+        virtual Record::TypeId getRecordId() const override
         {
-            return std::type_index(typeid(Record));
+            return std::type_index(typeid(RecordType));
         }
     };
 
@@ -40,8 +40,8 @@ namespace Internal
     template <typename Record_>
     struct SimpleExtractor : Internal::ManagerBase<Record_>
     {
-        using Record = Record_;
-        using Queue = Queue::Queue<Record>;
+        using RecordType = Record_;
+        using Queue = Queue::Queue<RecordType>;
         using Node = typename Queue::Node;
 
         SimpleExtractor(Node* const records_)
@@ -66,9 +66,9 @@ namespace Internal
     template <typename Record_>
     struct RecordManager : Internal::ManagerBase<Record_>
     {
-        using Record = Record_;
-        using This = RecordManager<Record>;
-        using Queue = Queue::Queue<Record>;
+        using RecordType = Record_;
+        using This = RecordManager<RecordType>;
+        using Queue = Queue::Queue<RecordType>;
         using Node = typename Queue::Node;
 
         struct RecordHolder
@@ -85,7 +85,7 @@ namespace Internal
             {
                 return nullptr != _node;
             }
-            Record& getRecord()
+            RecordType& getRecord()
             {
                 assert(_node);
                 return _node->value;
@@ -133,7 +133,7 @@ namespace Internal
 
         virtual std::unique_ptr<RecordExtractor> moveToFinalExtractor() override
         {
-            return std::make_unique<SimpleExtractor<Record> >(extractDirtyRecords());
+            return std::make_unique<SimpleExtractor<RecordType> >(extractDirtyRecords());
         }
 
       private:

@@ -4,43 +4,35 @@
 #include <Profiler/Control/Arena.h>
 #include <Profiler/Control/Holder.h>
 #include <Profiler/Control/RecordManager.h>
+#include <Profiler/Exception/Exception.h>
+#include <atomic>
 #include <mutex>
 
 namespace Profiler { namespace Control
 {
 
-    struct Finalizer
-    {
-        Finalizer(Holder* holder_)
-          : _holder(holder_)
-        { }
-        ~Finalizer()
-        {
-            if (_holder) {
-                auto lk = _holder->lock();
-                _holder->finalize();
-            }
-        }
-      private:
-        Holder* const _holder;
-    };
-
     struct Allocation
     {
-        Allocation(std::unique_lock<std::mutex>&& lock_, Arena& arena_, Holder& holder_)
-          : _lock(std::move(lock_)), _arena(arena_), _holder(&holder_)
+        Allocation(std::unique_lock<std::mutex>&& lock_, Arena& arena_, Holder& holder_,
+                   const OutputFactory& fileOutputs_)
+          : _id(_globalId.fetch_add(1, std::memory_order_release)), _lock(std::move(lock_)),
+            _arena(arena_), _holder(&holder_), _fileOutputs(&fileOutputs_)
         { }
         Allocation()
-          : _arena(empty()), _holder(nullptr)
+          : _id(-1), _arena(empty()), _holder(nullptr), _fileOutputs(nullptr)
         { }
         Arena& getArena() const
         {
             return _arena;
         }
-        Finalizer setRecordExtractor(RecordExtractor& recordExtractor_) const
+        Finalizer setupHolder(RecordExtractor& recordExtractor_) const
         {
-            if (_holder) _holder->setRecordExtractor(recordExtractor_);
+            if (_holder) _holder->setup(recordExtractor_, _fileOutputs->newOutput(_id, recordExtractor_.getRecordId()));
             return Finalizer(_holder);
+        }
+        Holder::Id getId() const
+        {
+            return _id;
         }
       private:
         static Arena& empty()
@@ -48,9 +40,12 @@ namespace Profiler { namespace Control
             static Arena empty(0);
             return empty;
         }
+        static std::atomic<Holder::Id> _globalId;
+        const Holder::Id _id;
         std::unique_lock<std::mutex> _lock;
         Arena& _arena;
         Holder* const _holder;
+        const OutputFactory* const _fileOutputs;
     };
 
 }

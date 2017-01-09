@@ -30,8 +30,8 @@ namespace Profiler { namespace Scope
         { }
         ~StatsScope()
         {
-            record(Control::getThreadRecords<Record::Record>().getRecordManager(),
-                   Record::Record(_name, _time.delta()));
+            record(Control::getThreadRecords<Record::TimeRecord>().getRecordManager(),
+                   Record::TimeRecord(_name, _time.delta()));
         }
       private:
         const char* _name;

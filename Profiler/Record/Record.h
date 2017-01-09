@@ -7,16 +7,19 @@
 #include <cstring>
 #include <ostream>
 #include <istream>
+#include <typeindex>
 
 namespace Profiler { namespace Record
 {
 
     using TimeDelta = std::chrono::duration<double>;
 
-    struct Record
+    using TypeId = std::type_index;
+
+    struct TimeRecord
     {
-        Record() = default;
-        Record(const char* name_, const TimeDelta& delta_)
+        TimeRecord() = default;
+        TimeRecord(const char* name_, const TimeDelta& delta_)
           : name(name_),
             delta(delta_)
         { }
@@ -28,7 +31,7 @@ namespace Profiler { namespace Record
         }
     };
 
-    inline std::ostream& operator<<(std::ostream& out_, const Record& record_)
+    inline std::ostream& operator<<(std::ostream& out_, const TimeRecord& record_)
     {
         out_ << strlen(record_.name) << record_.name << record_.delta.count();
         return out_;

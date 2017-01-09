@@ -12,13 +12,6 @@
 namespace Profiler { namespace Control
 {
 
-    struct Output
-    {
-        using Ptr = std::unique_ptr<Output>;
-        virtual ~Output() = default;
-        virtual std::ostream& get() = 0;
-    };
-
     /**
      * Writer is responsible for collecting data from all the threads and writing it to the output.
      */
@@ -28,7 +21,7 @@ namespace Profiler { namespace Control
          * Writer takes output pointer, global thread array and time interval of how long it should sleep between each
          * activity period.
          */
-        Writer(Output::Ptr out_, HolderArray& threadArray_, std::chrono::microseconds sleepTime_);
+        Writer(HolderArray& threadArray_, std::chrono::microseconds sleepTime_);
         Writer(const Writer&) = delete;
         ~Writer();
         /**
@@ -41,7 +34,6 @@ namespace Profiler { namespace Control
          */
         void stop();
       private:
-        const Output::Ptr _out;
         HolderArray& _threadArray;
         const std::chrono::microseconds _sleepTime;
         std::atomic<bool> _done{false};
