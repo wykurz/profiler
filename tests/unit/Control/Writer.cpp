@@ -44,6 +44,8 @@ namespace
         {
             return _out;
         }
+        virtual void flush()
+        { }
       private:
         std::stringstream _out;
     };

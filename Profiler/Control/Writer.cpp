@@ -15,20 +15,22 @@ namespace Profiler { namespace Control
     Writer::~Writer()
     {
         PROFILER_ASSERT(_done.load(std::memory_order_acquire));
-        // One final run to capture any events that may have been missed due to notification timing
-        run();
     }
 
     void Writer::run()
     {
-        do {
-            for (auto& holder : _threadArray) {
+        auto doRun = [this]() {
+            for (auto& holder : this->_threadArray) {
                 auto lk = holder.lock();
                 holder.getPtr()->streamDirtyRecords();
             }
-            std::this_thread::sleep_for(_sleepTime);
-        }
+            std::this_thread::sleep_for(this->_sleepTime);
+        };
+        do doRun();
         while (!_done.load(std::memory_order_acquire));
+        // One final run to capture any events that may have been missed due to notification timing
+        doRun();
+        for (auto& holder : _threadArray) holder.flush();
     }
 
     void Writer::stop()

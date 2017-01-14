@@ -7,6 +7,7 @@ set(VERSION_PATCH 1 CACHE STRING "Project patch version number.")
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
 option(USE_LIBCXX "Use libc++ (instead of stdlibc++). Enables sanitizer build types." OFF)
+option(DEBUG_LOG "Debug log printing." OFF)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
@@ -25,6 +26,10 @@ include_directories(${profiler_SOURCE_DIR})
 file(GLOB profiler_SRC "Profiler/**/*.cpp")
 add_library(cxxprofiler SHARED ${profiler_SRC})
 
+# TODO: With C++17 support we can drop the boost::filesystem library
+find_package(Boost 1.54.0 COMPONENTS filesystem REQUIRED)
+include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
+
 if (USE_LIBCXX)
   message(STATUS "Configuring project to use libc++")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
@@ -32,10 +37,10 @@ if (USE_LIBCXX)
   set(CMAKE_CXX_FLAGS_ASAN_USAN "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -fsanitize=address,undefined")
   set(CMAKE_CXX_FLAGS_TSAN "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -fsanitize=thread")
   # Profiler library link:
-  target_link_libraries(cxxprofiler ${CMAKE_THREAD_LIBS_INIT} supc++)
+  target_link_libraries(cxxprofiler ${CMAKE_THREAD_LIBS_INIT} supc++ ${Boost_LIBRARIES})
 else ()
   message(STATUS "Configuring project to use stdlibc++, sanitizer builds disabled")
-  target_link_libraries(cxxprofiler ${CMAKE_THREAD_LIBS_INIT} -latomic)
+  target_link_libraries(cxxprofiler ${CMAKE_THREAD_LIBS_INIT} atomic ${Boost_LIBRARIES})
 endif ()
 
 add_subdirectory(tests)
@@ -56,3 +61,7 @@ if (Doxygen_FOUND)
 else ()
   message(STATUS "Doxygen not found, building documentation disabled")
 endif ()
+
+if (DEBUG_LOG)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG_LOG")
+endif()

@@ -25,7 +25,6 @@ namespace Profiler { namespace Control
         {
             return _recordManager;
         }
-
       private:
         RecordManager<Record_> _recordManager;
         Finalizer _finalizer;

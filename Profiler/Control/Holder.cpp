@@ -1,4 +1,5 @@
 #include <Profiler/Control/Holder.h>
+#include <Profiler/Log/Log.h>
 #include <fstream>
 #include <memory>
 
@@ -16,10 +17,16 @@ namespace
     {
         FileOut(const std::string& name_)
           : _out(name_, std::fstream::binary | std::fstream::trunc)
-        { }
-        virtual std::ostream& get()
+        {
+            DLOG("FileOut " << name_ << " " << std::size_t(&_out));
+        }
+        virtual std::ostream& get() override
         {
             return _out;
+        }
+        virtual void flush() override
+        {
+            _out.flush();
         }
       private:
         std::ofstream _out;

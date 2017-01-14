@@ -18,6 +18,7 @@ namespace Profiler { namespace Control
     {
         virtual ~RecordExtractor() = default;
         virtual Record::TypeId getRecordId() const = 0;
+        virtual void setupStream(std::ostream& out_) = 0;
         virtual void streamDirtyRecords(std::ostream& out_) = 0;
         virtual std::unique_ptr<RecordExtractor> moveToFinalExtractor() = 0;
     };
@@ -29,9 +30,28 @@ namespace Internal
     struct ManagerBase : RecordExtractor
     {
         using RecordType = Record_;
+        using Queue = Queue::Queue<RecordType>;
+        using Node = typename Queue::Node;
+
+        virtual void setupStream(std::ostream& out_) override
+        {
+            const std::string& recordTypeName = typeid(RecordType).name();
+            DLOG("Setup: " << recordTypeName.size() << " " << recordTypeName << " " << std::size_t(&out_))
+            const std::size_t& nameSize = recordTypeName.size();
+            out_.write(reinterpret_cast<const char*>(&nameSize), sizeof(nameSize));
+            out_ << recordTypeName;
+        }
         virtual Record::TypeId getRecordId() const override
         {
             return std::type_index(typeid(RecordType));
+        }
+      protected:
+        void doStreamDirtyRecords(std::ostream& out_, Node* recordNode_)
+        {
+            while (recordNode_) {
+                out_ << recordNode_->value;
+                recordNode_ = recordNode_->getNext();
+            }
         }
     };
 
@@ -40,6 +60,7 @@ namespace Internal
     template <typename Record_>
     struct SimpleExtractor : Internal::ManagerBase<Record_>
     {
+        using Base = Internal::ManagerBase<Record_>;
         using RecordType = Record_;
         using Queue = Queue::Queue<RecordType>;
         using Node = typename Queue::Node;
@@ -47,17 +68,13 @@ namespace Internal
         SimpleExtractor(Node* const records_)
           : _records(records_)
         { }
-        virtual void streamDirtyRecords(std::ostream& out_) override
-        {
-            auto recordNode = _records;
-            while (recordNode) {
-                out_ << recordNode->value;
-                recordNode = recordNode->getNext();
-            }
-        }
         virtual std::unique_ptr<RecordExtractor> moveToFinalExtractor() override
         {
             throw Exception::LogicError("Attempting to finalize SimpleExtractor");
+        }
+        virtual void streamDirtyRecords(std::ostream& out_) override
+        {
+            Base::doStreamDirtyRecords(out_, _records);
         }
       private:
         Node* const _records;
@@ -66,6 +83,7 @@ namespace Internal
     template <typename Record_>
     struct RecordManager : Internal::ManagerBase<Record_>
     {
+        using Base = Internal::ManagerBase<Record_>;
         using RecordType = Record_;
         using This = RecordManager<RecordType>;
         using Queue = Queue::Queue<RecordType>;
@@ -124,11 +142,7 @@ namespace Internal
 
         virtual void streamDirtyRecords(std::ostream& out_) override
         {
-            auto recordNode = extractDirtyRecords();
-            while (recordNode) {
-                out_ << recordNode->value;
-                recordNode = recordNode->getNext();
-            }
+            Base::doStreamDirtyRecords(out_, extractDirtyRecords());
         }
 
         virtual std::unique_ptr<RecordExtractor> moveToFinalExtractor() override

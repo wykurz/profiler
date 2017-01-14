@@ -15,6 +15,7 @@ namespace Profiler { namespace Control
         using Ptr = std::unique_ptr<Output>;
         virtual ~Output() = default;
         virtual std::ostream& get() = 0;
+        virtual void flush() = 0;
     };
 
     // TODO: redesign this to use unique_ptr with a custom deleter holding a reference to Holder
@@ -46,9 +47,10 @@ namespace Profiler { namespace Control
 
         void setup(RecordExtractor& recordExtractor_, std::unique_ptr<Output>&& out_)
         {
-            PROFILER_ASSERT(!_recordExtractor && !_finalExtractor.get());
+            PROFILER_ASSERT(!_recordExtractor && !_finalExtractor.get() && out_.get());
             _recordExtractor = &recordExtractor_;
             _out = std::move(out_);
+            _recordExtractor->setupStream(_out->get());
         }
 
         void finalize()
@@ -57,6 +59,12 @@ namespace Profiler { namespace Control
             _recordExtractor = nullptr;
         }
 
+        void flush()
+        {
+            if (_out) _out->flush();
+        }
+
+      private:
         static void close(Holder* holder_)
         {
             auto& finalExtractor = holder_->_finalExtractor;
@@ -66,7 +74,6 @@ namespace Profiler { namespace Control
             }
         }
 
-      private:
         RecordExtractor* getExtractor() const
         {
             if (_recordExtractor) return _recordExtractor;

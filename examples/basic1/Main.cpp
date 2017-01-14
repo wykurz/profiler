@@ -9,8 +9,8 @@ void f1()
 int main()
 {
     using namespace Profiler;
-    const char* logFileName = ".perf.log";
-    Config::setConfig(Config::Config(logFileName));
+    const char* logFilePrefix = ".my.perf.log";
+    Config::setConfig(Config::Config(logFilePrefix));
     f1();
     Control::getManager().stopWriter();
     Decoder::Decoder decoder(Config::getConfig());;

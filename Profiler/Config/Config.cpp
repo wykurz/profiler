@@ -5,9 +5,8 @@
 namespace Profiler { namespace Config
 {
 
-    Config::Config(std::string binaryLogPrefix_, std::string yamlLogSuffix_)
-      : binaryLogPrefix(binaryLogPrefix_),
-        yamlLogSuffix(yamlLogSuffix_)
+    Config::Config(std::string binaryLogPrefix_, std::string binaryLogDir_, std::string yamlLogSuffix_)
+      : binaryLogPrefix(binaryLogPrefix_), binaryLogDir(binaryLogDir_), yamlLogSuffix(yamlLogSuffix_)
     { }
 
     bool Config::operator!=(const Config& other_) const
@@ -20,7 +19,7 @@ namespace
 
     Config defaultConfig()
     {
-        return Config(".cxxperf.log");
+        return Config();
     }
 
     const Config& doGetConfig(const Config& config_ = defaultConfig())

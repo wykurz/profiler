@@ -12,7 +12,7 @@ namespace Profiler { namespace Log
 }
 }
 
-#ifdef LOG
+#ifdef DEBUG_LOG
 #define DLOG(x) do { \
         std::unique_lock<std::mutex> lk(Profiler::Log::logMutex());   \
         std::cerr << __PRETTY_FUNCTION__ << " :: " << x << std::endl; \
