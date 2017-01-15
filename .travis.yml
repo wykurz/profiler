@@ -119,8 +119,9 @@ matrix:
 
 before_install:
   - sudo apt-get update -qq
+  - sudo add-apt-repository -y ppa:boost-latest/ppa
   - sudo apt-get install -y --force-yes libboost-test-dev
-  - sudo apt-get install -y --force-yes libboost-filesystem1.62-dev
+  - sudo apt-get install -y --force-yes libboost-filesystem-dev
   - sudo apt-get install -y gdb
 
 before_script:
