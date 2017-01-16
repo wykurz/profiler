@@ -12,7 +12,7 @@ fi
 ./bootstrap.sh --with-libraries=test,filesystem --with-toolset=${TOOLSET}
 if [ "${LIBCXX}" == "1" ]; then
     FLAGS="-stdlib=libc++"
-    sudo PATH=${PATH} ./b2 install toolset=${TOOLSET} cxxflags=${FLAGS} linkflags=${FLAGS} -j 2
+    sudo PATH=${PATH} ./b2 install toolset=${TOOLSET} cxxflags=${FLAGS} linkflags=${FLAGS} -d0 -j 2
 else
-    sudo PATH=${PATH} ./b2 install toolset=${TOOLSET} -j 2
+    sudo PATH=${PATH} ./b2 install toolset=${TOOLSET} -d0 -j 2
 fi
