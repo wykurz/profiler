@@ -27,7 +27,7 @@ file(GLOB profiler_SRC "Profiler/**/*.cpp")
 add_library(cxxprofiler SHARED ${profiler_SRC})
 
 # TODO: With C++17 support we can drop the boost::filesystem library
-find_package(Boost 1.60.0 COMPONENTS filesystem REQUIRED)
+find_package(Boost 1.62.0 COMPONENTS filesystem REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
 if (USE_LIBCXX)
