@@ -11,7 +11,6 @@ else
 fi
 ./bootstrap.sh --with-libraries=test,filesystem --with-toolset=${TOOLSET}
 ./b2 clean
-BOOST_DIR="../boost"
 if [ "${LIBCXX}" == "1" ]; then
     FLAGS="-stdlib=libc++"
     ./b2 install toolset=${TOOLSET} cxxflags=${FLAGS} linkflags=${FLAGS} --prefix=${BOOST_DIR} -d1 -j 2
