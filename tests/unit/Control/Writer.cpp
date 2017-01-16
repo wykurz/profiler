@@ -12,26 +12,6 @@ namespace Profiler { namespace Control { namespace Test
 namespace
 {
 
-    struct MockOutputs : OutputFactory
-    {
-        virtual Output::Ptr newOutput(Holder::Id extractorId_, Record::TypeId recordTypeId_) const override
-        {
-            return Output::Ptr();
-        }
-    };
-
-    struct MockManager
-    {
-        Allocation addThreadRecords()
-        {
-            return {{}, arena, _scratchHolder, _outputs};
-        }
-        Arena arena{100000};
-      private:
-        MockOutputs _outputs;
-        Holder _scratchHolder;
-    };
-
     using BufferMap = std::unordered_map<std::string, std::stringstream*>;
 
     struct MemoryOut : Output
@@ -50,31 +30,35 @@ namespace
         std::stringstream _out;
     };
 
+    struct MockOutputs : OutputFactory
+    {
+        virtual Output::Ptr newOutput(Holder::Id extractorId_, Record::TypeId recordTypeId_) const override
+        {
+            return std::make_unique<MemoryOut>(buffers, "test");
+        }
+        mutable BufferMap buffers;
+    };
+
 }
 
     BOOST_AUTO_TEST_SUITE(WriterTests)
 
     BOOST_AUTO_TEST_CASE(Basic)
     {
-        MockManager manager;
-        ThreadRecords<Record::TimeRecord> threadRecords(manager.addThreadRecords());
+        Arena arena{100000};
+        HolderArray holderArray{1};
+        MockOutputs outputs;
+        ThreadRecords<Record::TimeRecord> threadRecords(Allocation({}, arena, holderArray[0], outputs));
         {
             std::chrono::duration<double> timeDelta{0};
             Scope::record(threadRecords.getRecordManager(), Record::TimeRecord("test", timeDelta));
         }
-        HolderArray threadArray(1);
-        auto& holder = threadArray[0];
-        BufferMap buffers;
-        {
-            auto lk = holder.lock();
-            holder.setup(threadRecords.getRecordManager(), Output::Ptr(new MemoryOut(buffers, "test")));
-        }
-        Writer writer(threadArray, std::chrono::microseconds(100000));
+        Writer writer(holderArray, std::chrono::microseconds(100000));
         std::thread writerThread{[&writer](){ writer.run(); }};
         writer.stop();
         writerThread.join();
-        BOOST_REQUIRE(buffers["test"]);
-        BOOST_CHECK(0 < buffers["test"]->str().size());
+        BOOST_REQUIRE(outputs.buffers["test"]);
+        BOOST_CHECK(0 < outputs.buffers["test"]->str().size());
     }
 
     BOOST_AUTO_TEST_SUITE_END()

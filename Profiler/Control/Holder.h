@@ -108,6 +108,7 @@ namespace Profiler { namespace Control
 
     struct OutputFactory
     {
+        virtual ~OutputFactory() = default;
         virtual Output::Ptr newOutput(Holder::Id extractorId_, Record::TypeId recordTypeId_) const = 0;
     };
 
