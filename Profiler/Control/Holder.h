@@ -47,7 +47,9 @@ namespace Profiler { namespace Control
 
         void setup(RecordExtractor& recordExtractor_, std::unique_ptr<Output>&& out_)
         {
-            PROFILER_ASSERT(!_recordExtractor && !_finalExtractor.get() && out_.get());
+            PROFILER_ASSERT(!_recordExtractor);
+            PROFILER_ASSERT(!_finalExtractor.get());
+            PROFILER_ASSERT(out_.get());
             _recordExtractor = &recordExtractor_;
             _out = std::move(out_);
             _recordExtractor->setupStream(_out->get());
