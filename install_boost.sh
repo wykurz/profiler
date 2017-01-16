@@ -14,7 +14,7 @@ fi
 if [ "${LIBCXX}" == "1" ]; then
     CXXFLAGS="-std=gnu++14 -stdlib=libc++ -nostdinc++ -isystem /usr/include/c++/v1"
     LINKFLAGS="-std=gnu++14 -stdlib=libc++ -lc++ -lc++abi"
-    ./b2 install toolset=${TOOLSET} cxxflags=${CXXFLAGS} linkflags=${LINKFLAGS} --prefix=${BOOST_DIR} -d1 -j 2
+    ./b2 install toolset=${TOOLSET} cxxflags="${CXXFLAGS}" linkflags="${LINKFLAGS}" --prefix=${BOOST_DIR} -d1 -j 2
 else
     ./b2 install toolset=${TOOLSET} --prefix=${BOOST_DIR} -d1 -j 2
 fi
