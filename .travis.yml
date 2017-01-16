@@ -23,6 +23,7 @@ matrix:
         - LIBCXX=1
         - BENCHMARK_FLAGS="-stdlib=libc++"
         - BUILD_TYPE=release
+        - BOOST_DIR=${HOME}/boost
 
     # - clang w/ libc++
     # - debug
@@ -43,6 +44,7 @@ matrix:
         - BENCHMARK_FLAGS="-stdlib=libc++"
         - BUILD_TYPE=asan_usan
         - ASAN_OPTIONS=detect_leaks=0 # boost unit_test has leaks :(
+        - BOOST_DIR=${HOME}/boost
 
     # - clang w/ libc++
     # - debug
@@ -62,6 +64,7 @@ matrix:
         - LIBCXX=1
         - BENCHMARK_FLAGS="-stdlib=libc++"
         - BUILD_TYPE=tsan
+        - BOOST_DIR=${HOME}/boost
 
     # - clang w/ libc++
     # - debug + log
@@ -82,6 +85,7 @@ matrix:
         - BENCHMARK_FLAGS="-stdlib=libc++"
         - BUILD_TYPE=tsan
         - DEBUG_LOG=1
+        - BOOST_DIR=${HOME}/boost
 
     # - g++
     # - release
@@ -99,6 +103,7 @@ matrix:
         - C_COMPILER=gcc-6 CXX_COMPILER=g++-6
         - BENCHMARK_FLAGS="-fuse-ld=gold"
         - BUILD_TYPE=release
+        - BOOST_DIR=${HOME}/boost
 
     # - g++
     # - coverage
@@ -116,6 +121,7 @@ matrix:
         - C_COMPILER=gcc-6 CXX_COMPILER=g++-6 GCOV=gcov-6
         - BUILD_TYPE=coverage
         - COVERAGE=1
+        - BOOST_DIR=${HOME}/boost
 
 before_install:
   - sudo apt-get update -qq
@@ -134,7 +140,7 @@ script:
   - cd build
   - cmake --version
   - which cmake
-  - CC=${C_COMPILER} CXX=${CXX_COMPILER} cmake -DUSE_LIBCXX=${LIBCXX} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DDEBUG_LOG=${DEBUG_LOG} ..
+  - CC=${C_COMPILER} CXX=${CXX_COMPILER} cmake -DUSE_LIBCXX=${LIBCXX} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DDEBUG_LOG=${DEBUG_LOG} -DCMAKE_INCLUDE_PATH=$(HOME)/boost/include -DCMAKE_LIBRARY_PATH=$(HOME)/boost/lib ..
   - make -j2 VERBOSE=1
   - ./tests/unit_tests --show_progress --log_level=test_suite
   - ./tests/stress_tests --show_progress --log_level=test_suite
