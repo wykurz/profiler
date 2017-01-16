@@ -81,7 +81,7 @@ matrix:
         - LIBCXX=1
         - BENCHMARK_FLAGS="-stdlib=libc++"
         - BUILD_TYPE=tsan
-        - LOG=1
+        - DEBUG_LOG=1
 
     # - g++
     # - release
@@ -134,7 +134,7 @@ script:
   - cd build
   - cmake --version
   - which cmake
-  - CC=${C_COMPILER} CXX=${CXX_COMPILER} cmake -DUSE_LIBCXX=${LIBCXX} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DLOG=${LOG} ..
+  - CC=${C_COMPILER} CXX=${CXX_COMPILER} cmake -DUSE_LIBCXX=${LIBCXX} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DDEBUG_LOG=${DEBUG_LOG} ..
   - make -j2 VERBOSE=1
   - ./tests/unit_tests --show_progress --log_level=test_suite
   - ./tests/stress_tests --show_progress --log_level=test_suite
