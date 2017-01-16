@@ -13,9 +13,9 @@ fi
 ./b2 clean
 if [ "${LIBCXX}" == "1" ]; then
     FLAGS="-stdlib=libc++"
-    ./b2 toolset=${TOOLSET} cxxflags=${FLAGS} linkflags=${FLAGS} -d1 -j 2
+    ./b2 toolset=${TOOLSET} cxxflags=${FLAGS} linkflags=${FLAGS} -d1 -j 2 stage
     sudo ./b2 install
 else
-    ./b2 toolset=${TOOLSET} -d1 -j 2
+    ./b2 toolset=${TOOLSET} -d1 -j 2 stage
     sudo ./b2 install
 fi
