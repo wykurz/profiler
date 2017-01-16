@@ -32,7 +32,7 @@ namespace
 
     struct MockOutputs : OutputFactory
     {
-        virtual Output::Ptr newOutput(Holder::Id extractorId_, Record::TypeId recordTypeId_) const override
+        virtual Output::Ptr newOutput(Holder::Id extractorId_) const override
         {
             return std::make_unique<MemoryOut>(buffers, "test");
         }
