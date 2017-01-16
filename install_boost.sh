@@ -5,9 +5,16 @@ mv download boost_1_62_0.tar.bz2
 tar xf boost_1_62_0.tar.bz2
 cd boost_1_62_0/
 ./bootstrap.sh --with-libraries=test,filesystem
+if [[ "${CXX_COMPILER}" == *"clang"* ]]; then
+    TOOLSET='clang'
+    alias clang=${CXX_COMPILER}
+else
+    TOOLSET="gcc"
+    alias gcc=${CXX_COMPILER}
+fi
 if [ "${LIBCXX}" == "1" ]; then
     FLAGS="-stdlib=libc++"
-    sudo ./b2 install toolset=${CXX_COMPILER} cxxflags=${FLAGS} linkflags=${FLAGS} -j 2
+    sudo ./b2 install toolset=${TOOLSET} cxxflags=${FLAGS} linkflags=${FLAGS} -j 2
 else
-    sudo ./b2 install toolset=${CXX_COMPILER} -j 2
+    sudo ./b2 install toolset=${TOOLSET} -j 2
 fi
