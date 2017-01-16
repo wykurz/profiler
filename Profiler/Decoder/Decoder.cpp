@@ -8,7 +8,7 @@
 namespace Profiler { namespace Decoder
 {
 
-    namespace fs = ::boost::filesystem;
+    namespace fs = boost::filesystem;
 
 namespace
 {
@@ -34,15 +34,16 @@ namespace
     Decoder::Decoder(const Config::Config& config_)
       : _funcMap(genFuncMap<Mpl::TypeList<> >())
     {
-        fs::path logDir(config_.binaryLogDir);
-        DLOG("Traversing: " << config_.binaryLogDir);
+        const fs::path logDir(config_.binaryLogDir);
+        DLOG("Traversing: " << logDir);
         for (auto& entry : fs::directory_iterator(logDir)) {
             if(!fs::is_regular_file(entry.status())) {
                 DLOG("Not a file: " << entry.path());
                 continue;
             }
+            const auto& fileName = entry.path().filename().string();
             const auto& prefix = config_.binaryLogPrefix;
-            if (prefix != entry.path().filename().string().substr(0, prefix.size())) {
+            if (prefix != fileName.substr(0, prefix.size())) {
                 DLOG("Wrong prefix: " << entry.path());
                 continue;
             }

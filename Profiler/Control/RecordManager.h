@@ -18,7 +18,6 @@ namespace Profiler { namespace Control
     {
         virtual ~RecordExtractor() = default;
         virtual Record::TypeId getRecordId() const = 0;
-        virtual void setupStream(std::ostream& out_) = 0;
         virtual void streamDirtyRecords(std::ostream& out_) = 0;
         virtual std::unique_ptr<RecordExtractor> moveToFinalExtractor() = 0;
     };
@@ -33,14 +32,6 @@ namespace Internal
         using Queue = Queue::Queue<RecordType>;
         using Node = typename Queue::Node;
 
-        virtual void setupStream(std::ostream& out_) override
-        {
-            const std::string& recordTypeName = typeid(RecordType).name();
-            DLOG("Setup: " << recordTypeName.size() << " " << recordTypeName << " " << std::size_t(&out_))
-            const std::size_t& nameSize = recordTypeName.size();
-            out_.write(reinterpret_cast<const char*>(&nameSize), sizeof(nameSize));
-            out_ << recordTypeName;
-        }
         virtual Record::TypeId getRecordId() const override
         {
             return std::type_index(typeid(RecordType));

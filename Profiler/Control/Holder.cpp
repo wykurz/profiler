@@ -34,7 +34,7 @@ namespace
 
 }
 
-    Output::Ptr FileOutputs::newOutput(Holder::Id extractorId_, Record::TypeId recordTypeId_) const
+    Output::Ptr FileOutputs::newOutput(Holder::Id extractorId_) const
     {
         return std::make_unique<FileOut>(_config.binaryLogPrefix + "." + std::to_string(extractorId_));
     }

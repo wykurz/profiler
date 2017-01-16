@@ -3,6 +3,7 @@
 
 #include <Profiler/Config/Config.h>
 #include <Profiler/Control/RecordManager.h>
+#include <Profiler/Decoder/Decoder.h>
 #include <atomic>
 #include <memory>
 #include <mutex>
@@ -52,7 +53,7 @@ namespace Profiler { namespace Control
             PROFILER_ASSERT(out_.get());
             _recordExtractor = &recordExtractor_;
             _out = std::move(out_);
-            _recordExtractor->setupStream(_out->get());
+            Decoder::setupStream(_out->get(), recordExtractor_.getRecordId());
         }
 
         void finalize()
@@ -109,13 +110,13 @@ namespace Profiler { namespace Control
     struct OutputFactory
     {
         virtual ~OutputFactory() = default;
-        virtual Output::Ptr newOutput(Holder::Id extractorId_, Record::TypeId recordTypeId_) const = 0;
+        virtual Output::Ptr newOutput(Holder::Id extractorId_) const = 0;
     };
 
     struct FileOutputs : OutputFactory
     {
         FileOutputs(const Config::Config& config_);
-        virtual Output::Ptr newOutput(Holder::Id extractorId_, Record::TypeId recordTypeId_) const override;
+        virtual Output::Ptr newOutput(Holder::Id extractorId_) const override;
       private:
         const Config::Config& _config;
     };

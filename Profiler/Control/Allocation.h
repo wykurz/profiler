@@ -27,7 +27,7 @@ namespace Profiler { namespace Control
         }
         Finalizer setupHolder(RecordExtractor& recordExtractor_) const
         {
-            if (_holder) _holder->setup(recordExtractor_, _fileOutputs->newOutput(_id, recordExtractor_.getRecordId()));
+            if (_holder) _holder->setup(recordExtractor_, _fileOutputs->newOutput(_id));
             return Finalizer(_holder);
         }
         Holder::Id getId() const
