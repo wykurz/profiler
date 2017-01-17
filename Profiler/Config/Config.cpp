@@ -5,13 +5,13 @@
 namespace Profiler { namespace Config
 {
 
-    Config::Config(std::string binaryLogPrefix_, std::string binaryLogDir_, std::string yamlLogSuffix_)
-      : binaryLogPrefix(binaryLogPrefix_), binaryLogDir(binaryLogDir_), yamlLogSuffix(yamlLogSuffix_)
+    Config::Config(std::string binaryLogPrefix_, std::string binaryLogDir_, std::string yamlLogName_)
+      : binaryLogPrefix(binaryLogPrefix_), binaryLogDir(binaryLogDir_), yamlLogName(yamlLogName_)
     { }
 
     bool Config::operator!=(const Config& other_) const
     {
-        return binaryLogPrefix != other_.binaryLogPrefix or yamlLogSuffix != other_.yamlLogSuffix;
+        return binaryLogPrefix != other_.binaryLogPrefix or yamlLogName != other_.yamlLogName;
     }
 
 namespace

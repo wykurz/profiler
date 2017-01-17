@@ -27,9 +27,9 @@ namespace Profiler { namespace Decoder
         Decoder(const Config::Config& config_);
         void run();
       private:
-        std::vector<std::ifstream> _inputs;
-        std::ofstream _out;
         std::unordered_map<std::string, DecodeFunc> _funcMap;
+        std::ofstream _out;
+        std::vector<std::ifstream> _inputs;
     };
 
 }

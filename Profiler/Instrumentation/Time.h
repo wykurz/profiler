@@ -15,7 +15,7 @@ namespace Profiler { namespace Time {
 
         Record::TimeDelta delta() const
         {
-            return ClockType::now() - start;
+            return Record::TimeDelta(ClockType::now() - start);
         }
 
       private:

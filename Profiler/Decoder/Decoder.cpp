@@ -1,8 +1,10 @@
 #include <Profiler/Algorithm/Mpl.h>
+#include <Profiler/Algorithm/Stream.h>
 #include <Profiler/Decoder/Decoder.h>
 #include <Profiler/Exception/Exception.h>
 #include <Profiler/Log/Log.h>
 #include <Profiler/Record/Record.h>
+#include <fstream>
 #include <boost/filesystem.hpp>
 
 namespace Profiler { namespace Decoder
@@ -32,7 +34,8 @@ namespace
 }
 
     Decoder::Decoder(const Config::Config& config_)
-      : _funcMap(genFuncMap<Mpl::TypeList<> >())
+      : _funcMap(genFuncMap<Mpl::TypeList<> >()),
+        _out(config_.yamlLogName, std::fstream::trunc)
     {
         const fs::path logDir(config_.binaryLogDir);
         DLOG("Traversing: " << logDir);
@@ -56,19 +59,13 @@ namespace
 
     void Decoder::run()
     {
-        // std::size_t recordNameLength;
-        // _in.read(reinterpret_cast<char*>(&recordNameLength), sizeof(recordNameLength));
-        // std::cerr << "Reading log file length " << recordNameLength << "\n";
-        // std::vector<char> bytes(recordNameLength);
-        // _in.read(bytes.data(), recordNameLength);
-        // const std::string recordName(bytes.data(), bytes.data() + recordNameLength);
-        // auto it = _funcMap.find(recordName);
-        // if (it == _funcMap.end()) {
-        //     std::stringstream ss;
-        //     ss << "Attempting to decode unknown record type: " << recordName;
-        //     throw Exception::Runtime(ss.str());
-        // }
-        // (it->second)(_in, _out);
+        for (auto& input : _inputs) {
+            const auto recordName = Algorithm::decodeString(input);
+            auto it = _funcMap.find(recordName);
+            if (it == _funcMap.end())
+                PROFILER_RUNTIME_ERROR("Attempting to decode unknown record type: " << recordName);
+            (it->second)(input, _out);
+        }
     }
 
 }
