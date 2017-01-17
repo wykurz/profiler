@@ -25,7 +25,15 @@ namespace Profiler { namespace Exception
 }
 }
 
-// TODO: Replace all assertions with this?
+#define PROFILER_RUNTIME_ERROR(message_) do {                         \
+        std::stringstream ss;                                         \
+        ss << "\n\nRuntimeError in:\n" << __PRETTY_FUNCTION__ << "\n" \
+           << "" << message_ << "\n";                                 \
+        throw Profiler::Exception::Runtime(ss.str());                 \
+    } while(false);
+
+
+// TODO: Replace all assertions with this.
 
 #ifdef DEBUG
 #define PROFILER_ASSERT(x) if (!(x)) {                       \
