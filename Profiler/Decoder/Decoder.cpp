@@ -48,17 +48,10 @@ namespace
                 continue;
             }
             DLOG("Found: " << entry.path());
+            std::ifstream input(entry.path().string(), std::fstream::binary);
+            if (input.fail()) PROFILER_RUNTIME_ERROR("Error opening file " << entry.path().string());
+            _inputs.push_back(std::move(input));
         }
-
-        //_in(config_.binaryLogPrefix.c_str(), std::fstream::binary), _out()
-
-
-        // if (_in.fail()) {
-        //     std::stringstream ss;
-        //     ss << "Error opening file " << config_.binaryLogPrefix.c_str();
-        //     throw Exception::Runtime(ss.str());
-        // }
-        // registerRecordTypes<NativeRecords>();
     }
 
     void Decoder::run()
