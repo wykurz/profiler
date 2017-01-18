@@ -17,14 +17,19 @@ namespace Profiler { namespace Control
         PROFILER_ASSERT(_done.load(std::memory_order_acquire));
     }
 
+    void Writer::onePass()
+    {
+        for (auto& holder : this->_threadArray) {
+            auto lk = holder.lock();
+            holder.getPtr()->streamDirtyRecords();
+        }
+    }
+
     void Writer::run()
     {
         auto doRun = [this]() {
-            for (auto& holder : this->_threadArray) {
-                auto lk = holder.lock();
-                holder.getPtr()->streamDirtyRecords();
-            }
-            std::this_thread::sleep_for(this->_sleepTime);
+            onePass();
+            std::this_thread::sleep_for(_sleepTime);
         };
         do doRun();
         while (!_done.load(std::memory_order_acquire));

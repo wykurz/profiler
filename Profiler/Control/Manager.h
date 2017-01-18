@@ -16,17 +16,16 @@ namespace Profiler { namespace Control
     {
         static constexpr std::size_t MaxThreads = 1024;
 
-        Manager(const Config::Config& config_);
+        Manager(const Config::Config& config_, bool startWriter_ = true);
         Manager(const Manager&) = delete;
         ~Manager();
-
         Allocation addThreadRecords();
-
+        void startWriter();
         /**
-         * Will stop the writer thread. The writer thread may not be restarted. Can be called multiple times.
+         * Will stop the writer thread. Can be called multiple times.
          */
         void stopWriter();
-
+        void writerOnePass();
       private:
         Arena _arena{100000};
         Arena _empty{0};
@@ -36,7 +35,8 @@ namespace Profiler { namespace Control
         std::size_t _droppedThreads = {0};
         FileOutputs _fileOutputs;
         Writer _writer;
-        std::thread _writerThread{[this](){ this->_writer.run(); }};
+        std::thread _writerThread;
+        bool _writerStarted = false;
     };
 
     Manager& getManager();

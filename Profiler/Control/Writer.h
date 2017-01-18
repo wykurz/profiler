@@ -25,6 +25,10 @@ namespace Profiler { namespace Control
         Writer(const Writer&) = delete;
         ~Writer();
         /**
+         * Primarily for testing purposes - iterates over all record holders and writes all data.
+         */
+        void onePass();
+        /**
          * Puts worker in a loop periodically checking if any thread produced output that needs to be written to disk.
          * After iterating through all threads, worker will sleep for a fixed amount of time.
          */
