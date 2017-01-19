@@ -35,7 +35,7 @@ namespace Profiler { namespace Scope
         }
       private:
         const char* _name;
-        const ScopeTime _time = ScopeTime();
+        const Time::RdtscTime _time{};
     };
 
 }
