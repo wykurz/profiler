@@ -20,11 +20,18 @@ namespace Profiler { namespace Control
         Manager(const Manager&) = delete;
         ~Manager();
         Allocation addThreadRecords();
+        /**
+         * Will start the writer thread if not already started. Must be called from the main thread.
+         */
         void startWriter();
         /**
-         * Will stop the writer thread. Can be called multiple times.
+         * If still running, will stop the writer thread.
          */
         void stopWriter();
+        /**
+         * Will cause the writer to iterate once over record holders and write the contents to logs.
+         * The writer thread must be stopped.
+         */
         void writerOnePass();
       private:
         Arena _arena{100000};

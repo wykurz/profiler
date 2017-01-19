@@ -37,14 +37,14 @@ namespace Profiler { namespace Control
 
     void Manager::startWriter()
     {
-        PROFILER_ASSERT(!_writerStarted);
+        if (_writerStarted) return;
         _writerThread = std::thread([this](){ this->_writer.run(); });
         _writerStarted = true;
     }
 
     void Manager::stopWriter()
     {
-        PROFILER_ASSERT(_writerStarted);
+        if (!_writerStarted) return;
         _writer.stop();
         if (_writerThread.joinable()) _writerThread.join();
         _writerStarted = false;

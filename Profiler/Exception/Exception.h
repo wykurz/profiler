@@ -36,11 +36,11 @@ namespace Profiler { namespace Exception
 // TODO: Replace all assertions with this.
 
 #ifdef DEBUG
-#define PROFILER_ASSERT(x) if (!(x)) {                       \
-        std::stringstream ss;                                \
-        ss << "\n\nLogic error in:\n" << __PRETTY_FUNCTION__ \
-           << "\nThe following is false: ( " << #x << " )";  \
-        throw Profiler::Exception::LogicError(ss.str());     \
+#define PROFILER_ASSERT(x) if (!(x)) {                                                                \
+        std::stringstream ss;                                                                         \
+        ss << "\n\nLogic error in:\n" << __FILE__ << ":" << __LINE__ << "\n  " << __PRETTY_FUNCTION__ \
+           << "\nThe following is false: ( " << #x << " )";                                           \
+        throw Profiler::Exception::LogicError(ss.str());                                              \
     }
 #else
 #define PROFILER_ASSERT(x) do { } while (false);
