@@ -21,21 +21,20 @@ namespace Profiler { namespace Scope
         holder.getRecord() = std::forward<Record_>(record_);
     }
 
-    using ScopeTime = Time::RdtscTime;
-
     struct StatsScope
     {
+        using TimePoint = Time::Rdtsc::TimePoint;
         StatsScope(const char* name_)
           : _name(name_)
         { }
         ~StatsScope()
         {
             record(Control::getThreadRecords<Record::TimeRecord>().getRecordManager(),
-                   Record::TimeRecord(_name, _time.delta()));
+                   Record::TimeRecord(_name, _t0, Time::Rdtsc::now()));
         }
       private:
         const char* _name;
-        const Time::RdtscTime _time{};
+        const TimePoint _t0{Time::Rdtsc::now()};
     };
 
 }

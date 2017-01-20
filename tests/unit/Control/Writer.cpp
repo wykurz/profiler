@@ -50,8 +50,7 @@ namespace
         MockOutputs outputs;
         ThreadRecords<Record::TimeRecord> threadRecords(Allocation({}, arena, holderArray[0], outputs));
         {
-            std::chrono::duration<double> timeDelta{0};
-            Scope::record(threadRecords.getRecordManager(), Record::TimeRecord("test", timeDelta));
+            Scope::record(threadRecords.getRecordManager(), Record::TimeRecord("test", {0}, {1}));
         }
         Writer writer(holderArray, std::chrono::microseconds(100000));
         std::thread writerThread{[&writer](){ writer.run(); }};
