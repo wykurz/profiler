@@ -5,6 +5,7 @@
 #include <chrono>
 #include <ratio>
 #include <iostream>
+#include <x86intrin.h>
 
 namespace Profiler { namespace Time
 {
@@ -18,9 +19,7 @@ namespace Profiler { namespace Time
         };
         static TimePoint now()
         {
-            unsigned lo, hi;
-            asm volatile("rdtsc" : "=a" (lo), "=d" (hi));
-            return {static_cast<TimePoint::Storage>(hi) << 32 | lo};
+            return {__rdtsc()};
         }
     };
 
