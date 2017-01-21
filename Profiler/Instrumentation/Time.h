@@ -14,7 +14,7 @@ namespace Profiler { namespace Time
     {
         struct TimePoint
         {
-            using Storage = std::uint64_t;
+            using Storage = decltype(__rdtsc());
             Storage data;
         };
         static TimePoint now()
