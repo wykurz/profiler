@@ -32,7 +32,7 @@ namespace
 
     struct MockOutputs : OutputFactory
     {
-        virtual Output::Ptr newOutput(Holder::Id extractorId_) const override
+        virtual Output::Ptr newOutput(std::size_t extractorId_) const override
         {
             return std::make_unique<MemoryOut>(buffers, "test");
         }
@@ -48,7 +48,7 @@ namespace
         Arena arena{100000};
         HolderArray holderArray{1};
         MockOutputs outputs;
-        ThreadRecords<Record::TimeRecord> threadRecords(Allocation({}, arena, holderArray[0], outputs));
+        ThreadRecords<Record::TimeRecord> threadRecords(Allocation({}, arena, holderArray[0]));
         {
             Scope::record(threadRecords.getRecordManager(), Record::TimeRecord("test", {0}, {1}));
         }
