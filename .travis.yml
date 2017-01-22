@@ -155,8 +155,9 @@ after_success:
   - ./upload_coverage.sh
 
 after_failure:
-  - COREFILE=$(find build -maxdepth 1 -name "core.*" | head -n 1) # find core file
-  - if [[ -f "${COREFILE}" ]]; then gdb -c "${COREFILE}" example -ex "thread apply all bt" -ex "set pagination 0" -batch; fi
+  - COREFILE=$(find build/ -maxdepth 1 -name "core.*")
+  - echo ${COREFILE}
+  - for binname in $(echo ${COREFILE}); do gdb -c ${binname} build/$(echo ${binname}|rev|cut -d \! -f 1|rev) -ex "thread apply all bt" -ex "set pagination 0" -batch; done
 
 notifications:
   email: false
