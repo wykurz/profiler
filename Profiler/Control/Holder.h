@@ -48,7 +48,8 @@ namespace Profiler { namespace Control
             }
         }
 
-        // TODO: There are 2x setup functions, which will be a source of errors. Simplify!
+        // TODO: There are 2x setup functions, which will be a source of errors.
+        //       Use typesystem to handle initialization.
         void setupOut(std::unique_ptr<Output>&& out_)
         {
             PROFILER_ASSERT(!_recordExtractor);
