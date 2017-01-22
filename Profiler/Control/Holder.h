@@ -54,6 +54,7 @@ namespace Profiler { namespace Control
             _recordExtractor = &recordExtractor_;
             _out = std::move(out_);
             Decoder::setupStream(_out->get(), recordExtractor_.getRecordId());
+            recordExtractor_.streamRecordPreamble(_out->get());
         }
 
         void finalize()

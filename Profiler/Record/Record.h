@@ -25,6 +25,10 @@ namespace Profiler { namespace Record
             _t0(std::move(t0_)),
             _t1(std::move(t1_))
         { }
+        static void preamble(std::ostream& out_)
+        {
+            // TODO: match rdtsc with time
+        }
         static void decode(std::istream& in_, std::ostream& out_)
         {
             while (in_.good() && in_.peek() != EOF) {

@@ -17,6 +17,7 @@ namespace Profiler { namespace Control
     struct RecordExtractor
     {
         virtual ~RecordExtractor() = default;
+        virtual void streamRecordPreamble(std::ostream& out_) const = 0;
         virtual Record::TypeId getRecordId() const = 0;
         virtual void streamDirtyRecords(std::ostream& out_) = 0;
         virtual std::unique_ptr<RecordExtractor> moveToFinalExtractor() = 0;
@@ -26,13 +27,16 @@ namespace Internal
 {
 
     template <typename Record_>
-    struct ManagerBase : RecordExtractor
+    struct ExtractorBase : RecordExtractor
     {
         using RecordType = Record_;
         using Queue = Queue::Queue<RecordType>;
         using Node = typename Queue::Node;
-
-        virtual Record::TypeId getRecordId() const override
+        virtual void streamRecordPreamble(std::ostream& out_) const final
+        {
+            RecordType::preamble(out_);
+        }
+        virtual Record::TypeId getRecordId() const final
         {
             return std::type_index(typeid(RecordType));
         }
@@ -49,9 +53,9 @@ namespace Internal
 }
 
     template <typename Record_>
-    struct SimpleExtractor : Internal::ManagerBase<Record_>
+    struct SimpleExtractor : Internal::ExtractorBase<Record_>
     {
-        using Base = Internal::ManagerBase<Record_>;
+        using Base = Internal::ExtractorBase<Record_>;
         using RecordType = Record_;
         using Queue = Queue::Queue<RecordType>;
         using Node = typename Queue::Node;
@@ -72,9 +76,9 @@ namespace Internal
     };
 
     template <typename Record_>
-    struct RecordManager : Internal::ManagerBase<Record_>
+    struct RecordManager : Internal::ExtractorBase<Record_>
     {
-        using Base = Internal::ManagerBase<Record_>;
+        using Base = Internal::ExtractorBase<Record_>;
         using RecordType = Record_;
         using This = RecordManager<RecordType>;
         using Queue = Queue::Queue<RecordType>;
