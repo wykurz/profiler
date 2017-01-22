@@ -134,6 +134,7 @@ before_script:
   - CC=${C_COMPILER} CXX=${CXX_COMPILER} ./install_boost.sh
   - CC=${C_COMPILER} CXX=${CXX_COMPILER} ./install_benchmark.sh
   - ulimit -c unlimited -S # enable core dumps
+  - sudo bash -c "echo 'core.%p.%E' > /proc/sys/kernel/core_pattern"
 
 script:
   - mkdir build
