@@ -8,7 +8,7 @@ namespace Profiler { namespace Config
 
     struct Config
     {
-        Config(std::string binaryLogPrefix_ = ".cxxperf-log-", std::string binaryLogDir_ = ".",
+        Config(std::string binaryLogPrefix_ = ".cxxperf-log", std::string binaryLogDir_ = ".",
                std::string yamlLogName_ = "cxxperf-log.yaml");
         bool operator!=(const Config& other_) const;
         const std::string binaryLogPrefix;

@@ -42,9 +42,13 @@ namespace Profiler { namespace Control
 
         void streamDirtyRecords()
         {
-            if (getExtractor()) getExtractor()->streamDirtyRecords(_out->get());
+            if (getExtractor()) {
+                PROFILER_ASSERT(_out.get());
+                getExtractor()->streamDirtyRecords(_out->get());
+            }
         }
 
+        // TODO: There are 2x setup functions, which will be a source of errors. Simplify!
         void setupOut(std::unique_ptr<Output>&& out_)
         {
             PROFILER_ASSERT(!_recordExtractor);
