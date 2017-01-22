@@ -24,7 +24,6 @@ namespace Profiler { namespace Control
     struct Holder
     {
         using Ptr = std::unique_ptr<Holder, void(*)(Holder*)>;
-        using Id = std::size_t;
 
         std::unique_lock<std::mutex> lock()
         {
@@ -46,15 +45,19 @@ namespace Profiler { namespace Control
             if (getExtractor()) getExtractor()->streamDirtyRecords(_out->get());
         }
 
-        void setup(RecordExtractor& recordExtractor_, std::unique_ptr<Output>&& out_)
+        void setupOut(std::unique_ptr<Output>&& out_)
         {
             PROFILER_ASSERT(!_recordExtractor);
             PROFILER_ASSERT(!_finalExtractor.get());
             PROFILER_ASSERT(out_.get());
-            _recordExtractor = &recordExtractor_;
             _out = std::move(out_);
-            Decoder::setupStream(_out->get(), recordExtractor_.getRecordId());
-            recordExtractor_.streamRecordPreamble(_out->get());
+        }
+
+        void setupRecordExtractor(RecordExtractor& recordExtractor_)
+        {
+            PROFILER_ASSERT(!_recordExtractor);
+            PROFILER_ASSERT(!_finalExtractor.get());
+            _recordExtractor = &recordExtractor_;
         }
 
         void finalize()
@@ -111,13 +114,13 @@ namespace Profiler { namespace Control
     struct OutputFactory
     {
         virtual ~OutputFactory() = default;
-        virtual Output::Ptr newOutput(Holder::Id extractorId_) const = 0;
+        virtual Output::Ptr newOutput(std::size_t extractorId_) const = 0;
     };
 
     struct FileOutputs : OutputFactory
     {
         FileOutputs(const Config::Config& config_);
-        virtual Output::Ptr newOutput(Holder::Id extractorId_) const override;
+        virtual Output::Ptr newOutput(std::size_t extractorId_) const override;
       private:
         const Config::Config& _config;
     };

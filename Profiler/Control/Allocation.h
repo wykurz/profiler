@@ -13,13 +13,11 @@ namespace Profiler { namespace Control
 
     struct Allocation
     {
-        Allocation(std::unique_lock<std::mutex>&& lock_, Arena& arena_, Holder& holder_,
-                   const OutputFactory& fileOutputs_)
-          : _id(_globalId.fetch_add(1, std::memory_order_release)), _lock(std::move(lock_)),
-            _arena(arena_), _holder(&holder_), _fileOutputs(&fileOutputs_)
+        Allocation(std::unique_lock<std::mutex>&& lock_, Arena& arena_, Holder& holder_)
+          : _lock(std::move(lock_)), _arena(arena_), _holder(&holder_)
         { }
         Allocation()
-          : _id(-1), _arena(empty()), _holder(nullptr), _fileOutputs(nullptr)
+          : _arena(empty()), _holder(nullptr)
         { }
         Arena& getArena() const
         {
@@ -27,12 +25,8 @@ namespace Profiler { namespace Control
         }
         Finalizer setupHolder(RecordExtractor& recordExtractor_) const
         {
-            if (_holder) _holder->setup(recordExtractor_, _fileOutputs->newOutput(_id));
+            if (_holder) _holder->setupRecordExtractor(recordExtractor_);
             return Finalizer(_holder);
-        }
-        Holder::Id getId() const
-        {
-            return _id;
         }
       private:
         static Arena& empty()
@@ -40,12 +34,9 @@ namespace Profiler { namespace Control
             static Arena empty(0);
             return empty;
         }
-        static std::atomic<Holder::Id> _globalId;
-        const Holder::Id _id;
         std::unique_lock<std::mutex> _lock;
         Arena& _arena;
         Holder* const _holder;
-        const OutputFactory* const _fileOutputs;
     };
 
 }

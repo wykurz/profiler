@@ -33,7 +33,7 @@ namespace Profiler { namespace Control
     template <typename Record_>
     ThreadRecords<Record_>& getThreadRecords()
     {
-        thread_local ThreadRecords<Record_> threadRecords(getManager().addThreadRecords());
+        thread_local ThreadRecords<Record_> threadRecords(getManager().addThreadRecords<Record_>());
         return threadRecords;
     }
 

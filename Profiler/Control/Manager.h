@@ -19,20 +19,42 @@ namespace Profiler { namespace Control
         Manager(const Config::Config& config_, bool startWriter_ = true);
         Manager(const Manager&) = delete;
         ~Manager();
-        Allocation addThreadRecords();
+
+        template <typename Record_>
+        Allocation addThreadRecords()
+        {
+            int count = MaxThreads;
+            while (0 < count--) {
+                std::size_t id = _currentThread++;
+                // TODO: Add stress tests with tons of threads...
+                auto& holder = _threadArray[id % _threadArray.size()];
+                auto lk = holder.lock();
+                if (!holder.isEmpty()) continue;
+                auto out = _fileOutputs.newOutput(id);
+                Decoder::setupStream<Record_>(out->get());
+                holder.setupOut(std::move(out));
+                return {std::move(lk), _arena, holder};
+            }
+            ++_droppedThreads;
+            return {};
+        }
+
         /**
          * Will start the writer thread if not already started. Must be called from the main thread.
          */
         void startWriter();
+
         /**
          * If still running, will stop the writer thread.
          */
         void stopWriter();
+
         /**
          * Will cause the writer to iterate once over record holders and write the contents to logs.
          * The writer thread must be stopped.
          */
         void writerOnePass();
+
       private:
         Arena _arena{100000};
         Arena _empty{0};

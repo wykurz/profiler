@@ -22,20 +22,6 @@ namespace Profiler { namespace Control
         stopWriter();
     }
 
-    Allocation Manager::addThreadRecords()
-    {
-        int count = MaxThreads;
-        while (0 < count--) {
-            auto& holder = _threadArray[_currentThread++];
-            auto lk = holder.lock();
-            if (!holder.isEmpty()) continue;
-            // TODO: Setup output streams here...
-            return {std::move(lk), _arena, holder, _fileOutputs};
-        }
-        ++_droppedThreads;
-        return {};
-    }
-
     void Manager::startWriter()
     {
         if (_writerStarted) return;

@@ -12,13 +12,15 @@
 namespace Profiler { namespace Decoder
 {
 
-    inline void setupStream(std::ostream& out_, Record::TypeId recordType_)
+    template <typename Record_>
+    void setupStream(std::ostream& out_)
     {
-        const std::string& recordTypeName = recordType_.name();
+        const std::string& recordTypeName = typeid(Record_).name();
         DLOG("Setup: " << recordTypeName.size() << " " << recordTypeName << " " << std::size_t(&out_))
         const std::size_t& nameSize = recordTypeName.size();
         out_.write(reinterpret_cast<const char*>(&nameSize), sizeof(nameSize));
         out_ << recordTypeName;
+        Record_::preamble(out_);
     }
 
     struct Decoder

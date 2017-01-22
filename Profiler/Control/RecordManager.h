@@ -8,7 +8,6 @@
 #include <Profiler/Record/Record.h>
 #include <iostream>
 #include <memory>
-#include <typeindex>
 #include <vector>
 
 namespace Profiler { namespace Control
@@ -17,8 +16,6 @@ namespace Profiler { namespace Control
     struct RecordExtractor
     {
         virtual ~RecordExtractor() = default;
-        virtual void streamRecordPreamble(std::ostream& out_) const = 0;
-        virtual Record::TypeId getRecordId() const = 0;
         virtual void streamDirtyRecords(std::ostream& out_) = 0;
         virtual std::unique_ptr<RecordExtractor> moveToFinalExtractor() = 0;
     };
@@ -32,14 +29,6 @@ namespace Internal
         using RecordType = Record_;
         using Queue = Queue::Queue<RecordType>;
         using Node = typename Queue::Node;
-        virtual void streamRecordPreamble(std::ostream& out_) const final
-        {
-            RecordType::preamble(out_);
-        }
-        virtual Record::TypeId getRecordId() const final
-        {
-            return std::type_index(typeid(RecordType));
-        }
       protected:
         void doStreamDirtyRecords(std::ostream& out_, Node* recordNode_)
         {
