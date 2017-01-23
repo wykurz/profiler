@@ -102,7 +102,7 @@ namespace Profiler { namespace Queue
     template <typename T_>
     typename Queue<T_>::Node* Queue<T_>::extract()
     {
-        auto nodePtr = _head.exchange(TaggedPtr<Node>(), std::memory_order_acquire);
+        auto nodePtr = _head.exchange(TaggedPtr<Node>(), std::memory_order_acq_rel);
         if (nodePtr.isNull()) return nullptr;
         auto node = unpackPtr(nodePtr);
         return node;
