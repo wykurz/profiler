@@ -3,6 +3,7 @@
 
 #include <Profiler/Exception/Exception.h>
 #include <Profiler/Log/Log.h>
+#include <cstring>
 #include <iostream>
 #include <vector>
 
@@ -32,9 +33,9 @@ namespace Profiler { namespace Algorithm
         return std::string(bytes.data(), bytes.data() + length);
     }
 
-    inline void encodeString(std::ostream& out_, const std::string& str_)
+    inline void encodeString(std::ostream& out_, const char* str_)
     {
-        encode(out_, str_.size());
+        encode(out_, strlen(str_));
         out_ << str_;
     }
 
