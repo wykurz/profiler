@@ -3,6 +3,7 @@
 
 void statsScopeTest(benchmark::State& state_)
 {
+    Profiler::Control::getManager().stopWriter();
     const int queryCount_ = state_.range(0);
     long processed = 0;
     while (state_.KeepRunning()) {
@@ -15,7 +16,6 @@ void statsScopeTest(benchmark::State& state_)
     state_.SetItemsProcessed(processed);
 }
 
-using namespace Profiler::Time;
 struct StatsScopeFixture: public ::benchmark::Fixture { };
 
 BENCHMARK_DEFINE_F(StatsScopeFixture, StatsScopeTest)(benchmark::State& state_) { statsScopeTest(state_); }
