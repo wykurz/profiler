@@ -31,11 +31,16 @@ namespace Profiler { namespace Queue { namespace Test {
         for (auto& e : v) q.push(&e);
         BOOST_CHECK_EQUAL(10, q.size());
         auto ni = q.extract();
+        BOOST_REQUIRE_EQUAL(0, q.size());
         for (int i = 9; 0 <= i; ni = ni->getNext(), --i)
         {
             BOOST_REQUIRE(ni);
             BOOST_CHECK_EQUAL(i, ni->value);
         }
+        BOOST_REQUIRE_EQUAL(nullptr, q.extract());
+        q.push(&(v[0]));
+        ni = q.extract();
+        BOOST_CHECK_EQUAL(0, ni->value);
     }
 
     BOOST_AUTO_TEST_SUITE_END()
