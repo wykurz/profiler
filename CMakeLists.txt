@@ -11,9 +11,13 @@ option(DEBUG_LOG "Debug log printing." OFF)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+if (DEBUG_LOG)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG_LOG")
+endif()
 # Release builds
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
 # Debug builds
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fno-omit-frame-pointer -DDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -fno-omit-frame-pointer -DDEBUG")
 # Coverage builds
 set(CMAKE_CXX_FLAGS_COVERAGE "${CMAKE_CXX_FLAGS} -O0 --coverage")
@@ -61,7 +65,3 @@ if (Doxygen_FOUND)
 else ()
   message(STATUS "Doxygen not found, building documentation disabled")
 endif ()
-
-if (DEBUG_LOG)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG_LOG")
-endif()
