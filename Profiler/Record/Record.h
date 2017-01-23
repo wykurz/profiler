@@ -2,6 +2,7 @@
 #define RECORD_RECORD_H
 
 #include <Profiler/Algorithm/Stream.h>
+#include <Profiler/Exception/Exception.h>
 #include <Profiler/Instrumentation/Time.h>
 #include <Profiler/Queue/Queue.h>
 #include <array>
@@ -19,12 +20,13 @@ namespace Profiler { namespace Record
     struct TimeRecord
     {
         using TimePoint = Time::Rdtsc::TimePoint;
-        TimeRecord() = default;
         TimeRecord(const char* name_, TimePoint t0_, TimePoint t1_)
           : _name(name_),
             _t0(std::move(t0_)),
             _t1(std::move(t1_))
-        { }
+        {
+            PROFILER_ASSERT(name_);
+        }
         static void preamble(std::ostream& out_)
         {
             // TODO: match rdtsc with time
@@ -40,6 +42,10 @@ namespace Profiler { namespace Record
                 // TODO: JSON this
                 out_ << "TimeRecord(" << name << ")[[" << t0.data << ", " << t1.data << "]]\n";
             }
+        }
+        bool dirty() const
+        {
+            return nullptr != _name;
         }
         friend std::ostream& operator<<(std::ostream&, const TimeRecord&);
       private:
