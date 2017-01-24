@@ -37,7 +37,7 @@ namespace Profiler { namespace Queue { namespace Test {
             BOOST_REQUIRE(ni);
             BOOST_CHECK_EQUAL(i, ni->value);
         }
-        BOOST_REQUIRE_EQUAL(nullptr, q.extract());
+        BOOST_REQUIRE(nullptr == q.extract());
         q.push(&(v[0]));
         ni = q.extract();
         BOOST_CHECK_EQUAL(0, ni->value);
