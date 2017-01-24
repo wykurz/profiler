@@ -31,6 +31,7 @@ namespace Profiler { namespace Control
         template <typename T_>
         Block<T_>* acquire()
         {
+            static_assert(sizeof(T_) <= BlockSize, "Blocks is to small to hold the requested object.");
             static_assert(alignof(BlockHolder) % alignof(Block<T_>) == 0,
                           "Block<T> alignement not congruent to BlockHolder alignment.");
             int freeIdx = _freeMap.firstFree();

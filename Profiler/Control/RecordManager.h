@@ -33,6 +33,8 @@ namespace Internal
         void doStreamDirtyRecords(std::ostream& out_, Node* recordNode_)
         {
             while (recordNode_) {
+                DLOG("Streaming " << recordNode_);
+                PROFILER_ASSERT(recordNode_->value.dirty());
                 out_ << recordNode_->value;
                 recordNode_ = recordNode_->getNext();
             }
@@ -78,10 +80,12 @@ namespace Internal
             RecordHolder(This& manager_, Node* node_ = nullptr)
               : _manager(manager_),
                 _node(node_)
-            { }
+            {
+                DLOG("From Node* " << node_);
+            }
             ~RecordHolder()
             {
-                if (this->isValid()) _manager.retireRecord(*_node);
+                if (_node) _manager.retireRecord(*_node);
             }
             bool isValid() const
             {
@@ -89,7 +93,7 @@ namespace Internal
             }
             RecordType& getRecord()
             {
-                assert(_node);
+                PROFILER_ASSERT(_node);
                 return _node->value;
             }
           private:
@@ -109,6 +113,7 @@ namespace Internal
             {
                 _currentBlock = _arena.acquire<Node>();
                 _nextRecord = 0;
+                DLOG("Arena acquire, block: " << _currentBlock);
             }
             if (!_currentBlock)
             {
@@ -120,6 +125,7 @@ namespace Internal
 
         void retireRecord(Node& node_)
         {
+            PROFILER_ASSERT(node_.value.dirty());
             DLOG("Retire record " << &node_);
             _dirty.push(&node_);
         }
@@ -137,8 +143,9 @@ namespace Internal
       private:
         Node* extractDirtyRecords()
         {
-            DLOG("extractDirtyRecords");
-            return _dirty.extract();
+            auto node = _dirty.extract();
+            DLOG("extractDirtyRecords, node " << node);
+            return node;
         }
 
         Arena& _arena;

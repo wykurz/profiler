@@ -1,6 +1,7 @@
 #ifndef QUEUE_TAGGEDPTR_H
 #define QUEUE_TAGGEDPTR_H
 
+#include <Profiler/Exception/Exception.h>
 #include <cstdint>
 
 namespace Profiler { namespace Queue
@@ -11,37 +12,40 @@ namespace Profiler { namespace Queue
     struct alignas(alignof(std::intptr_t)) TaggedPtr
     {
         TaggedPtr() = default;
-        TaggedPtr(const T_* base_, const T_* ptr_)
-          : offset(getOffset(base_, ptr_)),
-            tag(getTag(ptr_))
+        TaggedPtr(const void* base_, const T_* ptr_)
+          : _offset(getOffset(base_, ptr_)),
+            _tag(getTag(ptr_))
         {
             static_assert(sizeof(std::intptr_t) == sizeof(TaggedPtr<T_>),
                           "Tagged pointer doesn't match the expected size!");
-            assert(base_);
-            assert(!ptr_ || base_ <= ptr_);
+            PROFILER_ASSERT(base_);
+            PROFILER_ASSERT(!ptr_ || base_ <= ptr_);
         }
         TaggedPtr(const TaggedPtr&) = default;
-        T_* get(T_* baseTagged_) const
+        T_* get(void* baseTagged_) const
         {
-            return baseTagged_ + offset;
+            return reinterpret_cast<T_*>(static_cast<char*>(baseTagged_) + _offset);
         }
         bool isNull() const
         {
-            return -1 == offset;
+            return -1 == _offset;
         }
       private:
-        static std::uint32_t getOffset(const T_* base_, const T_* ptr_)
+        static std::uint32_t getOffset(const void* base_, const void* ptr_)
         {
             if (!ptr_) return -1;
-            return static_cast<std::uint32_t>(ptr_ - base_);
+            auto res = static_cast<std::uint32_t>(
+                static_cast<const char*>(ptr_) - static_cast<const char*>(base_));
+            PROFILER_ASSERT(static_cast<const char*>(base_) + res == ptr_);
+            return res;
         }
         static std::uint32_t getTag(const T_* ptr_)
         {
             if (!ptr_) return 0;
             return ptr_->getTag();
         }
-        const std::uint32_t offset = -1;
-        const std::uint32_t tag = 0;
+        const std::uint32_t _offset = -1;
+        const std::uint32_t _tag = 0;
     };
 
 }
