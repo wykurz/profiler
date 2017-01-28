@@ -43,8 +43,8 @@ namespace Profiler { namespace Queue
             std::atomic<std::uint32_t> _tag{0};
         };
 
-        Queue(Node* baseNode_)
-          : _baseNode(baseNode_)
+        Queue(void* basePtr_)
+          : _basePtr(static_cast<char*>(basePtr_))
         {
             assert(_head.is_lock_free());
         }
@@ -59,11 +59,11 @@ namespace Profiler { namespace Queue
         Node* unpackPtr(TaggedPtr<Node> nodePtr_) const
         {
             if (nodePtr_.isNull()) return nullptr;
-            auto res = nodePtr_.get(_baseNode);
+            auto res = nodePtr_.get(_basePtr);
             return res;
         }
 
-        Node* const _baseNode;
+        char* const _basePtr;
         std::atomic<TaggedPtr<Node>> _head{TaggedPtr<Node>()};
     };
 
@@ -78,7 +78,7 @@ namespace Profiler { namespace Queue
     {
         node_->updateTag();
         auto headPtr = _head.load(std::memory_order_relaxed);
-        auto nodePtr = TaggedPtr<Node>(_baseNode, node_);
+        auto nodePtr = TaggedPtr<Node>(_basePtr, node_);
         do {
             node_->setNext(unpackPtr(headPtr));
         }
@@ -91,7 +91,7 @@ namespace Profiler { namespace Queue
     typename Queue<T_>::Node* Queue<T_>::pull()
     {
         auto nodePtr = _head.load(std::memory_order_acquire);
-        while (!nodePtr.isNull() && !_head.compare_exchange_weak(nodePtr, TaggedPtr<Node>(_baseNode, unpackPtr(nodePtr)->getNext())))
+        while (!nodePtr.isNull() && !_head.compare_exchange_weak(nodePtr, TaggedPtr<Node>(_basePtr, unpackPtr(nodePtr)->getNext())))
             ; // empty
         if (nodePtr.isNull()) return nullptr;
         auto node = unpackPtr(nodePtr);

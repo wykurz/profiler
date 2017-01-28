@@ -5,4 +5,5 @@
 -fPIC
 -I/home/mateusz/projects/profiler
 -I/home/mateusz/tools/benchmark/include
+-DDEBUG
 -DDEBUG_LOG

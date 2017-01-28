@@ -23,21 +23,71 @@ namespace Profiler { namespace Control
 namespace Internal
 {
 
+    template <typename Record_, int NumRecords_>
+    using RecordArrayImpl = std::array<Record_, NumRecords_>;
+
+    template <typename Record_, int NumRecords_>
+    using RecordArrayQueueImpl = Queue::Queue<std::array<Record_, NumRecords_> >;
+
+    template <typename Record_, int NumRecords_>
+    using RecordArrayNodeImpl = typename RecordArrayQueueImpl<Record_, NumRecords_>::Node;
+
+    template <typename Record_, int MaxBytes_>
+    constexpr int minNumRecords()
+    {
+        auto emptyNodeSize = sizeof(Queue::Queue<std::array<Record_, 0> >);
+        return (MaxBytes_ - emptyNodeSize) / sizeof(Record_);
+    };
+
+    template<int N_, int M_>
+    struct LessThanOrEqual
+    {
+        enum {Value = N_ <= M_};
+    };
+
+    template <typename Record_, int MaxBytes_, int NumRecords_ = 0, int BytesLeft_ = MaxBytes_, // = minNumRecords<Record_, MaxBytes_>(),
+              typename std::enable_if<LessThanOrEqual<BytesLeft_, 0>::Value>::type* = nullptr>
+    constexpr int maxNumRecords()
+    {
+        return NumRecords_;
+    }
+
+    template<int N_, int M_>
+    struct LessThan
+    {
+        enum {Value = N_ < M_};
+    };
+
+    template <typename Record_, int MaxBytes_, int NumRecords_ = 0, int BytesLeft_ = MaxBytes_, // = minNumRecords<Record_, MaxBytes_>(),
+              typename std::enable_if<LessThan<0, BytesLeft_>::Value>::type* = nullptr>
+    constexpr int maxNumRecords()
+    {
+        return maxNumRecords<Record_, MaxBytes_, NumRecords_ + 1, MaxBytes_ - sizeof(RecordArrayNodeImpl<Record_, NumRecords_ + 1>)>();
+    }
+
+    template <typename Record_, int MaxBytes_>
+    struct RecordArray
+    {
+        static constexpr int NumRecords = maxNumRecords<Record_, MaxBytes_>();
+        using Array = RecordArrayImpl<Record_, NumRecords>;
+        using Queue = RecordArrayQueueImpl<Record_, NumRecords>;
+        using Node = RecordArrayNodeImpl<Record_, NumRecords>;
+    };
+
     template <typename Record_>
     struct ExtractorBase : RecordExtractor
     {
         using RecordType = Record_;
-        using Queue = Queue::Queue<RecordType>;
-        using Node = typename Queue::Node;
+        using RecordArrayNode = typename Internal::RecordArray<Record_, Arena::DataSize>::Node;
       protected:
-        void doStreamDirtyRecords(std::ostream& out_, Node* recordNode_)
+        void doStreamDirtyRecords(std::ostream& out_, RecordArrayNode* recordNode_)
         {
-            while (recordNode_) {
-                DLOG("Streaming " << recordNode_);
-                PROFILER_ASSERT(recordNode_->value.dirty());
-                out_ << recordNode_->value;
-                recordNode_ = recordNode_->getNext();
-            }
+            // while (recordNode_) {
+            //     DLOG("Streaming " << recordNode_);
+            //     PROFILER_ASSERT(recordNode_->value.dirty());
+            //     out_ << recordNode_->value;
+            //     recordNode_ = recordNode_->getNext();
+            // }
         }
     };
 
@@ -48,10 +98,8 @@ namespace Internal
     {
         using Base = Internal::ExtractorBase<Record_>;
         using RecordType = Record_;
-        using Queue = Queue::Queue<RecordType>;
-        using Node = typename Queue::Node;
-
-        SimpleExtractor(Node* const records_)
+        using RecordArrayNode = typename Internal::RecordArray<Record_, Arena::DataSize>::Node;
+        SimpleExtractor(RecordArrayNode* const records_)
           : _records(records_)
         { }
         virtual std::unique_ptr<RecordExtractor> moveToFinalExtractor() override
@@ -63,7 +111,7 @@ namespace Internal
             Base::doStreamDirtyRecords(out_, _records);
         }
       private:
-        Node* const _records;
+        RecordArrayNode* const _records;
     };
 
     template <typename Record_>
@@ -72,60 +120,36 @@ namespace Internal
         using Base = Internal::ExtractorBase<Record_>;
         using RecordType = Record_;
         using This = RecordManager<RecordType>;
-        using Queue = Queue::Queue<RecordType>;
-        using Node = typename Queue::Node;
-
-        struct RecordHolder
-        {
-            RecordHolder(This& manager_, Node* node_ = nullptr)
-              : _manager(manager_),
-                _node(node_)
-            {
-                DLOG("From Node* " << node_);
-            }
-            ~RecordHolder()
-            {
-                if (_node) _manager.retireRecord(*_node);
-            }
-            bool isValid() const
-            {
-                return nullptr != _node;
-            }
-            RecordType& getRecord()
-            {
-                PROFILER_ASSERT(_node);
-                return _node->value;
-            }
-          private:
-            This& _manager;
-            Node* const _node;
-        };
+        using RecordArrayTypes = Internal::RecordArray<Record_, Arena::DataSize>;
+        // using Array = typename RecordArrayTypes::Array;
+        using Node = typename RecordArrayTypes::Node;
+        using Queue = typename RecordArrayTypes::Queue;
 
         RecordManager(Arena& arena_)
           : _arena(arena_),
-            _dirty(arena_.basePtr<Node>())
+            _dirty(arena_.basePtr())
         { }
         RecordManager(const This&) = delete;
 
-        RecordHolder getRecord()
+        RecordType* getRecord()
         {
-            if (!_currentBlock || _currentBlock->size() <= _nextRecord)
+            if (!_current || _current->value.size() <= _nextRecord)
             {
-                _currentBlock = _arena.acquire<Node>();
+                _current = _arena.acquire<Node>();
                 _nextRecord = 0;
-                DLOG("Arena acquire, block: " << _currentBlock);
+                DLOG("Arena acquire, block: " << _current);
             }
-            if (!_currentBlock)
+            if (!_current)
             {
                 ++_droppedRecords;
-                return RecordHolder(*this);
+                return nullptr;
             }
-            return RecordHolder(*this, &(*_currentBlock)[_nextRecord++]);
+            return &_current->value[_nextRecord++];
         }
 
-        void retireRecord(Node& node_)
+        void retireRecordArrayNode(Node& node_)
         {
-            PROFILER_ASSERT(node_.value.dirty());
+            // PROFILER_ASSERT(node_.value.dirty());
             DLOG("Retire record " << &node_);
             _dirty.push(&node_);
         }
@@ -150,7 +174,7 @@ namespace Internal
 
         Arena& _arena;
         // TODO: add padding
-        Arena::Block<Node>* _currentBlock = nullptr;
+        Node* _current = nullptr;
         std::size_t _nextRecord = 0;
         std::size_t _droppedRecords = 0;
         Queue _dirty;

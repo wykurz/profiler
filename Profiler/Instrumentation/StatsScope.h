@@ -13,12 +13,12 @@ namespace Profiler { namespace Scope
     template <typename Record_>
     void record(Control::RecordManager<Record_>& recordManager_, Record_&& record_)
     {
-        auto holder = recordManager_.getRecord();
-        if (!holder.isValid()) {
-            DLOG("No valid holder!");
+        auto record = recordManager_.getRecord();
+        if (!record) {
+            DLOG("No valid record!");
             return;
         }
-        holder.getRecord() = std::forward<Record_>(record_);
+        *record = std::forward<Record_>(record_);
     }
 
     struct StatsScope

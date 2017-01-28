@@ -17,53 +17,51 @@ namespace Profiler { namespace Control
      */
     struct Arena
     {
-        constexpr static std::size_t BlockSize = 1024 * 32;
-        template <typename T_> using Block = std::array<T_, BlockSize / sizeof(T_)>;
-        using BlockHolder = std::aligned_storage<BlockSize, alignof(std::max_align_t)>::type;
+        constexpr static std::size_t DataSize = 64; // 1024 * 32;
+        using Block = std::aligned_storage<DataSize, alignof(std::max_align_t)>::type;
 
         Arena(std::size_t bufferSize_)
-          : _nblocks(bufferSize_ / sizeof(BlockHolder)),
-            _buffer(_nblocks * sizeof(BlockHolder))
+          : _nblocks(bufferSize_ / sizeof(Block)),
+            _buffer(_nblocks * sizeof(Block))
         { }
         Arena(Arena&&) = delete;
         Arena(const Arena&) = delete;
 
         template <typename T_>
-        Block<T_>* acquire()
+        T_* acquire()
         {
-            static_assert(sizeof(T_) <= BlockSize, "Blocks is to small to hold the requested object.");
-            static_assert(alignof(BlockHolder) % alignof(Block<T_>) == 0,
-                          "Block<T> alignement not congruent to BlockHolder alignment.");
+            static_assert(sizeof(T_) <= DataSize, "Blocks is to small to hold the requested object.");
+            static_assert(alignof(Block) % alignof(T_) == 0, "Block alignement not congruent to requested type alignment.");
             int freeIdx = _freeMap.firstFree();
             if (freeIdx < 0) return nullptr;
             _freeMap.set(freeIdx, false);
-            return reinterpret_cast<Block<T_>*>(getHolder(freeIdx));
+            return reinterpret_cast<T_*>(getHolder(freeIdx));
         }
 
         template <typename T_>
-        void release(Block<T_>* block_)
+        void release(T_* block_)
         {
             // Technically we don't need to require a typed pointer and could use void*, but we reserve the right to
             // allow potential future optimizations.
+            static_assert(sizeof(T_) <= DataSize, "Blocks is to small to hold the requested object.");
+            static_assert(alignof(Block) % alignof(T_) == 0, "Block alignement not congruent to requested type alignment.");
             PROFILER_ASSERT(block_);
             PROFILER_ASSERT(!_freeMap.isFree(getIndex(block_)));
             _freeMap.set(getIndex(block_), true);
         }
 
         /**
-         * Base pointer for a given type T. All elements in a Block<T> will have positive offset from base pointer.
+         * Base pointer for a given type T. All Block-s in Arena will have a positive offset from the base pointer.
          *
          * Base pointer is guaranteed to never change during the lifetime of the arena.
          */
-        template <typename T_>
-        T_* basePtr()
+        char* basePtr()
         {
-            PROFILER_ASSERT(reinterpret_cast<std::uintptr_t>(_buffer.data()) % alignof(T_) == 0);
-            return static_cast<T_*>(_buffer.data());
+            return static_cast<char*>(_buffer.data());
         }
 
       private:
-        struct alignas(BlockHolder) Buffer
+        struct alignas(Block) Buffer
         {
             Buffer(std::size_t size_)
               : _buffer(size_)
@@ -84,16 +82,16 @@ namespace Profiler { namespace Control
             std::vector<char> _buffer;
         };
 
-        BlockHolder* getHolder(int index_)
+        Block* getHolder(int index_)
         {
-            return static_cast<BlockHolder*>(_buffer.data()) + index_;
+            return static_cast<Block*>(_buffer.data()) + index_;
         }
 
         int getIndex(void* ptr_) const
         {
             const auto offset = reinterpret_cast<std::intptr_t>(ptr_) - reinterpret_cast<std::intptr_t>(_buffer.data());
-            PROFILER_ASSERT(0 <= offset && offset % sizeof(BlockHolder) == 0);
-            return offset / sizeof(BlockHolder);
+            PROFILER_ASSERT(0 <= offset && offset % sizeof(Block) == 0);
+            return offset / sizeof(Block);
         }
 
         const std::size_t _nblocks;
