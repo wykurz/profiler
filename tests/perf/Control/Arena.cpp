@@ -7,9 +7,9 @@ struct ArenaBenchFixture: public ::benchmark::Fixture
     void acquireTest(benchmark::State& state_)
     {
         const std::size_t nblocks = state_.range(0);
-        Arena arena(sizeof(Arena::BlockHolder) * nblocks);
+        Arena arena(sizeof(Arena::Block) * nblocks);
         // Fill up the arena
-        std::vector<Arena::Block<int>*> ptrs;
+        std::vector<int*> ptrs;
         for (int i = 0; i < nblocks; ++i) ptrs.push_back(arena.acquire<int>());
         auto randRelease = [&arena, &ptrs](int fillRate_) {
             // Randomly drop (1 - fillRate_) % of elements
