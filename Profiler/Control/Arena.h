@@ -17,7 +17,7 @@ namespace Profiler { namespace Control
      */
     struct Arena
     {
-        constexpr static std::size_t DataSize = 64; // 1024 * 32;
+        constexpr static std::size_t DataSize = 1024 * 32;
         using Block = std::aligned_storage<DataSize, alignof(std::max_align_t)>::type;
 
         Arena(std::size_t bufferSize_)
