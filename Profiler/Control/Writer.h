@@ -27,7 +27,7 @@ namespace Profiler { namespace Control
         /**
          * Primarily for testing purposes - iterates over all record holders and writes all data.
          */
-        void onePass();
+        void finalPass();
         /**
          * Puts worker in a loop periodically checking if any thread produced output that needs to be written to disk.
          * After iterating through all threads, worker will sleep for a fixed amount of time.
@@ -38,6 +38,7 @@ namespace Profiler { namespace Control
          */
         void stop();
       private:
+        void onePass();
         HolderArray& _threadArray;
         const std::chrono::microseconds _sleepTime;
         std::atomic<bool> _done{false};

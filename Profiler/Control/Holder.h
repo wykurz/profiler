@@ -37,12 +37,12 @@ namespace Profiler { namespace Control
 
         bool isEmpty() const
         {
-            return !_recordExtractor && !_finalExtractor.get();
+            return !_recordExtractor && !_finalExtractor;
         }
 
         void streamDirtyRecords()
         {
-            if (getExtractor()) {
+            if (!isEmpty()) {
                 PROFILER_ASSERT(_out.get());
                 getExtractor()->streamDirtyRecords(_out->get());
             }
@@ -65,8 +65,12 @@ namespace Profiler { namespace Control
             _recordExtractor = &recordExtractor_;
         }
 
+        /**
+         * ...
+         */
         void finalize()
         {
+            if (isEmpty() || isFinalized()) return;
             _finalExtractor = _recordExtractor->moveToFinalExtractor();
             _recordExtractor = nullptr;
         }
@@ -77,6 +81,11 @@ namespace Profiler { namespace Control
         }
 
       private:
+        bool isFinalized() const
+        {
+            return !_recordExtractor && _finalExtractor;
+        }
+
         static void close(Holder* holder_)
         {
             auto& finalExtractor = holder_->_finalExtractor;

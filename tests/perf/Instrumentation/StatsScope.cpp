@@ -10,7 +10,7 @@ void statsScopeTest(benchmark::State& state_)
         for (int i = 0; i < queryCount_; ++i) STATS_SCOPE();
         state_.PauseTiming();
         processed += queryCount_;
-        Profiler::Control::getManager().writerOnePass();
+        Profiler::Control::getManager().writerFinalPass();
         state_.ResumeTiming();
     }
     state_.SetItemsProcessed(processed);

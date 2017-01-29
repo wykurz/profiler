@@ -35,12 +35,13 @@ namespace Profiler { namespace Control
         _writer.stop();
         if (_writerThread.joinable()) _writerThread.join();
         _writerStarted = false;
+        writerFinalPass();
     }
 
-    void Manager::writerOnePass()
+    void Manager::writerFinalPass()
     {
         PROFILER_ASSERT(!_writerStarted);
-        _writer.onePass();
+        _writer.finalPass();
     }
 
     Manager& getManager()

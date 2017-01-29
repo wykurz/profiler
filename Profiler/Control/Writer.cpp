@@ -17,12 +17,13 @@ namespace Profiler { namespace Control
         PROFILER_ASSERT(_done.load(std::memory_order_acquire));
     }
 
-    void Writer::onePass()
+    void Writer::finalPass()
     {
         for (auto& holder : this->_threadArray) {
             auto lk = holder.lock();
-            holder.getPtr()->streamDirtyRecords();
+            holder.getPtr()->finalize();
         }
+        onePass();
     }
 
     void Writer::run()
@@ -41,6 +42,14 @@ namespace Profiler { namespace Control
     void Writer::stop()
     {
         _done.store(true, std::memory_order_release);
+    }
+
+    void Writer::onePass()
+    {
+        for (auto& holder : this->_threadArray) {
+            auto lk = holder.lock();
+            holder.getPtr()->streamDirtyRecords();
+        }
     }
 
 }

@@ -27,6 +27,7 @@ namespace Profiler { namespace Control
         Arena(Arena&&) = delete;
         Arena(const Arena&) = delete;
 
+        // TODO: synchronize!
         template <typename T_>
         T_* acquire()
         {
@@ -38,6 +39,7 @@ namespace Profiler { namespace Control
             return reinterpret_cast<T_*>(getHolder(freeIdx));
         }
 
+        // TODO: synchronize!
         template <typename T_>
         void release(T_* block_)
         {

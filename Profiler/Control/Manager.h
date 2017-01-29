@@ -53,7 +53,7 @@ namespace Profiler { namespace Control
          * Will cause the writer to iterate once over record holders and write the contents to logs.
          * The writer thread must be stopped.
          */
-        void writerOnePass();
+        void writerFinalPass();
 
       private:
         Arena _arena{100000};
