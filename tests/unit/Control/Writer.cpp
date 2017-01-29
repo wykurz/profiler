@@ -12,13 +12,16 @@ namespace Profiler { namespace Control { namespace Test
 namespace
 {
 
-    using BufferMap = std::unordered_map<std::string, std::stringstream*>;
+    using BufferMap = std::unordered_map<std::string, std::string>;
 
     struct MemoryOut : Output
     {
         MemoryOut(BufferMap& buffers_, const char* name_)
+          : _buffers(buffers_), _name(name_)
+        { }
+        ~MemoryOut()
         {
-            buffers_[name_] = &_out;
+            _buffers[_name] = _out.str();
         }
         virtual std::ostream& get()
         {
@@ -27,6 +30,8 @@ namespace
         virtual void flush()
         { }
       private:
+        BufferMap& _buffers;
+        const char* _name;
         std::stringstream _out;
     };
 
@@ -59,8 +64,8 @@ namespace
         std::thread writerThread{[&writer](){ writer.run(); }};
         writer.stop();
         writerThread.join();
-        BOOST_REQUIRE(outputs.buffers["test"]);
-        BOOST_CHECK(0 < outputs.buffers["test"]->str().size());
+        BOOST_REQUIRE(outputs.buffers.find("test") != outputs.buffers.end());
+        BOOST_CHECK(0 < outputs.buffers["test"].size());
     }
 
     BOOST_AUTO_TEST_SUITE_END()
