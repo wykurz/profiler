@@ -50,7 +50,7 @@ namespace Profiler { namespace Control
 
         // TODO: There are 2x setup functions, which will be a source of errors.
         //       Use typesystem to handle initialization.
-        void setupOut(std::unique_ptr<Output>&& out_)
+        void setOut(std::unique_ptr<Output>&& out_)
         {
             PROFILER_ASSERT(!_recordExtractor);
             PROFILER_ASSERT(!_finalExtractor.get());
@@ -58,7 +58,7 @@ namespace Profiler { namespace Control
             _out = std::move(out_);
         }
 
-        void setupRecordExtractor(RecordExtractor& recordExtractor_)
+        void setRecordExtractor(RecordExtractor& recordExtractor_)
         {
             PROFILER_ASSERT(!_recordExtractor);
             PROFILER_ASSERT(!_finalExtractor.get());

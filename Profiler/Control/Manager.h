@@ -32,7 +32,7 @@ namespace Profiler { namespace Control
                 if (!holder.isEmpty()) continue;
                 auto out = _fileOutputs.newOutput(id);
                 Decoder::setupStream<Record_>(out->get());
-                holder.setupOut(std::move(out));
+                holder.setOut(std::move(out));
                 return {std::move(lk), _arena, holder};
             }
             ++_droppedThreads;

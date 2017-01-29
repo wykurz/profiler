@@ -25,7 +25,7 @@ namespace Profiler { namespace Control
         }
         Finalizer setupHolder(RecordExtractor& recordExtractor_) const
         {
-            if (_holder) _holder->setupRecordExtractor(recordExtractor_);
+            if (_holder) _holder->setRecordExtractor(recordExtractor_);
             return Finalizer(_holder);
         }
       private:

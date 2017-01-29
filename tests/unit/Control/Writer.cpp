@@ -54,7 +54,7 @@ namespace
         HolderArray holderArray{1};
         MockOutputs outputs;
         {
-            holderArray[0].setupOut(outputs.newOutput(0));
+            holderArray[0].setOut(outputs.newOutput(0));
             ThreadRecords<Record::TimeRecord> threadRecords(Allocation({}, arena, holderArray[0]));
             {
                 Scope::record(threadRecords.getRecordManager(), Record::TimeRecord("test", {0}, {1}));
