@@ -25,7 +25,8 @@ namespace Profiler { namespace Control
         Writer(const Writer&) = delete;
         ~Writer();
         /**
-         * Primarily for testing purposes - iterates over all record holders and writes all data.
+         * Iterates over all record holders and writes all data. No other threads can perform logging at this time as
+         * there is no synchronization provided.
          */
         void finalPass();
         /**

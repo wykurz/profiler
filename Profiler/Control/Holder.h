@@ -24,83 +24,22 @@ namespace Profiler { namespace Control
     struct Holder
     {
         using Ptr = std::unique_ptr<Holder, void(*)(Holder*)>;
-
-        std::unique_lock<std::mutex> lock()
-        {
-            return std::unique_lock<std::mutex>(*_lock);
-        }
-
-        Ptr getPtr()
-        {
-            return Ptr(this, Holder::close);
-        }
-
-        bool isEmpty() const
-        {
-            return !_recordExtractor && !_finalExtractor;
-        }
-
-        void streamDirtyRecords()
-        {
-            if (!isEmpty()) {
-                PROFILER_ASSERT(_out.get());
-                getExtractor()->streamDirtyRecords(_out->get());
-            }
-        }
-
+        std::unique_lock<std::mutex> lock();
+        bool isEmpty() const;
+        void streamDirtyRecords();
         // TODO: There are 2x setup functions, which will be a source of errors.
         //       Use typesystem to handle initialization.
-        void setOut(std::unique_ptr<Output>&& out_)
-        {
-            PROFILER_ASSERT(!_recordExtractor);
-            PROFILER_ASSERT(!_finalExtractor.get());
-            PROFILER_ASSERT(out_.get());
-            _out = std::move(out_);
-        }
-
-        void setRecordExtractor(RecordExtractor& recordExtractor_)
-        {
-            PROFILER_ASSERT(!_recordExtractor);
-            PROFILER_ASSERT(!_finalExtractor.get());
-            _recordExtractor = &recordExtractor_;
-        }
-
+        void setOut(std::unique_ptr<Output>&& out_);
+        void setRecordExtractor(RecordExtractor& recordExtractor_);
         /**
-         * ...
+         * Usually called by Finalizer's destructor when a thread using the holder is shutting down. Can be called
+         * manually, but care must be taken such that the thread which was using the holder before should not try to
+         * write any more records, otherwise the resources used to hold those records will be lost.
          */
-        void finalize()
-        {
-            if (isEmpty() || isFinalized()) return;
-            _finalExtractor = _recordExtractor->moveToFinalExtractor();
-            _recordExtractor = nullptr;
-        }
-
-        void flush()
-        {
-            if (_out) _out->flush();
-        }
-
+        void finalize();
+        void flush();
       private:
-        bool isFinalized() const
-        {
-            return !_recordExtractor && _finalExtractor;
-        }
-
-        static void close(Holder* holder_)
-        {
-            auto& finalExtractor = holder_->_finalExtractor;
-            if (finalExtractor.get()) {
-                finalExtractor.reset();
-                holder_->_out.reset();
-            }
-        }
-
-        RecordExtractor* getExtractor() const
-        {
-            if (_recordExtractor) return _recordExtractor;
-            return _finalExtractor.get();
-        }
-
+        bool isFinalized() const;
         RecordExtractor* _recordExtractor = nullptr;
         std::unique_ptr<RecordExtractor> _finalExtractor;
         std::unique_ptr<Output> _out;

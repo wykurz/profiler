@@ -21,9 +21,10 @@ namespace Profiler { namespace Control
     {
         for (auto& holder : this->_threadArray) {
             auto lk = holder.lock();
-            holder.getPtr()->finalize();
+            holder.finalize();
+            holder.streamDirtyRecords();
+            holder.flush();
         }
-        onePass();
     }
 
     void Writer::run()
@@ -48,7 +49,7 @@ namespace Profiler { namespace Control
     {
         for (auto& holder : this->_threadArray) {
             auto lk = holder.lock();
-            holder.getPtr()->streamDirtyRecords();
+            holder.streamDirtyRecords();
         }
     }
 
