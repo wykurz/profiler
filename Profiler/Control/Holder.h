@@ -33,8 +33,8 @@ namespace Profiler { namespace Control
         void setRecordExtractor(RecordExtractor& recordExtractor_);
         /**
          * Usually called by Finalizer's destructor when a thread using the holder is shutting down. Can be called
-         * manually, but care must be taken such that the thread which was using the holder before should not try to
-         * write any more records, otherwise the resources used to hold those records will be lost.
+         * manually, but care must be taken such that the thread which was using the holder should not try to write any
+         * more records, otherwise the resources used to hold those records will be lost.
          */
         void finalize();
         void flush();

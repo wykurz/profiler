@@ -15,8 +15,6 @@
 namespace Profiler { namespace Record
 {
 
-    using TypeId = std::type_index;
-
     struct TimeRecord
     {
         using TimePoint = Time::Rdtsc::TimePoint;
@@ -27,12 +25,28 @@ namespace Profiler { namespace Record
         {
             PROFILER_ASSERT(name_);
         }
+
         static void preamble(std::ostream& out_)
         {
-            // TODO: match rdtsc with time
+            // Measure:
+            auto hiResNow = std::chrono::high_resolution_clock::now();
+            auto rdtscNow = Time::Rdtsc::now();
+            // Serialize:
+            auto nanosecondDuration = [](const auto& duration_) {
+                return std::chrono::duration_cast<std::chrono::nanoseconds>(duration_).count();
+            };
+            std::uint64_t timeReference = nanosecondDuration(hiResNow.time_since_epoch());
+            Algorithm::encode(out_, timeReference);
+            out_ << rdtscNow;
         }
+
         static void decode(std::istream& in_, std::ostream& out_)
         {
+            auto timeReference = Algorithm::decode<std::uint64_t>(in_);
+            out_ << "Time reference: " << timeReference << std::endl;
+            Time::Rdtsc::TimePoint rdtscBase;
+            in_ >> rdtscBase;
+            out_ << "Rdtsc: " << rdtscBase.data << std::endl;
             while (in_.good() && in_.peek() != EOF) {
                 DLOG("Loop in TimeRecord decode, currently at: " << in_.tellg());
                 auto name = Algorithm::decodeString(in_);
