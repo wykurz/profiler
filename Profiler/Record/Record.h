@@ -42,11 +42,29 @@ namespace Profiler { namespace Record
 
         static void decode(std::istream& in_, std::ostream& out_)
         {
+            // YAML log sample:
+            //
+            // time_reference:
+            // - time: 123
+            // - rdtsc: 345
+            // records:
+            // - name: abc
+            //   t0: 435
+            //   t1: 564
+            // - name: def
+            //   t0: 435
+            //   t1: 564
+            // - name: fgh
+            //   t0: 435
+            //   t1: 564
+            //
             auto timeReference = Algorithm::decode<std::uint64_t>(in_);
-            out_ << "Time reference: " << timeReference << std::endl;
+            out_ << "time_reference:\n";
+            out_ << "- time: " << timeReference << "\n";
             Time::Rdtsc::TimePoint rdtscBase;
             in_ >> rdtscBase;
-            out_ << "Rdtsc: " << rdtscBase.data << std::endl;
+            out_ << "- rdtsc: " << rdtscBase.data << "\n";
+            out_ << "records:\n";
             while (in_.good() && in_.peek() != EOF) {
                 DLOG("Loop in TimeRecord decode, currently at: " << in_.tellg());
                 auto name = Algorithm::decodeString(in_);
@@ -54,7 +72,9 @@ namespace Profiler { namespace Record
                 TimePoint t1;
                 in_ >> t0 >> t1;
                 // TODO: JSON this
-                out_ << "TimeRecord(" << name << ")[[" << t0.data << ", " << t1.data << "]]\n";
+                out_ << "- name:" << name << "\n";
+                out_ << "  t0:" << t0.data << "\n";
+                out_ << "  t1:" << t1.data << "\n";
             }
         }
         bool dirty() const
