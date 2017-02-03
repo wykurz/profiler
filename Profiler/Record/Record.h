@@ -19,6 +19,7 @@ namespace Profiler { namespace Record
         {
             PROFILER_ASSERT(name_);
             _depth = _threadDepth++;
+            _seqNum = _threadSeqNum++;
         }
         void finish()
         {
@@ -35,10 +36,12 @@ namespace Profiler { namespace Record
         friend std::ostream& operator<<(std::ostream&, const TimeRecord&);
       private:
         static thread_local std::size_t _threadDepth;
+        static thread_local std::size_t _threadSeqNum;
         const char* _name = nullptr;
         TimePoint _t0;
         TimePoint _t1;
         std::size_t _depth;
+        std::size_t _seqNum;
     };
 
     inline std::ostream& operator<<(std::ostream& out_, const TimeRecord& record_)
@@ -46,6 +49,7 @@ namespace Profiler { namespace Record
         Algorithm::encodeString(out_, record_._name);
         out_ << record_._t0 << record_._t1;
         Algorithm::encode(out_, record_._depth);
+        Algorithm::encode(out_, record_._seqNum);
         return out_;
     }
 

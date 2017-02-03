@@ -56,15 +56,18 @@ namespace Profiler { namespace Record
             TimePoint t1;
             in_ >> t0 >> t1;
             auto depth = Algorithm::decode<std::size_t>(in_);
+            auto seqNum = Algorithm::decode<std::size_t>(in_);
             // TODO: JSON this
-            out_ << "- name:" << name << "\n";
-            out_ << "  t0:" << t0.data << "\n";
-            out_ << "  t1:" << t1.data << "\n";
-            out_ << "  depth:" << depth << "\n";
+            out_ << "- seq: " << seqNum << "\n";
+            out_ << "  name: \"" << name << "\"\n";
+            out_ << "  t0: " << t0.data << "\n";
+            out_ << "  t1: " << t1.data << "\n";
+            out_ << "  depth: " << depth << "\n";
         }
     }
 
     thread_local std::size_t TimeRecord::_threadDepth = 0;
+    thread_local std::size_t TimeRecord::_threadSeqNum = 0;
 
 }
 }
