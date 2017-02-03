@@ -57,7 +57,9 @@ namespace
             holderArray[0].setOut(outputs.newOutput(0));
             ThreadRecords<Record::TimeRecord> threadRecords(Allocation({}, arena, holderArray[0]));
             {
-                Scope::record(threadRecords.getRecordManager(), Record::TimeRecord("test", {0}, {1}));
+                Record::TimeRecord record("test");
+                record.finish();
+                Scope::record(threadRecords.getRecordManager(), std::move(record));
             }
         }
         Writer writer(holderArray, std::chrono::microseconds(100000));
