@@ -26,22 +26,6 @@ namespace Profiler { namespace Record
 
     void TimeRecord::decode(std::istream& in_, std::ostream& out_)
     {
-        // YAML log sample:
-        //
-        // time_reference:
-        // - time: 123
-        // - rdtsc: 345
-        // records:
-        // - name: abc
-        //   t0: 435
-        //   t1: 564
-        // - name: def
-        //   t0: 435
-        //   t1: 564
-        // - name: fgh
-        //   t0: 435
-        //   t1: 564
-        //
         auto timeReference = Algorithm::decode<std::uint64_t>(in_);
         out_ << "time_reference:\n";
         out_ << "- time: " << timeReference << "\n";
