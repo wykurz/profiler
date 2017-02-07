@@ -47,6 +47,7 @@ namespace Profiler { namespace Scope
 #define _UNIQUE_NAME(base) _CAT(base, __COUNTER__)
 
 #define STATS_SCOPE() Profiler::Scope::StatsScope _UNIQUE_NAME(statsScope)(__PRETTY_FUNCTION__)
+#define STATS_SCOPE_EX(name) Profiler::Scope::StatsScope _UNIQUE_NAME(statsScope)(name)
 
 #endif // NO_MACROS
 
