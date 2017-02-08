@@ -1,6 +1,7 @@
 #ifndef RECORD_RECORD_H
 #define RECORD_RECORD_H
 
+#include <Profiler/Algorithm/Mpl.h>
 #include <Profiler/Algorithm/Stream.h>
 #include <Profiler/Exception/Exception.h>
 #include <Profiler/Instrumentation/Time.h>
@@ -52,6 +53,8 @@ namespace Profiler { namespace Record
         Algorithm::encode(out_, record_._seqNum);
         return out_;
     }
+
+    using NativeRecords = Mpl::TypeList<Record::TimeRecord>;
 
 }
 }

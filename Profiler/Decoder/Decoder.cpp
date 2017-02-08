@@ -15,8 +15,6 @@ namespace Profiler { namespace Decoder
 namespace
 {
 
-    using NativeRecords = Mpl::TypeList<Record::TimeRecord>;
-
     template <typename RecordTypes_>
     auto genFuncMap()
     {
@@ -26,7 +24,7 @@ namespace
             DLOG("Registering: " << typeid(RecordType).name());
             funcMap[typeid(RecordType).name()] = RecordType::decode;
         };
-        Mpl::apply<NativeRecords>(addDecodeFunc);
+        Mpl::apply<Record::NativeRecords>(addDecodeFunc);
         Mpl::apply<RecordTypes_>(addDecodeFunc);
         return funcMap;
     }

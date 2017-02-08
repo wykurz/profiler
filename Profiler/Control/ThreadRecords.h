@@ -1,6 +1,7 @@
 #ifndef CONTROL_THREAD_H
 #define CONTROL_THREAD_H
 
+#include <Profiler/Algorithm/Mpl.h>
 #include <Profiler/Record/Record.h>
 #include <Profiler/Control/Manager.h>
 #include <Profiler/Control/RecordManager.h>
@@ -35,6 +36,17 @@ namespace Profiler { namespace Control
     {
         thread_local ThreadRecords<Record_> threadRecords(getManager().addThreadRecords<Record_>());
         return threadRecords;
+    }
+
+    template <typename RecordTypes_ = Mpl::TypeList<> >
+    void primeThreadRecords()
+    {
+        auto requestRecordType = [](auto dummy_) {
+            using RecordType = typename decltype(dummy_)::Type;
+            getThreadRecords<RecordType>();
+        };
+        Mpl::apply<Record::NativeRecords>(requestRecordType);
+        Mpl::apply<RecordTypes_>(requestRecordType);
     }
 
 }
