@@ -14,32 +14,9 @@ void f2()
 
 void f3()
 {
-    STATS_SCOPE_EX("A");
-    {
-        STATS_SCOPE_EX("B");
-        {
-            STATS_SCOPE_EX("C");
-        }
-    }
-
-    STATS_SCOPE_EX("D");
-    {
-        STATS_SCOPE_EX("E");
-        {
-            STATS_SCOPE_EX("F");
-        }
-    }
-
-    STATS_SCOPE_EX("G");
-    {
-        STATS_SCOPE_EX("H");
-        {
-            STATS_SCOPE_EX("I");
-        }
-    }
-
-    // f2();
-    // f1();
+    STATS_SCOPE();
+    f2();
+    f1();
 }
 
 int main()

@@ -38,6 +38,7 @@ namespace Profiler { namespace Control
         return threadRecords;
     }
 
+    // TODO: measure and document the cost of this call
     template <typename RecordTypes_ = Mpl::TypeList<> >
     void primeThreadRecords()
     {
