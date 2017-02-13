@@ -13,32 +13,31 @@ namespace
         Fixture()
         {
             std::srand(0);
+            for (int i = 0; i < test.size(); ++i) bits.getFree();
         }
         void setupTest()
         {
+            int free = 0;
+            for (int i = 0; i < test.size(); ++i) {
+                if (test[i]) {
+                    test[i] = false;
+                    ++free;
+                }
+            }
+            for (int i = 0; i < free; ++i) bits.getFree();
             for (int i = 0; i < test.size(); ++i) {
                 bool flip = std::rand() & 1;
                 if (flip) {
-                    test[i] = !test[i];
-                    bits.set(i, test[i]);
+                    test[i] = true;
+                    bits.setFree(i);
                 }
             }
-        }
-        int firstFree() const
-        {
-            for (int i = 0; i < test.size(); ++i) if (test[i]) return i;
-            return -1;
-        }
-        int lastFree() const
-        {
-            for (int i = test.size() - 1; 0 <= i; --i) if (test[i]) return i;
-            return -1;
         }
         bool isFree(std::size_t index_)
         {
             return test[index_];
         }
-        std::vector<bool> test = std::vector<bool>(1024 + 3, true);
+        std::vector<bool> test = std::vector<bool>(1024 + 3, false);
         FreeMap bits{test.size()};
     };
 
@@ -50,8 +49,6 @@ namespace
     {
         for (int i = 0; i < 1024; ++i) {
             setupTest();
-            BOOST_CHECK_EQUAL(firstFree(), bits.firstFree());
-            BOOST_CHECK_EQUAL(lastFree(), bits.lastFree());
             for (int i = 0; i < test.size(); ++i) BOOST_CHECK_EQUAL(isFree(i), bits.isFree(i));
         }
     }
