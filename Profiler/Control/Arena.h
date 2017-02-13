@@ -33,9 +33,8 @@ namespace Profiler { namespace Control
         {
             static_assert(sizeof(T_) <= DataSize, "Blocks is to small to hold the requested object.");
             static_assert(alignof(Block) % alignof(T_) == 0, "Block alignement not congruent to requested type alignment.");
-            int freeIdx = _freeMap.firstFree();
+            int freeIdx = _freeMap.getFree();
             if (freeIdx < 0) return nullptr;
-            _freeMap.set(freeIdx, false);
             return reinterpret_cast<T_*>(getHolder(freeIdx));
         }
 
@@ -49,7 +48,7 @@ namespace Profiler { namespace Control
             static_assert(alignof(Block) % alignof(T_) == 0, "Block alignement not congruent to requested type alignment.");
             PROFILER_ASSERT(block_);
             PROFILER_ASSERT(!_freeMap.isFree(getIndex(block_)));
-            _freeMap.set(getIndex(block_), true);
+            _freeMap.setFree(getIndex(block_));
         }
 
         /**

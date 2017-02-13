@@ -19,4 +19,4 @@ void statsScopeTest(benchmark::State& state_)
 struct StatsScopeFixture: public ::benchmark::Fixture { };
 
 BENCHMARK_DEFINE_F(StatsScopeFixture, StatsScopeTest)(benchmark::State& state_) { statsScopeTest(state_); }
-BENCHMARK_REGISTER_F(StatsScopeFixture, StatsScopeTest)->Range(1, 1 << 10);
+BENCHMARK_REGISTER_F(StatsScopeFixture, StatsScopeTest)->Range(1, 1 << 20);

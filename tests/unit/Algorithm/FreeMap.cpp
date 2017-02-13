@@ -7,55 +7,73 @@ namespace Profiler { namespace Algorithm { namespace Test
 
     BOOST_AUTO_TEST_SUITE(FreeMapUnitTests)
 
-    BOOST_AUTO_TEST_CASE(OneByte)
+    BOOST_AUTO_TEST_CASE(OnePass)
     {
-        FreeMap bits(8);
-        BOOST_CHECK_EQUAL(0, bits.firstFree());
-        BOOST_CHECK_EQUAL(7, bits.lastFree());
-        BOOST_CHECK_EQUAL(true, bits.isFree(0));
-        bits.set(0, false);
-        BOOST_CHECK_EQUAL(1, bits.firstFree());
-        BOOST_CHECK_EQUAL(7, bits.lastFree());
-        BOOST_CHECK_EQUAL(false, bits.isFree(0));
-        bits.set(1, false);
-        BOOST_CHECK_EQUAL(2, bits.firstFree());
-        BOOST_CHECK_EQUAL(7, bits.lastFree());
+        FreeMap bits(FreeMap::MaxSize);
+        for (int i = 0; i < FreeMap::MaxSize; ++i)
+            BOOST_CHECK_EQUAL(true, bits.isFree(i));
+        for (int acquired = 0; acquired < FreeMap::MaxSize; ++acquired) {
+            auto index = bits.getFree();
+            BOOST_REQUIRE_NE(index, -1);
+            BOOST_CHECK_EQUAL(false, bits.isFree(index));
+        }
+        BOOST_CHECK_EQUAL(-1, bits.getFree());
+        for (int i = 0; i < FreeMap::MaxSize; ++i) {
+            bits.setFree(i);
+            BOOST_CHECK_EQUAL(true, bits.isFree(i));
+        }
     }
 
-    BOOST_AUTO_TEST_CASE(TwoBytes)
+    BOOST_AUTO_TEST_CASE(SkipOne)
     {
-        FreeMap bits(9);
-        BOOST_CHECK_EQUAL(0, bits.firstFree());
-        BOOST_CHECK_EQUAL(8, bits.lastFree());
-        BOOST_CHECK_EQUAL(true, bits.isFree(0));
-        bits.set(0, false);
-        BOOST_CHECK_EQUAL(1, bits.firstFree());
-        BOOST_CHECK_EQUAL(8, bits.lastFree());
-        BOOST_CHECK_EQUAL(false, bits.isFree(0));
-        bits.set(1, false);
-        BOOST_CHECK_EQUAL(2, bits.firstFree());
-        BOOST_CHECK_EQUAL(8, bits.lastFree());
+        FreeMap bits(FreeMap::MaxSize);
+        for (int i = 0; i < FreeMap::MaxSize; ++i) {
+            auto index = bits.getFree();
+            BOOST_REQUIRE_NE(index, -1);
+            BOOST_CHECK_EQUAL(false, bits.isFree(index));
+        }
+        int free = 0;
+        for (int i = 0; i < FreeMap::MaxSize; i += 2) {
+            bits.setFree(i);
+            BOOST_CHECK_EQUAL(true, bits.isFree(i));
+            ++free;
+        }
+        for (int acquired = 0; acquired < free; ++acquired) {
+            auto index = bits.getFree();
+            BOOST_REQUIRE_NE(index, -1);
+            BOOST_CHECK_EQUAL(false, bits.isFree(index));
+        }
+        BOOST_CHECK_EQUAL(-1, bits.getFree());
+        for (int i = 0; i < FreeMap::MaxSize; i += 2) {
+            bits.setFree(i);
+            BOOST_CHECK_EQUAL(true, bits.isFree(i));
+        }
     }
 
-    BOOST_AUTO_TEST_CASE(EightBytes)
+    BOOST_AUTO_TEST_CASE(SkipTwelve)
     {
-        FreeMap bits(8 * 8 + 1);
-        BOOST_CHECK_EQUAL(0, bits.firstFree());
-        BOOST_CHECK_EQUAL(8 * 8, bits.lastFree());
-        bits.set(0, false);
-        BOOST_CHECK_EQUAL(1, bits.firstFree());
-        BOOST_CHECK_EQUAL(8 * 8, bits.lastFree());
-        BOOST_CHECK_EQUAL(false, bits.isFree(0));
-        bits.set(8 * 8, false);
-        BOOST_CHECK_EQUAL(1, bits.firstFree());
-        BOOST_CHECK_EQUAL(8 * 8 - 1, bits.lastFree());
-        // Reverse
-        bits.set(8 * 8, true);
-        BOOST_CHECK_EQUAL(1, bits.firstFree());
-        BOOST_CHECK_EQUAL(8 * 8, bits.lastFree());
-        bits.set(4 * 8, true);
-        BOOST_CHECK_EQUAL(1, bits.firstFree());
-        BOOST_CHECK_EQUAL(8 * 8, bits.lastFree());
+        FreeMap bits(FreeMap::MaxSize);
+        for (int i = 0; i < FreeMap::MaxSize; ++i) {
+            auto index = bits.getFree();
+            BOOST_REQUIRE_NE(index, -1);
+            BOOST_CHECK_EQUAL(false, bits.isFree(index));
+        }
+        int free = 0;
+        for (int i = 0; i < FreeMap::MaxSize; i += 13) {
+            bits.setFree(i);
+            BOOST_CHECK_EQUAL(true, bits.isFree(i));
+            ++free;
+        }
+        for (int acquired = 0; acquired < free; ++acquired) {
+            auto index = bits.getFree();
+            BOOST_REQUIRE_NE(index, -1);
+            BOOST_CHECK_EQUAL(false, bits.isFree(index));
+        }
+        BOOST_CHECK_EQUAL(-1, bits.getFree());
+        for (int i = 0; i < FreeMap::MaxSize; i += 13) {
+            bits.setFree(i);
+            BOOST_CHECK_EQUAL(true, bits.isFree(i));
+        }
     }
 
     BOOST_AUTO_TEST_SUITE_END()
