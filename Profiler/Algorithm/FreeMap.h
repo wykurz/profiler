@@ -28,7 +28,7 @@ namespace Profiler { namespace Algorithm
         {
             auto f = [](char c) {
                 for (int i = 0; i < 8; ++i) if (!(c & (1 << i))) return i;
-                PROFILER_ASSERT(false);
+                throw Exception::LogicError("We should never get here.");
             };
             for (int i = 0; i < data.size(); ++i) {
                 if (-1 != data[i]) {
