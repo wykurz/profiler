@@ -18,8 +18,14 @@ namespace Profiler { namespace Algorithm
         using ChunkType = std::uint16_t;
         static constexpr std::size_t Chunks = 4;
         using BitmaskType = std::uint64_t;
+        static constexpr std::size_t BitmaskSize = sizeof(BitmaskType) * 8;
         static_assert(sizeof(BitmaskType) == sizeof(ChunkType) * Chunks, "Bitmask must be a sum of chunks!");
         static constexpr std::size_t MaxSize = Chunks * (1 << (sizeof(ChunkType) * 8)) - 1;
+
+        FreeMap(std::size_t size_)
+        {
+            PROFILER_ASSERT(size_ <= MaxSize);
+        }
 
         int getFree()
         {
@@ -48,6 +54,7 @@ namespace Profiler { namespace Algorithm
                 // Update index to the index of it's ifound-th child
                 index = index * Chunks + 1 + ifound;
             }
+            // For usability, we want to return the last level index rather than the node index in the whole bucket tree
             index -= _indexOfLevel[NumLevels - 1];
             PROFILER_ASSERT(0 <= index);
             PROFILER_ASSERT(index <= NumBitmasks);
@@ -70,6 +77,21 @@ namespace Profiler { namespace Algorithm
 
         void setFree(std::size_t index_)
         {
+            auto unsetOneBit = [](int bitIndex_, BitmaskType bitmask_) {
+                auto oneBit = BitmaskType(1) << bitIndex_;
+                PROFILER_ASSERT(oneBit & bitmask_);
+                return bitmask_ & ~oneBit;
+            };
+            std::size_t bitmaskIndex = _indexOfLevel[NumLevels - 1] + index_ / BitmaskSize;
+            auto& bitmask = _bitmasks[bitmaskIndex];
+            auto nbitmask = bitmask.load(std::memory_order_acquire);
+            BitmaskType pbitmask = nbitmask;
+            while (!bitmask.compare_exchange_strong(
+                       nbitmask, unsetOneBit(index_ % BitmaskSize, nbitmask), std::memory_order_release, std::memory_order_relaxed)) {
+                PROFILER_ASSERT(nbitmask < std::numeric_limits<BitmaskType>::max());
+                pbitmask = nbitmask;
+            }
+
         }
 
         /**
@@ -77,11 +99,9 @@ namespace Profiler { namespace Algorithm
          */
         bool isFree(std::size_t index_) const
         {
-            auto bucketIdx = index_ / 64;
-            PROFILER_ASSERT(_indexOfLevel[NumLevels - 1] + bucketIdx < NumBuckets);
-            auto bucket = _buckets[_indexOfLevel[NumLevels - 1] + bucketIdx].load(std::memory_order_acquire);
-            auto bucketOffset = index_ % 64;
-            return bucket & (decltype(bucket)(1) << bucketOffset);
+            auto bitmaskIndex = getBitmaskIndex(index_);
+            auto bitmask = _bitmasks[bitmaskIndex].load(std::memory_order_acquire);
+            return bitmask & (BitmaskType(1) << (index_ % BitmaskSize));
         }
 
         /**
@@ -89,13 +109,14 @@ namespace Profiler { namespace Algorithm
          */
         std::string str() const
         {
-            std::string s(_buckets.size() * 8, '0');
-            int i = 0;
-            for (auto& bucket : _buckets) {
-                auto b = bucket.load();
-                for (int j = 0; j < sizeof(b) * 8; ++i, ++j) if (b & (1 << j)) s[i] = '1';
-            }
-            return s;
+            // std::string s(_buckets.size() * 8, '0');
+            // int i = 0;
+            // for (auto& bucket : _buckets) {
+            //     auto b = bucket.load();
+            //     for (int j = 0; j < sizeof(b) * 8; ++i, ++j) if (b & (1 << j)) s[i] = '1';
+            // }
+            // return s;
+            return "";
         }
 
       private:
@@ -142,6 +163,13 @@ namespace Profiler { namespace Algorithm
         static constexpr std::size_t NumLevels = 6;
         static constexpr std::size_t NumBuckets = ((1 << (2 * NumLevels)) - 1) / (4 - 1);
         static constexpr std::size_t NumBitmasks = 1 << (2 * NumLevels);
+
+        std::size_t getBitmaskIndex(int index_) const
+        {
+            std::size_t bitmaskIndex = _indexOfLevel[NumLevels - 1] + index_ / BitmaskSize;
+            PROFILER_ASSERT(bitmaskIndex < NumBitmasks);
+            return bitmaskIndex;
+        }
 
         std::array<std::array<std::atomic<ChunkType>, Chunks>, NumBuckets> _buckets{};
         std::array<std::atomic<BitmaskType>, NumBitmasks> _bitmasks{};
