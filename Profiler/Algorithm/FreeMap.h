@@ -20,13 +20,15 @@ namespace Profiler { namespace Algorithm
         using BitmaskType = std::uint64_t;
         static constexpr std::size_t BitmaskSize = sizeof(BitmaskType) * 8;
         static_assert(sizeof(BitmaskType) == sizeof(ChunkType) * Chunks, "Bitmask must be a sum of chunks!");
-        static constexpr std::size_t MaxSize = Chunks * (1 << (sizeof(ChunkType) * 8)) - 1;
+        static constexpr std::size_t MaxSize = Chunks * (1 << (sizeof(ChunkType) * 8));
 
         FreeMap(std::size_t size_)
         {
             PROFILER_ASSERT(size_ <= MaxSize);
             // TODO: Not the most efficient way of initializing self
             for (std::size_t index = 0; index < size_; ++index) setFree(index);
+            DLOG("Bucket 0: " << _buckets[0][0].load() << ", " << _buckets[0][1].load() << ", " << _buckets[0][2].load()
+                 << ", " << _buckets[0][3].load() << ", ");
         }
 
         int getFree()
