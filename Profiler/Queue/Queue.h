@@ -91,7 +91,9 @@ namespace Profiler { namespace Queue
     typename Queue<T_>::Node* Queue<T_>::pull()
     {
         auto nodePtr = _head.load(std::memory_order_acquire);
-        while (!nodePtr.isNull() && !_head.compare_exchange_weak(nodePtr, TaggedPtr<Node>(_basePtr, unpackPtr(nodePtr)->getNext())))
+        while (!nodePtr.isNull() && !_head.compare_exchange_weak(
+                   nodePtr, TaggedPtr<Node>(_basePtr, unpackPtr(nodePtr)->getNext()),
+                   std::memory_order_release, std::memory_order_relaxed))
             ; // empty
         if (nodePtr.isNull()) return nullptr;
         auto node = unpackPtr(nodePtr);

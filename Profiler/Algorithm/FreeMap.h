@@ -69,9 +69,8 @@ namespace Profiler { namespace Algorithm
                 return (bitmask_ - 1) & bitmask_;
             };
             BitmaskType newBitmask = bitmask.load(std::memory_order_acquire);
-            while (!bitmask.compare_exchange_strong(newBitmask, unsetOneBit(newBitmask), std::memory_order_acq_rel)) {
+            while (!bitmask.compare_exchange_weak(newBitmask, unsetOneBit(newBitmask), std::memory_order_release, std::memory_order_relaxed))
                 PROFILER_ASSERT(0 < newBitmask);
-            }
             BitmaskType newBit = newBitmask & ~unsetOneBit(newBitmask);
             int bitIndex = __builtin_ffsl(newBit) - 1;
             PROFILER_ASSERT(0 <= bitIndex);
@@ -89,11 +88,9 @@ namespace Profiler { namespace Algorithm
             PROFILER_ASSERT(ibitmask < NumBitmasks);
             auto& bitmask = _bitmasks[ibitmask];
             auto newBitmask = bitmask.load(std::memory_order_acquire);
-            BitmaskType prevBitmask = newBitmask;
-            while (!bitmask.compare_exchange_strong(
+            while (!bitmask.compare_exchange_weak(
                        newBitmask, setOneBit(index_ % BitmaskSize, newBitmask), std::memory_order_release, std::memory_order_relaxed)) {
                 PROFILER_ASSERT(newBitmask < std::numeric_limits<BitmaskType>::max());
-                prevBitmask = newBitmask;
             }
             int ibucket = ibitmask + NumBuckets;
             do {
