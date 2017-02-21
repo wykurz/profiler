@@ -9,16 +9,17 @@ namespace Profiler { namespace Algorithm { namespace Test
 
     BOOST_AUTO_TEST_CASE(OnePass)
     {
-        FreeMap bits(FreeMap::MaxSize);
-        for (int i = 0; i < FreeMap::MaxSize; ++i)
+        const std::size_t size = 1;
+        FreeMap bits(size);
+        for (int i = 0; i < size; ++i)
             BOOST_CHECK_EQUAL(true, bits.isFree(i));
-        for (int acquired = 0; acquired < FreeMap::MaxSize; ++acquired) {
+        for (int acquired = 0; acquired < size; ++acquired) {
             auto index = bits.getFree();
             BOOST_REQUIRE_NE(index, -1);
             BOOST_CHECK_EQUAL(false, bits.isFree(index));
         }
         BOOST_CHECK_EQUAL(-1, bits.getFree());
-        for (int i = 0; i < FreeMap::MaxSize; ++i) {
+        for (int i = 0; i < size; ++i) {
             bits.setFree(i);
             BOOST_CHECK_EQUAL(true, bits.isFree(i));
         }

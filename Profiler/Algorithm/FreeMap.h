@@ -25,12 +25,14 @@ namespace Profiler { namespace Algorithm
         FreeMap(std::size_t size_)
         {
             PROFILER_ASSERT(size_ <= MaxSize);
+            // TODO: Not the most efficient way of initializing self
+            for (std::size_t index = 0; index < size_; ++index) setFree(index);
         }
 
         int getFree()
         {
             int index = 0;
-            for (int level = 0; level < NumLevels - 1; ++level) {
+            for (int level = 0; level < NumLevels; ++level) {
                 PROFILER_ASSERT(_indexOfLevel[level] <= index);
                 auto& bucket = _buckets[index];
                 int ifound = -1;
@@ -49,27 +51,28 @@ namespace Profiler { namespace Algorithm
                     } while (0 < chunk);
                     if (-1 < ifound) break;
                 }
-                if (ifound < 0 && 0 == level) return -1;
+                if (ifound < 0 && 0 == level) {
+                    DLOG("Failed to find an empty slot");
+                    return -1;
+                }
                 PROFILER_ASSERT(-1 < ifound);
                 // Update index to the index of it's ifound-th child
-                index = index * Chunks + 1 + ifound;
+                index = getChildIndex(index, ifound);
             }
             // For usability, we want to return the last level index rather than the node index in the whole bucket tree
-            index -= _indexOfLevel[NumLevels - 1];
+            index -= NumBuckets;
             PROFILER_ASSERT(0 <= index);
             PROFILER_ASSERT(index <= NumBitmasks);
             auto& bitmask = _bitmasks[index];
-            auto setOneBit = [](BitmaskType bitmask_) {
-                return (bitmask_ + 1) | bitmask_;
+            auto unsetOneBit = [](BitmaskType bitmask_) {
+                PROFILER_ASSERT(bitmask_);
+                return (bitmask_ - 1) & bitmask_;
             };
-            BitmaskType nbitmask = bitmask.load(std::memory_order_acquire);
-            BitmaskType pbitmask = nbitmask;
-            while (!bitmask.compare_exchange_strong(
-                       nbitmask, setOneBit(nbitmask), std::memory_order_release, std::memory_order_relaxed)) {
-                PROFILER_ASSERT(nbitmask < std::numeric_limits<BitmaskType>::max());
-                pbitmask = nbitmask;
+            BitmaskType newBitmask = bitmask.load(std::memory_order_acquire);
+            while (!bitmask.compare_exchange_strong(newBitmask, unsetOneBit(newBitmask), std::memory_order_acq_rel)) {
+                PROFILER_ASSERT(0 < newBitmask);
             }
-            BitmaskType newBit = nbitmask & ~pbitmask;
+            BitmaskType newBit = newBitmask & ~unsetOneBit(newBitmask);
             int bitIndex = __builtin_ffsl(newBit) - 1;
             PROFILER_ASSERT(0 <= bitIndex);
             return index * sizeof(BitmaskType) * 8 + bitIndex;
@@ -77,21 +80,32 @@ namespace Profiler { namespace Algorithm
 
         void setFree(std::size_t index_)
         {
-            auto unsetOneBit = [](int bitIndex_, BitmaskType bitmask_) {
+            auto setOneBit = [](int bitIndex_, BitmaskType bitmask_) {
                 auto oneBit = BitmaskType(1) << bitIndex_;
-                PROFILER_ASSERT(oneBit & bitmask_);
-                return bitmask_ & ~oneBit;
+                PROFILER_ASSERT(!(oneBit & bitmask_));
+                return bitmask_ | oneBit;
             };
-            std::size_t bitmaskIndex = _indexOfLevel[NumLevels - 1] + index_ / BitmaskSize;
-            auto& bitmask = _bitmasks[bitmaskIndex];
-            auto nbitmask = bitmask.load(std::memory_order_acquire);
-            BitmaskType pbitmask = nbitmask;
+            const int ibitmask = index_ / BitmaskSize;
+            PROFILER_ASSERT(ibitmask < NumBitmasks);
+            auto& bitmask = _bitmasks[ibitmask];
+            auto newBitmask = bitmask.load(std::memory_order_acquire);
+            BitmaskType prevBitmask = newBitmask;
             while (!bitmask.compare_exchange_strong(
-                       nbitmask, unsetOneBit(index_ % BitmaskSize, nbitmask), std::memory_order_release, std::memory_order_relaxed)) {
-                PROFILER_ASSERT(nbitmask < std::numeric_limits<BitmaskType>::max());
-                pbitmask = nbitmask;
+                       newBitmask, setOneBit(index_ % BitmaskSize, newBitmask), std::memory_order_release, std::memory_order_relaxed)) {
+                PROFILER_ASSERT(newBitmask < std::numeric_limits<BitmaskType>::max());
+                prevBitmask = newBitmask;
             }
-
+            int ibucket = ibitmask + NumBuckets;
+            do {
+                int iparent = getParentIndex(ibucket);
+                PROFILER_ASSERT(iparent < NumBuckets);
+                const int firstChild = getChildIndex(iparent, 0);
+                const int ichunk = ibucket - firstChild;
+                PROFILER_ASSERT(ichunk < Chunks);
+                _buckets[iparent][ichunk].fetch_add(1, std::memory_order_release);
+                ibucket = iparent;
+            }
+            while (ibucket > 0);
         }
 
         /**
@@ -99,7 +113,8 @@ namespace Profiler { namespace Algorithm
          */
         bool isFree(std::size_t index_) const
         {
-            auto bitmaskIndex = getBitmaskIndex(index_);
+            auto bitmaskIndex = index_ / (sizeof(BitmaskType) * 8);
+            PROFILER_ASSERT(bitmaskIndex < NumBitmasks);
             auto bitmask = _bitmasks[bitmaskIndex].load(std::memory_order_acquire);
             return bitmask & (BitmaskType(1) << (index_ % BitmaskSize));
         }
@@ -151,9 +166,9 @@ namespace Profiler { namespace Algorithm
          *    .
          *    .
          *    |
-         * [2^4|2^4|2^4|2^4] <--- Last level is represented as bitmask since 2^4 == 16.
+         * [2^4|2^4|2^4|2^4] <--- Last level could be represented as a bitmask since 2^4 == 16.
          * ^^^^^^^^^^^^^^^^^
-         * [      2^64     ] <--- In fact, we can represent it as a 64-bit mask.
+         * [      2^64     ] <--- In fact, we can represent it as a 64-bit (4x 16) value.
          *
          * Number of levels    - len([16, 14, ..., 8, 6]) = 6 (+ bit masks)
          * Number of buckets   - 1 + 4 + 4^2 + ... + 4^5 = (4^6 - 1) / (4 - 1)
@@ -164,11 +179,14 @@ namespace Profiler { namespace Algorithm
         static constexpr std::size_t NumBuckets = ((1 << (2 * NumLevels)) - 1) / (4 - 1);
         static constexpr std::size_t NumBitmasks = 1 << (2 * NumLevels);
 
-        std::size_t getBitmaskIndex(int index_) const
+        static int getChildIndex(int parentIndex_, int child_)
         {
-            std::size_t bitmaskIndex = _indexOfLevel[NumLevels - 1] + index_ / BitmaskSize;
-            PROFILER_ASSERT(bitmaskIndex < NumBitmasks);
-            return bitmaskIndex;
+            return parentIndex_ * Chunks + 1 + child_;
+        }
+
+        static std::size_t getParentIndex(std::size_t childIndex_)
+        {
+            return (childIndex_ - 1) / Chunks;
         }
 
         std::array<std::array<std::atomic<ChunkType>, Chunks>, NumBuckets> _buckets{};
