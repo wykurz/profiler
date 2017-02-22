@@ -179,6 +179,9 @@ namespace Profiler { namespace Algorithm
          * Number of buckets   - 1 + 4 + 4^2 + ... + 4^5 = (4^6 - 1) / (4 - 1)
          * Number of bit-masks - 4^6
          *
+         * Note that the most top-level chunk can represent only 2^16 - 1 free slots. This means that the last bitmask
+         * in each subtree starting from the first-level child may hold one less element than all the other bitmasks.
+         * This is accounted for in the algorithm and is made transparent to the user by index arithmetic.
          */
         static constexpr std::size_t NumLevels = 6;
         static constexpr std::size_t NumBuckets = ((1 << (2 * NumLevels)) - 1) / (4 - 1);
