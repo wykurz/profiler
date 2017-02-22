@@ -10,7 +10,7 @@ namespace Profiler { namespace Algorithm { namespace Test
     BOOST_AUTO_TEST_CASE(OnePass)
     {
         std::cerr << "MaxSize: " << FreeMap::MaxSize << "\n";
-        const std::size_t size = FreeMap::MaxSize / 4 - 1;
+        const std::size_t size = FreeMap::MaxSize / 4 + 1;
         FreeMap bits(size);
         for (int i = 0; i < size; ++i)
             BOOST_CHECK_EQUAL(true, bits.isFree(i));

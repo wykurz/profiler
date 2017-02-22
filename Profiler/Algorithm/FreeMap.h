@@ -7,6 +7,7 @@
 #include <array>
 #include <atomic>
 #include <cassert>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -20,15 +21,16 @@ namespace Profiler { namespace Algorithm
         using BitmaskType = std::uint64_t;
         static constexpr std::size_t BitmaskSize = sizeof(BitmaskType) * 8;
         static_assert(sizeof(BitmaskType) == sizeof(ChunkType) * Chunks, "Bitmask must be a sum of chunks!");
-        static constexpr std::size_t MaxSize = Chunks * (1 << (sizeof(ChunkType) * 8));
+        static constexpr std::size_t MaxSubtreeSize = (std::size_t(1) << (sizeof(ChunkType) * 8)) - 1;
+        static constexpr std::size_t MaxSize = Chunks * MaxSubtreeSize;
 
         FreeMap(std::size_t size_)
         {
             PROFILER_ASSERT(size_ <= MaxSize);
-            // TODO: Not the most efficient way of initializing self
-            for (std::size_t index = 0; index < size_; ++index) setFree(index);
-            DLOG("Bucket 0: " << _buckets[0][0].load() << ", " << _buckets[0][1].load() << ", " << _buckets[0][2].load()
-                 << ", " << _buckets[0][3].load() << ", ");
+            // TODO: Not the most efficient way of initializing self.
+            for (unsigned index = 0; index < size_; ++index) setFree(index);
+            DLOG("Buckets: " << _buckets[0][0].load() << ", " << _buckets[0][1].load() << ", " << _buckets[0][2].load()
+                 << ", " << _buckets[0][3].load());
         }
 
         int getFree()
@@ -61,7 +63,7 @@ namespace Profiler { namespace Algorithm
                 // Update index to the index of it's ifound-th child
                 index = getChildIndex(index, ifound);
             }
-            // For usability, we want to return the last level index rather than the node index in the whole bucket tree
+            // For usability, we want to return the last level index rather than the node index in the whole bucket tree.
             index -= NumBuckets;
             PROFILER_ASSERT(0 <= index);
             PROFILER_ASSERT(index <= NumBitmasks);
@@ -76,22 +78,24 @@ namespace Profiler { namespace Algorithm
             BitmaskType newBit = newBitmask & ~unsetOneBit(newBitmask);
             int bitIndex = __builtin_ffsl(newBit) - 1;
             PROFILER_ASSERT(0 <= bitIndex);
-            return index * sizeof(BitmaskType) * 8 + bitIndex;
+            const int trueIndex = index * sizeof(BitmaskType) * 8 + bitIndex;
+            return trueIndex - trueIndex / (MaxSubtreeSize + 1);
         }
 
-        void setFree(std::size_t index_)
+        void setFree(unsigned index_)
         {
+            const unsigned trueIndex = index_ + index_ / MaxSubtreeSize;
             auto setOneBit = [](int bitIndex_, BitmaskType bitmask_) {
                 auto oneBit = BitmaskType(1) << bitIndex_;
                 PROFILER_ASSERT(!(oneBit & bitmask_));
                 return bitmask_ | oneBit;
             };
-            const int ibitmask = index_ / BitmaskSize;
+            const int ibitmask = trueIndex / BitmaskSize;
             PROFILER_ASSERT(ibitmask < NumBitmasks);
             auto& bitmask = _bitmasks[ibitmask];
             auto newBitmask = bitmask.load(std::memory_order_acquire);
             while (!bitmask.compare_exchange_weak(
-                       newBitmask, setOneBit(index_ % BitmaskSize, newBitmask), std::memory_order_release, std::memory_order_relaxed)) {
+                       newBitmask, setOneBit(trueIndex % BitmaskSize, newBitmask), std::memory_order_release, std::memory_order_relaxed)) {
                 PROFILER_ASSERT(newBitmask < std::numeric_limits<BitmaskType>::max());
             }
             int ibucket = ibitmask + NumBuckets;
@@ -101,7 +105,8 @@ namespace Profiler { namespace Algorithm
                 const int firstChild = getChildIndex(iparent, 0);
                 const int ichunk = ibucket - firstChild;
                 PROFILER_ASSERT(ichunk < Chunks);
-                _buckets[iparent][ichunk].fetch_add(1, std::memory_order_release);
+                auto pbucket = _buckets[iparent][ichunk].fetch_add(1, std::memory_order_release);
+                PROFILER_ASSERT(pbucket < std::numeric_limits<decltype(pbucket)>::max());
                 ibucket = iparent;
             }
             while (ibucket > 0);
@@ -110,12 +115,13 @@ namespace Profiler { namespace Algorithm
         /**
          * Used for testing, the order in which free slots are acquired should not be depended on.
          */
-        bool isFree(std::size_t index_) const
+        bool isFree(unsigned index_) const
         {
-            auto bitmaskIndex = index_ / (sizeof(BitmaskType) * 8);
+            const unsigned trueIndex = index_ + index_ / MaxSubtreeSize;
+            auto bitmaskIndex = trueIndex / (sizeof(BitmaskType) * 8);
             PROFILER_ASSERT(bitmaskIndex < NumBitmasks);
             auto bitmask = _bitmasks[bitmaskIndex].load(std::memory_order_acquire);
-            return bitmask & (BitmaskType(1) << (index_ % BitmaskSize));
+            return bitmask & (BitmaskType(1) << (trueIndex % BitmaskSize));
         }
 
         /**
