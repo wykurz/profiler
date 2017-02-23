@@ -43,7 +43,7 @@ namespace Profiler { namespace Exception
         throw Profiler::Exception::LogicError(ss.str());                                              \
     }
 #else
-#define PROFILER_ASSERT(x) do { } while (false);
+#define PROFILER_ASSERT(x) if (x) { }
 #endif
 
 #endif
