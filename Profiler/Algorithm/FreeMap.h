@@ -124,21 +124,6 @@ namespace Profiler { namespace Algorithm
             return bitmask & (BitmaskType(1) << (trueIndex % BitmaskSize));
         }
 
-        /**
-         * Used for testing.
-         */
-        std::string str() const
-        {
-            // std::string s(_buckets.size() * 8, '0');
-            // int i = 0;
-            // for (auto& bucket : _buckets) {
-            //     auto b = bucket.load();
-            //     for (int j = 0; j < sizeof(b) * 8; ++i, ++j) if (b & (1 << j)) s[i] = '1';
-            // }
-            // return s;
-            return "";
-        }
-
       private:
         /**
          * [2^16|2^16|2^16|2^16]

@@ -1,6 +1,10 @@
 #include <Profiler/Algorithm/FreeMap.h>
 #include <Profiler/Exception/Exception.h>
+#include <Profiler/Queue/Queue.h>
 #include <boost/test/unit_test.hpp>
+#include <atomic>
+#include <chrono>
+#include <thread>
 
 namespace Profiler { namespace Algorithm { namespace Test
 {
@@ -8,9 +12,9 @@ namespace Profiler { namespace Algorithm { namespace Test
 namespace
 {
 
-    struct Fixture
+    struct PatternsFixture
     {
-        Fixture()
+        PatternsFixture()
         {
             std::srand(0);
             for (int i = 0; i < test.size(); ++i) bits.getFree();
@@ -43,7 +47,7 @@ namespace
 
 }
 
-    BOOST_FIXTURE_TEST_SUITE(FreeMapStressTests, Fixture)
+    BOOST_FIXTURE_TEST_SUITE(FreeMapStressTests, PatternsFixture)
 
     BOOST_AUTO_TEST_CASE(Patterns)
     {
@@ -54,6 +58,57 @@ namespace
     }
 
     BOOST_AUTO_TEST_SUITE_END()
+
+namespace
+{
+
+    struct ThreadsFixture
+    {
+        ThreadsFixture()
+        {
+            for (auto& node : nodes) free.push(&node);
+        }
+        using Queue = Queue::Queue<int>;
+        using Node = Queue::Node;
+        std::vector<Node> nodes{FreeMap::MaxSize};
+        Queue acquired{nodes.data()};
+        Queue free{nodes.data()};
+        std::atomic<bool> done{false};
+        FreeMap bits{FreeMap::MaxSize};
+    };
+
+}
+
+    BOOST_FIXTURE_TEST_SUITE(FreeMapThreadsTests, ThreadsFixture)
+
+    BOOST_AUTO_TEST_CASE(OpposingThreads)
+    {
+        std::thread taker([this]() {
+                while (!this->done.load(std::memory_order_acquire)) {
+                    Node* node = free.pull();
+                    if (!node) continue;
+                    auto index = this->bits.getFree();
+                    BOOST_REQUIRE(0 <= index);
+                    node->value = index;
+                    acquired.push(node);
+                }
+            });
+        std::thread giver([this]() {
+                while (!this->done.load(std::memory_order_acquire)) {
+                    Node* node = acquired.pull();
+                    if (!node) continue;
+                    this->bits.setFree(node->value);
+                    free.push(node);
+                }
+            });
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+        done.store(true, std::memory_order_release);
+        taker.join();
+        giver.join();
+    }
+
+    BOOST_AUTO_TEST_SUITE_END()
+
 
 }
 }
