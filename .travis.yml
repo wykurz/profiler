@@ -128,11 +128,11 @@ before_install:
   - sudo apt-get install -y gdb
 
 before_script:
-  - ./install_coverage.sh
-  - ./install_cmake.sh
-  - CC=${C_COMPILER} CXX=${CXX_COMPILER} ./install_llvm.sh
-  - CC=${C_COMPILER} CXX=${CXX_COMPILER} ./install_boost.sh
-  - CC=${C_COMPILER} CXX=${CXX_COMPILER} ./install_benchmark.sh
+  - .travis_files/install_coverage.sh
+  - .travis_files/install_cmake.sh
+  - CC=${C_COMPILER} CXX=${CXX_COMPILER} .travis_files/install_llvm.sh
+  - CC=${C_COMPILER} CXX=${CXX_COMPILER} .travis_files/install_boost.sh
+  - CC=${C_COMPILER} CXX=${CXX_COMPILER} .travis_files/install_benchmark.sh
   - ulimit -c unlimited -S # enable core dumps
   - sudo bash -c "echo 'core.%p.%E' > /proc/sys/kernel/core_pattern"
 
@@ -143,9 +143,9 @@ script:
   - which cmake
   - CC=${C_COMPILER} CXX=${CXX_COMPILER} cmake -DUSE_LIBCXX=${LIBCXX} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DDEBUG_LOG=${DEBUG_LOG} -DBOOST_ROOT=${BOOST_DIR} ..
   - if [ "${BUILD_TYPE}" == "asan_usan" ]; then
-      scan-build make -j2 VERBOSE=1
+      scan-build make -j2 VERBOSE=1;
     else
-      make -j2 VERBOSE=1
+      make -j2 VERBOSE=1;
     fi
   - ./tests/unit_tests --show_progress --log_level=test_suite
   - ./tests/stress_tests --show_progress --log_level=test_suite
@@ -156,7 +156,7 @@ script:
   - cd ..
 
 after_success:
-  - ./upload_coverage.sh
+  - .travis_files/upload_coverage.sh
 
 after_failure:
   - COREFILE=$(find build/ -maxdepth 1 -name "core.*")
