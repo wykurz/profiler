@@ -52,7 +52,7 @@ struct QueueTest {
   void shuffle() {
     int idx = 0;
     auto nodePtr = queues[idx].pull();
-    while (!nodePtr) {
+    while (nodePtr == nullptr) {
       idx = (idx + 1) % numQueues;
       nodePtr = queues[idx].pull();
     }
@@ -64,12 +64,12 @@ struct QueueTest {
   void exchange() {
     int idx = 0;
     auto nodePtr = queues[idx].extract();
-    while (!nodePtr) {
+    while (nodePtr == nullptr) {
       idx = (idx + 1) % numQueues;
       nodePtr = queues[idx].extract();
     }
     idx = (idx + 1) % numQueues;
-    while (nodePtr) {
+    while (nodePtr != nullptr) {
       auto head = nodePtr;
       nodePtr = nodePtr->getNext();
       head->setNext(nullptr);

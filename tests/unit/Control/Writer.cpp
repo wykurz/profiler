@@ -29,7 +29,7 @@ private:
 };
 
 struct MockOutputs : OutputFactory {
-  Output::Ptr newOutput(std::size_t extractorId_) const override {
+  Output::Ptr newOutput(std::size_t /* extractorId_ */) const override {
     return std::make_unique<MemoryOut>(buffers, "test");
   }
   mutable BufferMap buffers;
