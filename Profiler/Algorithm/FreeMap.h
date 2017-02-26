@@ -1,5 +1,5 @@
-#ifndef ALGORITHMS_BITMASK_H
-#define ALGORITHMS_BITMASK_H
+#ifndef _PROFILER_ALGORITHM_FREEMAP_H
+#define _PROFILER_ALGORITHM_FREEMAP_H
 
 #include <Profiler/Exception/Exception.h>
 #include <Profiler/Log/Log.h>
@@ -25,9 +25,9 @@ struct FreeMap {
       (std::size_t(1) << (sizeof(ChunkType) * 8)) - 1;
   static constexpr std::size_t MaxSize = Chunks * MaxSubtreeSize;
 
-  FreeMap(std::size_t size_) {
+  explicit FreeMap(std::size_t size_) {
     PROFILER_ASSERT(size_ <= MaxSize);
-    // TODO: Not the most efficient way of initializing self.
+    // TODO(mateusz): Not the most efficient way of initializing self.
     for (unsigned index = 0; index < size_; ++index)
       setFree(index);
     DLOG("Buckets: " << _buckets[0][0].load() << ", " << _buckets[0][1].load()
@@ -128,7 +128,7 @@ struct FreeMap {
     auto bitmaskIndex = trueIndex / (sizeof(BitmaskType) * 8);
     PROFILER_ASSERT(bitmaskIndex < NumBitmasks);
     auto bitmask = _bitmasks[bitmaskIndex].load(std::memory_order_acquire);
-    return bitmask & (BitmaskType(1) << (trueIndex % BitmaskSize));
+    return (bitmask & (BitmaskType(1) << (trueIndex % BitmaskSize))) != 0u;
   }
 
 private:
@@ -196,11 +196,11 @@ private:
   std::array<std::array<std::atomic<ChunkType>, Chunks>, NumBuckets> _buckets{};
   std::array<std::atomic<BitmaskType>, NumBitmasks> _bitmasks{};
 
-  // TODO: use template to generate
+  // TODO(mateusz): use template to generate
   std::array<std::size_t, NumLevels> _indexOfLevel{
       {0, 1, 1 << 2, 1 << 4, 1 << 6, 1 << 8}};
 };
-}
-}
+} // namespace Algorithm
+} // namespace Profiler
 
 #endif

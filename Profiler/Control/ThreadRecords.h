@@ -1,5 +1,5 @@
-#ifndef CONTROL_THREAD_H
-#define CONTROL_THREAD_H
+#ifndef _PROFILER_CONTROL_THREADRECORDS_H
+#define _PROFILER_CONTROL_THREADRECORDS_H
 
 #include <Profiler/Algorithm/Mpl.h>
 #include <Profiler/Control/Manager.h>
@@ -15,7 +15,7 @@ namespace Control {
 
 template <typename Record_> struct ThreadRecords {
   using RecordManagerType = RecordManager<Record_>;
-  ThreadRecords(const Allocation &allocation_)
+  explicit ThreadRecords(const Allocation &allocation_)
       : _recordManager(allocation_.getArena()),
         _finalizer(allocation_.setupHolder(_recordManager)) {}
   ThreadRecords(const ThreadRecords &) = delete;
@@ -32,7 +32,7 @@ template <typename Record_> ThreadRecords<Record_> &getThreadRecords() {
   return threadRecords;
 }
 
-// TODO: measure and document the cost of this call
+// TODO(mateusz): measure and document the cost of this call
 template <typename RecordTypes_ = Mpl::TypeList<>> void primeThreadRecords() {
   auto requestRecordType = [](auto dummy_) {
     using RecordType = typename decltype(dummy_)::Type;
@@ -41,7 +41,7 @@ template <typename RecordTypes_ = Mpl::TypeList<>> void primeThreadRecords() {
   Mpl::apply<Record::NativeRecords>(requestRecordType);
   Mpl::apply<RecordTypes_>(requestRecordType);
 }
-}
-}
+} // namespace Control
+} // namespace Profiler
 
 #endif

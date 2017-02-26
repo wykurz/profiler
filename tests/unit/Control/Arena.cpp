@@ -108,6 +108,6 @@ BOOST_AUTO_TEST_CASE(Small) {
 }
 
 BOOST_AUTO_TEST_SUITE_END()
-}
-}
-}
+} // namespace Test
+} // namespace Control
+} // namespace Profiler

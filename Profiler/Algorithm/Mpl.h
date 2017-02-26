@@ -1,7 +1,5 @@
-#ifndef ALGORITHMS_MPL_H
-#define ALGORITHMS_MPL_H
-
-#include <utility>
+#ifndef _PROFILER_ALGORITHM_MPL_H
+#define _PROFILER_ALGORITHM_MPL_H
 
 namespace Profiler {
 namespace Mpl {
@@ -23,14 +21,14 @@ struct Apply<TypeList<Arg_, Args_...>> {
 };
 
 template <> struct Apply<TypeList<>> {
-  template <typename Func_> static void run(const Func_ &func_) {}
+  template <typename Func_> static void run(const Func_ & /*func_*/) {}
 };
-}
+} // namespace Internal
 
 template <typename Types_, typename Func_> void apply(const Func_ &func_) {
   Internal::Apply<Types_>::run(func_);
 }
-}
-}
+} // namespace Mpl
+} // namespace Profiler
 
 #endif

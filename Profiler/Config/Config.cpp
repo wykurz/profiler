@@ -7,8 +7,8 @@ namespace Config {
 
 Config::Config(std::string binaryLogPrefix_, std::string binaryLogDir_,
                std::string yamlLogName_)
-    : binaryLogPrefix(binaryLogPrefix_), binaryLogDir(binaryLogDir_),
-      yamlLogName(yamlLogName_) {}
+    : binaryLogPrefix(std::move(binaryLogPrefix_)), binaryLogDir(std::move(binaryLogDir_)),
+      yamlLogName(std::move(yamlLogName_)) {}
 
 bool Config::operator!=(const Config &other_) const {
   return binaryLogPrefix != other_.binaryLogPrefix or
@@ -23,7 +23,7 @@ const Config &doGetConfig(const Config &config_ = defaultConfig()) {
   static Config config(config_);
   return config;
 }
-}
+} // namespace
 
 const Config &getConfig() { return doGetConfig(); }
 
@@ -34,5 +34,5 @@ const Config &setConfig(const Config &config_) {
         "Config appears to have been already set to a different value");
   return config;
 }
-}
-}
+} // namespace Config
+} // namespace Profiler

@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(RandomWalk) {
     }
     auto randomErase = [&arena, &dirty]() {
       for (auto it = dirty.begin(); it != dirty.end();) {
-        bool remove = std::rand() & 1;
+        bool remove = (std::rand() & 1) != 0;
         if (remove) {
           // arena.release(reinterpret_cast<Arena::Block<int>*>(*it));
           arena.release(reinterpret_cast<int *>(*it));
@@ -58,6 +58,6 @@ BOOST_AUTO_TEST_CASE(RandomWalk) {
 }
 
 BOOST_AUTO_TEST_SUITE_END()
-}
-}
-}
+} // namespace Test
+} // namespace Control
+} // namespace Profiler

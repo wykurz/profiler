@@ -1,5 +1,5 @@
-#ifndef QUEUE_QUEUE_H
-#define QUEUE_QUEUE_H
+#ifndef _PROFILER_QUEUE_QUEUE_H
+#define _PROFILER_QUEUE_QUEUE_H
 
 #include <Profiler/Queue/TaggedPtr.h>
 #include <algorithm>
@@ -35,7 +35,7 @@ template <typename T_> struct Queue {
     std::atomic<std::uint32_t> _tag{0};
   };
 
-  Queue(void *basePtr_) : _basePtr(static_cast<char *>(basePtr_)) {
+  explicit Queue(void *basePtr_) : _basePtr(static_cast<char *>(basePtr_)) {
     assert(_head.is_lock_free());
   }
 
@@ -110,7 +110,7 @@ template <typename T_> std::size_t Queue<T_>::size() const {
   }
   return size;
 }
-}
-}
+} // namespace Queue
+} // namespace Profiler
 
 #endif

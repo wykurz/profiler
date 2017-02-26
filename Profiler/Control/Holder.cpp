@@ -1,4 +1,6 @@
 #include <Profiler/Control/Holder.h>
+#include <Profiler/Control/RecordManager.h>
+#include <Profiler/Exception/Exception.h>
 #include <Profiler/Log/Log.h>
 #include <fstream>
 #include <memory>
@@ -10,15 +12,15 @@ std::unique_lock<std::mutex> Holder::lock() {
   return std::unique_lock<std::mutex>(*_lock);
 }
 
-bool Holder::isEmpty() const { return !_recordExtractor && !_finalExtractor; }
+bool Holder::isEmpty() const { return (_recordExtractor == nullptr) && !_finalExtractor; }
 
 void Holder::streamDirtyRecords() {
   if (!isEmpty()) {
     PROFILER_ASSERT(_out.get());
-    if (_recordExtractor) {
+    if (_recordExtractor != nullptr) {
       _recordExtractor->streamDirtyRecords(_out->get());
     } else {
-      _finalExtractor.get()->streamDirtyRecords(_out->get());
+      _finalExtractor->streamDirtyRecords(_out->get());
       _finalExtractor.reset();
       _out.reset();
     }
@@ -51,7 +53,7 @@ void Holder::flush() {
 }
 
 bool Holder::isFinalized() const {
-  return !_recordExtractor && _finalExtractor;
+  return (_recordExtractor == nullptr) && _finalExtractor;
 }
 
 FileOutputs::FileOutputs(const Config::Config &config_) : _config(config_) {}
@@ -59,21 +61,21 @@ FileOutputs::FileOutputs(const Config::Config &config_) : _config(config_) {}
 namespace {
 
 struct FileOut : Output {
-  FileOut(const std::string &name_)
+  explicit FileOut(const std::string &name_)
       : _out(name_, std::fstream::binary | std::fstream::trunc) {
     DLOG("FileOut " << name_ << " " << std::size_t(&_out));
   }
-  virtual std::ostream &get() override { return _out; }
-  virtual void flush() override { _out.flush(); }
+  std::ostream &get() override { return _out; }
+  void flush() override { _out.flush(); }
 
 private:
   std::ofstream _out;
 };
-}
+}  // namespace
 
 Output::Ptr FileOutputs::newOutput(std::size_t extractorId_) const {
   return std::make_unique<FileOut>(_config.binaryLogPrefix + "." +
                                    std::to_string(extractorId_));
 }
-}
-}
+} // namespace Control
+} // namespace Profiler

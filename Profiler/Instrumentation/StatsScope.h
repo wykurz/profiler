@@ -1,8 +1,9 @@
-#ifndef INSTRUMENTATION_STATSSCOPE_H
-#define INSTRUMENTATION_STATSSCOPE_H
+#ifndef _PROFILER_INSTRUMENTATION_STATSSCOPE_H
+#define _PROFILER_INSTRUMENTATION_STATSSCOPE_H
 
 #include <Profiler/Control/RecordManager.h>
 #include <Profiler/Control/ThreadRecords.h>
+#include <Profiler/Instrumentation/StatsScope.h>
 #include <Profiler/Instrumentation/Time.h>
 #include <Profiler/Log/Log.h>
 #include <Profiler/Record/Record.h>
@@ -22,7 +23,7 @@ void record(Control::RecordManager<Record_> &recordManager_,
 }
 
 struct StatsScope {
-  StatsScope(const char *name_) : _name(name_) {}
+  explicit StatsScope(const char *name_) : _name(name_) {}
   ~StatsScope() {
     _record.finish();
     record(Control::getThreadRecords<Record::TimeRecord>().getRecordManager(),
@@ -33,8 +34,8 @@ private:
   const char *_name;
   Record::TimeRecord _record{_name};
 };
-}
-}
+} // namespace Scope
+} // namespace Profiler
 
 #ifndef NO_MACROS
 

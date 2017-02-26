@@ -1,11 +1,13 @@
 #include <Profiler/Algorithm/Mpl.h>
 #include <Profiler/Algorithm/Stream.h>
+#include <Profiler/Config/Config.h>
 #include <Profiler/Decoder/Decoder.h>
 #include <Profiler/Exception/Exception.h>
 #include <Profiler/Log/Log.h>
 #include <Profiler/Record/Record.h>
 #include <boost/filesystem.hpp>
 #include <fstream>
+#include <unordered_map>
 
 namespace Profiler {
 namespace Decoder {
@@ -25,7 +27,7 @@ template <typename RecordTypes_> auto genFuncMap() {
   Mpl::apply<RecordTypes_>(addDecodeFunc);
   return funcMap;
 }
-}
+} // namespace
 
 Decoder::Decoder(const Config::Config &config_)
     : _funcMap(genFuncMap<Mpl::TypeList<>>()),
@@ -61,5 +63,5 @@ void Decoder::run() {
     (it->second)(input, _out);
   }
 }
-}
-}
+} // namespace Decoder
+} // namespace Profiler

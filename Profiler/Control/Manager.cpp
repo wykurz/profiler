@@ -7,7 +7,7 @@
 namespace Profiler {
 namespace Control {
 
-// TODO: The Writer needs to be opening the log files using a name pattern
+// TODO(mateusz): The Writer needs to be opening the log files using a name pattern
 Manager::Manager(const Config::Config &config_, bool startWriter_)
     : _fileOutputs(config_),
       _writer(_threadArray, std::chrono::microseconds(100000)) {
@@ -45,5 +45,5 @@ Manager &getManager() {
   static Manager manager(Config::getConfig());
   return manager;
 }
-}
-}
+} // namespace Control
+} // namespace Profiler

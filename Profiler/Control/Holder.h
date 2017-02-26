@@ -1,5 +1,5 @@
-#ifndef CONTROL_HOLDER_H
-#define CONTROL_HOLDER_H
+#ifndef _PROFILER_CONTROL_HOLDER_H
+#define _PROFILER_CONTROL_HOLDER_H
 
 #include <Profiler/Config/Config.h>
 #include <Profiler/Control/RecordManager.h>
@@ -18,7 +18,7 @@ struct Output {
   virtual void flush() = 0;
 };
 
-// TODO: redesign this to use unique_ptr with a custom deleter holding a
+// TODO(mateusz): redesign this to use unique_ptr with a custom deleter holding a
 // reference to Holder
 
 struct Holder {
@@ -26,17 +26,15 @@ struct Holder {
   std::unique_lock<std::mutex> lock();
   bool isEmpty() const;
   void streamDirtyRecords();
-  // TODO: There are 2x setup functions, which will be a source of errors.
+  // TODO(mateusz): There are 2x setup functions, which will be a source of errors.
   //       Use typesystem to handle initialization.
   void setOut(std::unique_ptr<Output> &&out_);
   void setRecordExtractor(RecordExtractor &recordExtractor_);
   /**
    * Usually called by Finalizer's destructor when a thread using the holder is
-   * shutting down. Can be called
-   * manually, but care must be taken such that the thread which was using the
-   * holder should not try to write any
-   * more records, otherwise the resources used to hold those records will be
-   * lost.
+   * shutting down. Can be called manually, but care must be taken such that the
+   * thread which was using the holder should not try to write any more records,
+   * otherwise the resources used to hold those records will be lost.
    */
   void finalize();
   void flush();
@@ -50,9 +48,9 @@ private:
 };
 
 struct Finalizer {
-  Finalizer(Holder *holder_) : _holder(holder_) {}
+  explicit Finalizer(Holder *holder_) : _holder(holder_) {}
   ~Finalizer() {
-    if (_holder) {
+    if (_holder != nullptr) {
       auto lk = _holder->lock();
       _holder->finalize();
     }
@@ -70,13 +68,13 @@ struct OutputFactory {
 };
 
 struct FileOutputs : OutputFactory {
-  FileOutputs(const Config::Config &config_);
-  virtual Output::Ptr newOutput(std::size_t extractorId_) const override;
+  explicit FileOutputs(const Config::Config &config_);
+  Output::Ptr newOutput(std::size_t extractorId_) const override;
 
 private:
   const Config::Config &_config;
 };
-}
-}
+} // namespace Control
+} // namespace Profiler
 
 #endif

@@ -41,7 +41,7 @@ struct QueueTest {
 
   static constexpr int numQueues = 10;
 
-  QueueTest(int size_) : data(size_) {
+  explicit QueueTest(int size_) : data(size_) {
     for (int i = 0; i < size_; ++i) {
       data[i].value = i;
       queues.emplace_back(&data[0]);
@@ -141,6 +141,6 @@ BOOST_AUTO_TEST_CASE(Shuffle) {
 }
 
 BOOST_AUTO_TEST_SUITE_END()
-}
-}
-}
+} // namespace Tests
+} // namespace Queue
+} // namespace Profiler

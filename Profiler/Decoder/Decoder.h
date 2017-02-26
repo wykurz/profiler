@@ -1,11 +1,13 @@
-#ifndef DECODER_DECODER_H
-#define DECODER_DECODER_H
+#ifndef _PROFILER_DECODER_DECODER_H
+#define _PROFILER_DECODER_DECODER_H
 
 #include <Profiler/Config/Config.h>
+#include <Profiler/Decoder/Decoder.h>
 #include <Profiler/Log/Log.h>
-#include <Profiler/Record/Record.h>
 #include <fstream>
 #include <functional>
+#include <mutex>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -24,7 +26,7 @@ template <typename Record_> void setupStream(std::ostream &out_) {
 
 struct Decoder {
   using DecodeFunc = std::function<void(std::istream &, std::ostream &)>;
-  Decoder(const Config::Config &config_);
+  explicit Decoder(const Config::Config &config_);
   void run();
 
 private:
@@ -32,7 +34,7 @@ private:
   std::ofstream _out;
   std::vector<std::ifstream> _inputs;
 };
-}
-}
+} // namespace Decoder
+} // namespace Profiler
 
 #endif

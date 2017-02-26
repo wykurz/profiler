@@ -1,5 +1,5 @@
-#ifndef CONTROL_ALLOCATION_H
-#define CONTROL_ALLOCATION_H
+#ifndef _PROFILER_CONTROL_ALLOCATION_H
+#define _PROFILER_CONTROL_ALLOCATION_H
 
 #include <Profiler/Control/Arena.h>
 #include <Profiler/Control/Holder.h>
@@ -18,7 +18,7 @@ struct Allocation {
   Allocation() : _arena(empty()), _holder(nullptr) {}
   Arena &getArena() const { return _arena; }
   Finalizer setupHolder(RecordExtractor &recordExtractor_) const {
-    if (_holder)
+    if (_holder != nullptr)
       _holder->setRecordExtractor(recordExtractor_);
     return Finalizer(_holder);
   }
@@ -32,7 +32,7 @@ private:
   Arena &_arena;
   Holder *const _holder;
 };
-}
-}
+} // namespace Control
+} // namespace Profiler
 
 #endif

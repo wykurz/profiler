@@ -2,4 +2,4 @@
 
 namespace Profiler {
 namespace Control {}
-}
+} // namespace Profiler

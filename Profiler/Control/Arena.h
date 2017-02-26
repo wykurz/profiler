@@ -1,5 +1,5 @@
-#ifndef CONTROL_ARENA_H
-#define CONTROL_ARENA_H
+#ifndef _PROFILER_CONTROL_ARENA_H
+#define _PROFILER_CONTROL_ARENA_H
 
 #include <Profiler/Algorithm/FreeMap.h>
 #include <Profiler/Exception/Exception.h>
@@ -19,7 +19,7 @@ struct Arena {
   constexpr static std::size_t DataSize = 1024 * 32;
   using Block = std::aligned_storage<DataSize, alignof(std::max_align_t)>::type;
 
-  Arena(std::size_t bufferSize_)
+  explicit Arena(std::size_t bufferSize_)
       : _nblocks(bufferSize_ / sizeof(Block)),
         _buffer(_nblocks * sizeof(Block)) {}
   Arena(Arena &&) = delete;
@@ -62,7 +62,7 @@ struct Arena {
 
 private:
   struct alignas(Block) Buffer {
-    Buffer(std::size_t size_) : _buffer(size_) {}
+    explicit Buffer(std::size_t size_) : _buffer(size_) {}
     void *data() { return _buffer.data(); }
     const void *data() const { return _buffer.data(); }
     std::size_t size() const { return _buffer.size(); }
@@ -88,7 +88,7 @@ private:
   void *_next = _buffer.data();
   std::size_t _bytesLeft = _buffer.size();
 };
-}
-}
+} // namespace Control
+} // namespace Profiler
 
 #endif

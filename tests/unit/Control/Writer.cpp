@@ -1,3 +1,4 @@
+#include <Profiler/Control/Holder.h>
 #include <Profiler/Control/ThreadRecords.h>
 #include <Profiler/Control/Writer.h>
 #include <Profiler/Instrumentation/StatsScope.h>
@@ -17,9 +18,9 @@ using BufferMap = std::unordered_map<std::string, std::string>;
 struct MemoryOut : Output {
   MemoryOut(BufferMap &buffers_, const char *name_)
       : _buffers(buffers_), _name(name_) {}
-  ~MemoryOut() { _buffers[_name] = _out.str(); }
-  virtual std::ostream &get() { return _out; }
-  virtual void flush() {}
+  ~MemoryOut() override { _buffers[_name] = _out.str(); }
+  std::ostream &get() override { return _out; }
+  void flush() override {}
 
 private:
   BufferMap &_buffers;
@@ -28,12 +29,12 @@ private:
 };
 
 struct MockOutputs : OutputFactory {
-  virtual Output::Ptr newOutput(std::size_t extractorId_) const override {
+  Output::Ptr newOutput(std::size_t extractorId_) const override {
     return std::make_unique<MemoryOut>(buffers, "test");
   }
   mutable BufferMap buffers;
 };
-}
+}  // namespace
 
 BOOST_AUTO_TEST_SUITE(WriterTests)
 
@@ -60,6 +61,6 @@ BOOST_AUTO_TEST_CASE(Basic) {
 }
 
 BOOST_AUTO_TEST_SUITE_END()
-}
-}
-}
+} // namespace Test
+} // namespace Control
+} // namespace Profiler

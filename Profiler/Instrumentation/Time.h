@@ -1,5 +1,5 @@
-#ifndef INSTRUMENTATION_TIME_H
-#define INSTRUMENTATION_TIME_H
+#ifndef _PROFILER_INSTRUMENTATION_TIME_H
+#define _PROFILER_INSTRUMENTATION_TIME_H
 
 #include <Profiler/Algorithm/Stream.h>
 #include <chrono>
@@ -29,7 +29,7 @@ inline std::istream &operator>>(std::istream &in_, Rdtsc::TimePoint &time_) {
   time_ = Rdtsc::TimePoint{data};
   return in_;
 }
-}
-}
+} // namespace Time
+} // namespace Profiler
 
 #endif

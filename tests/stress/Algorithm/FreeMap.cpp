@@ -20,16 +20,16 @@ struct PatternsFixture {
   }
   void setupTest() {
     int free = 0;
-    for (int i = 0; i < test.size(); ++i) {
-      if (test[i]) {
-        test[i] = false;
+    for (auto &&itest : test) {
+      if (itest) {
+        itest = false;
         ++free;
       }
     }
     for (int i = 0; i < free; ++i)
       bits.getFree();
     for (int i = 0; i < test.size(); ++i) {
-      bool flip = std::rand() & 1;
+      bool flip = (std::rand() & 1) != 0;
       if (flip) {
         test[i] = true;
         bits.setFree(i);
@@ -40,7 +40,7 @@ struct PatternsFixture {
   std::vector<bool> test = std::vector<bool>(1024 + 3, false);
   FreeMap bits{test.size()};
 };
-}
+} // namespace
 
 BOOST_FIXTURE_TEST_SUITE(FreeMapStressTests, PatternsFixture)
 
@@ -69,7 +69,7 @@ struct ThreadsFixture {
   std::atomic<bool> done{false};
   FreeMap bits{FreeMap::MaxSize};
 };
-}
+} // namespace
 
 BOOST_FIXTURE_TEST_SUITE(FreeMapThreadsTests, ThreadsFixture)
 
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(OpposingThreads) {
   std::thread taker([this]() {
     while (!this->done.load(std::memory_order_acquire)) {
       Node *node = free.pull();
-      if (!node)
+      if (node == nullptr)
         continue;
       auto index = this->bits.getFree();
       BOOST_REQUIRE(0 <= index);
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE(OpposingThreads) {
   std::thread giver([this]() {
     while (!this->done.load(std::memory_order_acquire)) {
       Node *node = acquired.pull();
-      if (!node)
+      if (node == nullptr)
         continue;
       this->bits.setFree(node->value);
       free.push(node);
@@ -101,6 +101,6 @@ BOOST_AUTO_TEST_CASE(OpposingThreads) {
 }
 
 BOOST_AUTO_TEST_SUITE_END()
-}
-}
-}
+} // namespace Test
+} // namespace Algorithm
+} // namespace Profiler

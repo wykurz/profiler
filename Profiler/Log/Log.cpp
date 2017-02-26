@@ -8,5 +8,5 @@ std::mutex &logMutex() {
   static std::mutex mutex;
   return mutex;
 }
-}
-}
+} // namespace Log
+} // namespace Profiler

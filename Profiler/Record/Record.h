@@ -1,5 +1,5 @@
-#ifndef RECORD_RECORD_H
-#define RECORD_RECORD_H
+#ifndef _PROFILER_RECORD_RECORD_H
+#define _PROFILER_RECORD_RECORD_H
 
 #include <Profiler/Algorithm/Mpl.h>
 #include <Profiler/Algorithm/Stream.h>
@@ -7,13 +7,14 @@
 #include <Profiler/Instrumentation/Time.h>
 #include <istream>
 #include <ostream>
+#include <utility>
 
 namespace Profiler {
 namespace Record {
 
 struct TimeRecord {
   using TimePoint = Time::Rdtsc::TimePoint;
-  TimeRecord(const char *name_) : _name(name_), _t0(Time::Rdtsc::now()) {
+  explicit TimeRecord(const char *name_) : _name(name_), _t0(Time::Rdtsc::now()) {
     PROFILER_ASSERT(name_);
     _depth = _threadDepth++;
     _seqNum = _threadSeqNum++;
@@ -26,7 +27,7 @@ struct TimeRecord {
   static void preamble(std::ostream &out_);
   static void decode(std::istream &in_, std::ostream &out_);
   bool dirty() const { return nullptr != _name; }
-  friend std::ostream &operator<<(std::ostream &, const TimeRecord &);
+  friend std::ostream &operator<<(std::ostream & /*out_*/, const TimeRecord & /*record_*/);
 
 private:
   static thread_local std::size_t _threadDepth;
@@ -47,7 +48,7 @@ inline std::ostream &operator<<(std::ostream &out_, const TimeRecord &record_) {
 }
 
 using NativeRecords = Mpl::TypeList<Record::TimeRecord>;
-}
-}
+} // namespace Record
+} // namespace Profiler
 
 #endif

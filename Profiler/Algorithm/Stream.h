@@ -1,5 +1,5 @@
-#ifndef ALGORITHMS_STREAMS_H
-#define ALGORITHMS_STREAMS_H
+#ifndef _PROFILER_ALGORITHM_STREAM_H
+#define _PROFILER_ALGORITHM_STREAM_H
 
 #include <Profiler/Exception/Exception.h>
 #include <Profiler/Log/Log.h>
@@ -32,7 +32,7 @@ inline void encodeString(std::ostream &out_, const char *str_) {
   encode(out_, strlen(str_));
   out_ << str_;
 }
-}
-}
+} // namespace Algorithm
+} // namespace Profiler
 
 #endif

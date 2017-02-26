@@ -1,5 +1,5 @@
-#ifndef QUEUE_TAGGEDPTR_H
-#define QUEUE_TAGGEDPTR_H
+#ifndef _PROFILER_QUEUE_TAGGEDPTR_H
+#define _PROFILER_QUEUE_TAGGEDPTR_H
 
 #include <Profiler/Exception/Exception.h>
 #include <cstdint>
@@ -7,7 +7,7 @@
 namespace Profiler {
 namespace Queue {
 
-// TODO: run clang undef. behavior sanitizer
+// TODO(mateusz): run clang undef. behavior sanitizer
 template <typename T_> struct alignas(alignof(std::intptr_t)) TaggedPtr {
   TaggedPtr() = default;
   TaggedPtr(const void *base_, const T_ *ptr_)
@@ -25,7 +25,7 @@ template <typename T_> struct alignas(alignof(std::intptr_t)) TaggedPtr {
 
 private:
   static std::uint32_t getOffset(const void *base_, const void *ptr_) {
-    if (!ptr_)
+    if (ptr_ == nullptr)
       return -1;
     auto res = static_cast<std::uint32_t>(static_cast<const char *>(ptr_) -
                                           static_cast<const char *>(base_));
@@ -40,7 +40,7 @@ private:
   const std::uint32_t _offset = -1;
   const std::uint32_t _tag = 0;
 };
-}
-}
+} // namespace Queue
+} // namespace Profiler
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef CONTROL_MANAGER_H
-#define CONTROL_MANAGER_H
+#ifndef _PROFILER_CONTROL_MANAGER_H
+#define _PROFILER_CONTROL_MANAGER_H
 
 #include <Profiler/Config/Config.h>
 #include <Profiler/Control/Allocation.h>
@@ -15,7 +15,7 @@ namespace Control {
 struct Manager {
   static constexpr std::size_t MaxThreads = 1024;
 
-  Manager(const Config::Config &config_, bool startWriter_ = true);
+  explicit Manager(const Config::Config &config_, bool startWriter_ = true);
   Manager(const Manager &) = delete;
   ~Manager();
 
@@ -23,7 +23,7 @@ struct Manager {
     int count = MaxThreads;
     while (0 < count--) {
       std::size_t id = _currentThread++;
-      // TODO: Add stress tests with tons of threads...
+      // TODO(mateusz): Add stress tests with tons of threads...
       auto &holder = _threadArray[id % _threadArray.size()];
       auto lk = holder.lock();
       if (!holder.isEmpty())
@@ -50,15 +50,14 @@ struct Manager {
 
   /**
    * Will cause the writer to iterate once over record holders and write the
-   * contents to logs.
-   * The writer thread must be stopped.
+   * contents to logs. The writer thread must be stopped.
    */
   void writerFinalPass();
 
 private:
   Arena _arena{100000};
   Arena _empty{0};
-  // TODO: Add alignment and padding?
+  // TODO(mateusz): Add alignment and padding?
   std::atomic<int> _currentThread = {0};
   HolderArray _threadArray{MaxThreads};
   std::size_t _droppedThreads = {0};
@@ -69,7 +68,7 @@ private:
 };
 
 Manager &getManager();
-}
-}
+} // namespace Control
+} // namespace Profiler
 
 #endif

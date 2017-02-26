@@ -24,7 +24,7 @@ struct ArenaBenchFixture : public ::benchmark::Fixture {
       randRelease(state_.range(1));
       state_.ResumeTiming();
       auto ptr = arena.acquire<int>();
-      while (ptr) {
+      while (ptr != nullptr) {
         benchmark::DoNotOptimize(ptr = arena.acquire<int>());
         benchmark::ClobberMemory();
         ++acquires;

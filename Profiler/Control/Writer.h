@@ -1,5 +1,5 @@
-#ifndef CONTROL_WRITER_H
-#define CONTROL_WRITER_H
+#ifndef _PROFILER_CONTROL_WRITER_H
+#define _PROFILER_CONTROL_WRITER_H
 
 #include <Profiler/Control/Allocation.h>
 #include <Profiler/Control/Holder.h>
@@ -49,7 +49,7 @@ private:
   const std::chrono::microseconds _sleepTime;
   std::atomic<bool> _done{false};
 };
-}
-}
+} // namespace Control
+} // namespace Profiler
 
 #endif

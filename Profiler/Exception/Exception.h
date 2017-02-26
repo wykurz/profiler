@@ -1,5 +1,5 @@
-#ifndef EXCEPTION_EXCEPTION_H
-#define EXCEPTION_EXCEPTION_H
+#ifndef _PROFILER_EXCEPTION_EXCEPTION_H
+#define _PROFILER_EXCEPTION_EXCEPTION_H
 
 #include <sstream>
 #include <stdexcept>
@@ -9,14 +9,14 @@ namespace Profiler {
 namespace Exception {
 
 struct Runtime : public std::runtime_error {
-  Runtime(std::string message_) : std::runtime_error(std::move(message_)) {}
+  explicit Runtime(std::string message_) : std::runtime_error(std::move(message_)) {}
 };
 
 struct LogicError : public std::logic_error {
-  LogicError(std::string message_) : std::logic_error(std::move(message_)) {}
+  explicit LogicError(std::string message_) : std::logic_error(std::move(message_)) {}
 };
-}
-}
+} // namespace Exception
+} // namespace Profiler
 
 #define PROFILER_RUNTIME_ERROR(message_)                                       \
   do {                                                                         \
@@ -27,7 +27,7 @@ struct LogicError : public std::logic_error {
     throw Profiler::Exception::Runtime(ss.str());                              \
   } while (false);
 
-// TODO: Replace all assertions with this.
+// TODO(mateusz): Replace all assertions with this.
 
 #ifdef DEBUG
 #define PROFILER_ASSERT(x)                                                     \

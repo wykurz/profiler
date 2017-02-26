@@ -40,7 +40,7 @@ void TimeRecord::decode(std::istream &in_, std::ostream &out_) {
     in_ >> t0 >> t1;
     auto depth = Algorithm::decode<std::size_t>(in_);
     auto seqNum = Algorithm::decode<std::size_t>(in_);
-    // TODO: JSON this
+    // TODO(mateusz): JSON this
     out_ << "- seq: " << seqNum << "\n";
     out_ << "  name: \"" << name << "\"\n";
     out_ << "  t0: " << t0.data << "\n";
@@ -51,5 +51,5 @@ void TimeRecord::decode(std::istream &in_, std::ostream &out_) {
 
 thread_local std::size_t TimeRecord::_threadDepth = 0;
 thread_local std::size_t TimeRecord::_threadSeqNum = 0;
-}
-}
+} // namespace Record
+} // namespace Profiler

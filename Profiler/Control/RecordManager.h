@@ -1,5 +1,5 @@
-#ifndef CONTROL_RECORDMANAGER_H
-#define CONTROL_RECORDMANAGER_H
+#ifndef _PROFILER_CONTROL_RECORDMANAGER_H
+#define _PROFILER_CONTROL_RECORDMANAGER_H
 
 #include <Profiler/Control/Arena.h>
 #include <Profiler/Exception/Exception.h>
@@ -78,7 +78,7 @@ template <typename Record_, int MaxBytes_> struct RecordArray {
   using Queue = RecordArrayQueueImpl<Record_, NumRecords>;
   using Node = RecordArrayNodeImpl<Record_, NumRecords>;
 };
-}
+}  // namespace Internal
 
 template <typename Record_> struct SimpleExtractor : RecordExtractor {
   using RecordType = Record_;
@@ -86,10 +86,10 @@ template <typename Record_> struct SimpleExtractor : RecordExtractor {
       typename Internal::RecordArray<Record_, Arena::DataSize>::Node;
   SimpleExtractor(Arena &arena_, RecordArrayNode *const records_, int numDirty_)
       : _arena(arena_), _records(records_), _numDirty(numDirty_) {}
-  virtual std::unique_ptr<RecordExtractor> moveToFinalExtractor() override {
+  std::unique_ptr<RecordExtractor> moveToFinalExtractor() override {
     throw Exception::LogicError("Attempting to finalize SimpleExtractor");
   }
-  virtual void streamDirtyRecords(std::ostream &out_) override {
+  void streamDirtyRecords(std::ostream &out_) override {
     while (_records) {
       auto &recordArray = _records->value;
       auto size = recordArray.size();
@@ -121,7 +121,7 @@ template <typename Record_> struct RecordManager : RecordExtractor {
   using Node = typename RecordArrayTypes::Node;
   using Queue = typename RecordArrayTypes::Queue;
 
-  RecordManager(Arena &arena_) : _arena(arena_), _dirty(arena_.basePtr()) {}
+  explicit RecordManager(Arena &arena_) : _arena(arena_), _dirty(arena_.basePtr()) {}
   RecordManager(const This &) = delete;
 
   RecordType *getRecord() {
@@ -139,7 +139,7 @@ template <typename Record_> struct RecordManager : RecordExtractor {
     return &_current->value[_nextRecord++];
   }
 
-  virtual void streamDirtyRecords(std::ostream &out_) override {
+  void streamDirtyRecords(std::ostream &out_) override {
     auto records = extractDirtyRecords();
     while (records) {
       auto &recordArray = records->value;
@@ -153,7 +153,7 @@ template <typename Record_> struct RecordManager : RecordExtractor {
     }
   }
 
-  virtual std::unique_ptr<RecordExtractor> moveToFinalExtractor() override {
+  std::unique_ptr<RecordExtractor> moveToFinalExtractor() override {
     if (_current)
       _dirty.push(_current);
     return std::make_unique<SimpleExtractor<RecordType>>(
@@ -168,13 +168,13 @@ private:
   }
 
   Arena &_arena;
-  // TODO: add padding
+  // TODO(mateusz): add padding
   Node *_current = nullptr;
   std::size_t _nextRecord = 0;
   std::size_t _droppedRecords = 0;
   Queue _dirty;
 };
-}
-}
+} // namespace Control
+} // namespace Profiler
 
 #endif

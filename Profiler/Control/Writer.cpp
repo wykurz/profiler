@@ -8,7 +8,7 @@ namespace Profiler {
 namespace Control {
 
 Writer::Writer(HolderArray &threadArray_, std::chrono::microseconds sleepTime_)
-    : _threadArray(threadArray_), _sleepTime(sleepTime_) {}
+    : _threadArray(threadArray_), _sleepTime(std::move(sleepTime_)) {}
 
 Writer::~Writer() { PROFILER_ASSERT(_done.load(std::memory_order_acquire)); }
 
@@ -44,5 +44,5 @@ void Writer::onePass() {
     holder.streamDirtyRecords();
   }
 }
-}
-}
+} // namespace Control
+} // namespace Profiler
