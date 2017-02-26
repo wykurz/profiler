@@ -3,39 +3,32 @@
 
 #include <Profiler/Algorithm/Stream.h>
 #include <chrono>
-#include <ratio>
 #include <iostream>
+#include <ratio>
 #include <x86intrin.h>
 
-namespace Profiler { namespace Time
-{
+namespace Profiler {
+namespace Time {
 
-    struct Rdtsc
-    {
-        struct TimePoint
-        {
-            using Storage = decltype(__rdtsc());
-            Storage data;
-        };
-        static TimePoint now()
-        {
-            return {__rdtsc()};
-        }
-    };
+struct Rdtsc {
+  struct TimePoint {
+    using Storage = decltype(__rdtsc());
+    Storage data;
+  };
+  static TimePoint now() { return {__rdtsc()}; }
+};
 
-    inline std::ostream& operator<<(std::ostream& out_, const Rdtsc::TimePoint& time_)
-    {
-        out_.write(reinterpret_cast<const char*>(&time_.data), sizeof(time_.data));
-        return out_;
-    }
+inline std::ostream &operator<<(std::ostream &out_,
+                                const Rdtsc::TimePoint &time_) {
+  out_.write(reinterpret_cast<const char *>(&time_.data), sizeof(time_.data));
+  return out_;
+}
 
-    inline std::istream& operator>>(std::istream& in_, Rdtsc::TimePoint& time_)
-    {
-        auto data = Algorithm::decode<Rdtsc::TimePoint::Storage>(in_);
-        time_ = Rdtsc::TimePoint{data};
-        return in_;
-    }
-
+inline std::istream &operator>>(std::istream &in_, Rdtsc::TimePoint &time_) {
+  auto data = Algorithm::decode<Rdtsc::TimePoint::Storage>(in_);
+  time_ = Rdtsc::TimePoint{data};
+  return in_;
+}
 }
 }
 

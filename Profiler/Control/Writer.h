@@ -9,42 +9,46 @@
 #include <memory>
 #include <string>
 
-namespace Profiler { namespace Control
-{
+namespace Profiler {
+namespace Control {
 
-    /**
-     * Writer is responsible for collecting data from all the threads and writing it to the output.
-     */
-    struct Writer
-    {
-        /**
-         * Writer takes output pointer, global thread array and time interval of how long it should sleep between each
-         * activity period.
-         */
-        Writer(HolderArray& threadArray_, std::chrono::microseconds sleepTime_);
-        Writer(const Writer&) = delete;
-        ~Writer();
-        /**
-         * Iterates over all record holders and writes all data. No other threads can perform logging at this time as
-         * there is no synchronization provided.
-         */
-        void finalPass();
-        /**
-         * Puts worker in a loop periodically checking if any thread produced output that needs to be written to disk.
-         * After iterating through all threads, worker will sleep for a fixed amount of time.
-         */
-        void run();
-        /**
-         * The run loop will eventually terminate after stop() was called.
-         */
-        void stop();
-      private:
-        void onePass();
-        HolderArray& _threadArray;
-        const std::chrono::microseconds _sleepTime;
-        std::atomic<bool> _done{false};
-    };
+/**
+ * Writer is responsible for collecting data from all the threads and writing it
+ * to the output.
+ */
+struct Writer {
+  /**
+   * Writer takes output pointer, global thread array and time interval of how
+   * long it should sleep between each
+   * activity period.
+   */
+  Writer(HolderArray &threadArray_, std::chrono::microseconds sleepTime_);
+  Writer(const Writer &) = delete;
+  ~Writer();
+  /**
+   * Iterates over all record holders and writes all data. No other threads can
+   * perform logging at this time as
+   * there is no synchronization provided.
+   */
+  void finalPass();
+  /**
+   * Puts worker in a loop periodically checking if any thread produced output
+   * that needs to be written to disk.
+   * After iterating through all threads, worker will sleep for a fixed amount
+   * of time.
+   */
+  void run();
+  /**
+   * The run loop will eventually terminate after stop() was called.
+   */
+  void stop();
 
+private:
+  void onePass();
+  HolderArray &_threadArray;
+  const std::chrono::microseconds _sleepTime;
+  std::atomic<bool> _done{false};
+};
 }
 }
 
