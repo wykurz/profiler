@@ -12,7 +12,9 @@ std::unique_lock<std::mutex> Holder::lock() {
   return std::unique_lock<std::mutex>(*_lock);
 }
 
-bool Holder::isEmpty() const { return (_recordExtractor == nullptr) && !_finalExtractor; }
+bool Holder::isEmpty() const {
+  return (_recordExtractor == nullptr) && !_finalExtractor;
+}
 
 void Holder::streamDirtyRecords() {
   if (!isEmpty()) {
@@ -71,7 +73,7 @@ struct FileOut : Output {
 private:
   std::ofstream _out;
 };
-}  // namespace
+} // namespace
 
 Output::Ptr FileOutputs::newOutput(std::size_t extractorId_) const {
   return std::make_unique<FileOut>(_config.binaryLogPrefix + "." +

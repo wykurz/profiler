@@ -14,7 +14,8 @@ namespace Record {
 
 struct TimeRecord {
   using TimePoint = Time::Rdtsc::TimePoint;
-  explicit TimeRecord(const char *name_) : _name(name_), _t0(Time::Rdtsc::now()) {
+  explicit TimeRecord(const char *name_)
+      : _name(name_), _t0(Time::Rdtsc::now()) {
     PROFILER_ASSERT(name_);
     _depth = _threadDepth++;
     _seqNum = _threadSeqNum++;
@@ -27,7 +28,8 @@ struct TimeRecord {
   static void preamble(std::ostream &out_);
   static void decode(std::istream &in_, std::ostream &out_);
   bool dirty() const { return nullptr != _name; }
-  friend std::ostream &operator<<(std::ostream & /*out_*/, const TimeRecord & /*record_*/);
+  friend std::ostream &operator<<(std::ostream & /*out_*/,
+                                  const TimeRecord & /*record_*/);
 
 private:
   static thread_local std::size_t _threadDepth;

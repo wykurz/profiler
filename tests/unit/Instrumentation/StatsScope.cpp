@@ -1,6 +1,6 @@
 #include <Profiler/Control/Manager.h>
-#include <Profiler/Control/ThreadRecords.h>
 #include <Profiler/Control/RecordManager.h>
+#include <Profiler/Control/ThreadRecords.h>
 #include <Profiler/Instrumentation/StatsScope.h>
 #include <boost/test/unit_test.hpp>
 
@@ -28,7 +28,7 @@ void testFunc1() {
 struct Fixture {
   Fixture() { Control::getManager().stopWriter(); }
 };
-}  // namespace
+} // namespace
 
 BOOST_FIXTURE_TEST_SUITE(StatsScopeTests, Fixture)
 

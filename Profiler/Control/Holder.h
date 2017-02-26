@@ -18,16 +18,16 @@ struct Output {
   virtual void flush() = 0;
 };
 
-// TODO(mateusz): redesign this to use unique_ptr with a custom deleter holding a
-// reference to Holder
+// TODO(mateusz): redesign this to use unique_ptr with a custom deleter holding
+// a reference to Holder.
 
 struct Holder {
   using Ptr = std::unique_ptr<Holder, void (*)(Holder *)>;
   std::unique_lock<std::mutex> lock();
   bool isEmpty() const;
   void streamDirtyRecords();
-  // TODO(mateusz): There are 2x setup functions, which will be a source of errors.
-  //       Use typesystem to handle initialization.
+  // TODO(mateusz): There are 2x setup functions, which will be a source of
+  // errors. Use typesystem to handle initialization.
   void setOut(std::unique_ptr<Output> &&out_);
   void setRecordExtractor(RecordExtractor &recordExtractor_);
   /**

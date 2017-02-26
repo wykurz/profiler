@@ -9,11 +9,13 @@ namespace Profiler {
 namespace Exception {
 
 struct Runtime : public std::runtime_error {
-  explicit Runtime(std::string message_) : std::runtime_error(std::move(message_)) {}
+  explicit Runtime(std::string message_)
+      : std::runtime_error(std::move(message_)) {}
 };
 
 struct LogicError : public std::logic_error {
-  explicit LogicError(std::string message_) : std::logic_error(std::move(message_)) {}
+  explicit LogicError(std::string message_)
+      : std::logic_error(std::move(message_)) {}
 };
 } // namespace Exception
 } // namespace Profiler

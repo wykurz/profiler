@@ -7,7 +7,8 @@ namespace Config {
 
 Config::Config(std::string binaryLogPrefix_, std::string binaryLogDir_,
                std::string yamlLogName_)
-    : binaryLogPrefix(std::move(binaryLogPrefix_)), binaryLogDir(std::move(binaryLogDir_)),
+    : binaryLogPrefix(std::move(binaryLogPrefix_)),
+      binaryLogDir(std::move(binaryLogDir_)),
       yamlLogName(std::move(yamlLogName_)) {}
 
 bool Config::operator!=(const Config &other_) const {

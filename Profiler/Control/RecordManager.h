@@ -78,7 +78,7 @@ template <typename Record_, int MaxBytes_> struct RecordArray {
   using Queue = RecordArrayQueueImpl<Record_, NumRecords>;
   using Node = RecordArrayNodeImpl<Record_, NumRecords>;
 };
-}  // namespace Internal
+} // namespace Internal
 
 template <typename Record_> struct SimpleExtractor : RecordExtractor {
   using RecordType = Record_;
@@ -121,7 +121,8 @@ template <typename Record_> struct RecordManager : RecordExtractor {
   using Node = typename RecordArrayTypes::Node;
   using Queue = typename RecordArrayTypes::Queue;
 
-  explicit RecordManager(Arena &arena_) : _arena(arena_), _dirty(arena_.basePtr()) {}
+  explicit RecordManager(Arena &arena_)
+      : _arena(arena_), _dirty(arena_.basePtr()) {}
   RecordManager(const This &) = delete;
 
   RecordType *getRecord() {

@@ -34,7 +34,7 @@ struct MockOutputs : OutputFactory {
   }
   mutable BufferMap buffers;
 };
-}  // namespace
+} // namespace
 
 BOOST_AUTO_TEST_SUITE(WriterTests)
 
