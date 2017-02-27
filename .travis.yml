@@ -14,6 +14,8 @@ matrix:
         apt:
           packages:
             - clang-3.8
+            - clang-format-3.8
+            - clang-tidy-3.8
             - doxygen
             - graphviz
           sources:
@@ -34,6 +36,8 @@ matrix:
         apt:
           packages:
             - clang-3.8
+            - clang-format-3.8
+            - clang-tidy-3.8
             - doxygen
             - graphviz
           sources:
@@ -55,6 +59,8 @@ matrix:
         apt:
           packages:
             - clang-3.8
+            - clang-format-3.8
+            - clang-tidy-3.8
             - doxygen
             - graphviz
           sources:
@@ -75,6 +81,8 @@ matrix:
         apt:
           packages:
             - clang-3.8
+            - clang-format-3.8
+            - clang-tidy-3.8
             - doxygen
             - graphviz
           sources:
@@ -141,7 +149,8 @@ script:
   - cd build
   - cmake --version
   - which cmake
-  - CC=${C_COMPILER} CXX=${CXX_COMPILER} cmake -DUSE_LIBCXX=${LIBCXX} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DDEBUG_LOG=${DEBUG_LOG} -DBOOST_ROOT=${BOOST_DIR} ..
+  - CC=${C_COMPILER} CXX=${CXX_COMPILER} cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DUSE_LIBCXX=${LIBCXX} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DDEBUG_LOG=${DEBUG_LOG} -DBOOST_ROOT=${BOOST_DIR} ..
+  - .travis_files/check_clang_format.sh
   - if [ "${BUILD_TYPE}" == "asan_usan" ]; then
       /usr/share/clang/scan-build-3.8/bin/scan-build make -j2 VERBOSE=1;
     else
