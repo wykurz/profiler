@@ -1,5 +1,5 @@
 ---
-Checks:          '*,-*readability-braces-around-statements,-clang-analyzer-alpha*'
+Checks:          '*,-*readability-braces-around-statements,-clang-analyzer-alpha*,-llvm-header-guard,-cppcoreguidelines-pro-type-reinterpret-cast,-cppcoreguidelines-pro-bounds-pointer-arithmetic'
 HeaderFilterRegex: ''
 AnalyzeTemporaryDtors: true
 CheckOptions:
