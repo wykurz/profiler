@@ -18,7 +18,8 @@ int main() {
   auto logFilePrefix = ".my.perf.log";
   auto binaryLogDir = ".";
   auto yamlFileName = "my.perf.yaml";
-  Profiler::Config::setConfig(Profiler::Config::Config(logFilePrefix, binaryLogDir, yamlFileName));
+  Profiler::Config::setConfig(
+      Profiler::Config::Config(logFilePrefix, binaryLogDir, yamlFileName));
   Profiler::Control::primeThreadRecords();
   f3();
   Profiler::Control::getManager().stopWriter();

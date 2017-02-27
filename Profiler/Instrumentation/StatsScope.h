@@ -46,7 +46,7 @@ private:
 
 #define STATS_SCOPE_EX(name)                                                   \
   Profiler::Scope::StatsScope _UNIQUE_NAME(statsScope)(name)
-#define STATS_SCOPE() STATS_SCOPE_EX((const char*)__PRETTY_FUNCTION__)
+#define STATS_SCOPE() STATS_SCOPE_EX((const char *)__PRETTY_FUNCTION__)
 
 #endif // NO_MACROS
 
