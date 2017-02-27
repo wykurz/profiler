@@ -103,6 +103,8 @@ matrix:
         apt:
           packages:
             - g++-6
+            - clang-format-3.8
+            - clang-tidy-3.8
             - doxygen
             - graphviz
           sources:
@@ -121,6 +123,8 @@ matrix:
         apt:
           packages:
             - g++-6
+            - clang-format-3.8
+            - clang-tidy-3.8
             - doxygen
             - graphviz
           sources:

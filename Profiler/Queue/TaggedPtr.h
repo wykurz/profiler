@@ -2,7 +2,6 @@
 #define _PROFILER_QUEUE_TAGGEDPTR_H
 
 #include <Profiler/Exception/Exception.h>
-#include <cstdint>
 
 namespace Profiler {
 namespace Queue {

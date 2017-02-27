@@ -15,15 +15,14 @@ void f3() {
 }
 
 int main() {
-  using namespace Profiler;
   auto logFilePrefix = ".my.perf.log";
   auto binaryLogDir = ".";
   auto yamlFileName = "my.perf.yaml";
-  Config::setConfig(Config::Config(logFilePrefix, binaryLogDir, yamlFileName));
-  Control::primeThreadRecords();
+  Profiler::Config::setConfig(Profiler::Config::Config(logFilePrefix, binaryLogDir, yamlFileName));
+  Profiler::Control::primeThreadRecords();
   f3();
-  Control::getManager().stopWriter();
-  Decoder::Decoder decoder(Config::getConfig());
+  Profiler::Control::getManager().stopWriter();
+  Profiler::Decoder::Decoder decoder(Profiler::Config::getConfig());
   ;
   decoder.run();
   return 0;

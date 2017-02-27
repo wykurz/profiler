@@ -1,10 +1,9 @@
 #ifndef _PROFILER_QUEUE_QUEUE_H
 #define _PROFILER_QUEUE_QUEUE_H
 
+#include <Profiler/Exception/Exception.h>
 #include <Profiler/Queue/TaggedPtr.h>
-#include <algorithm>
 #include <atomic>
-#include <cassert>
 
 namespace Profiler {
 namespace Queue {
@@ -36,7 +35,7 @@ template <typename T_> struct Queue {
   };
 
   explicit Queue(void *basePtr_) : _basePtr(static_cast<char *>(basePtr_)) {
-    assert(_head.is_lock_free());
+    PROFILER_ASSERT(_head.is_lock_free());
   }
 
   Node *head() const;
