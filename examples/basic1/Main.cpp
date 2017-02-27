@@ -24,7 +24,6 @@ int main() {
   f3();
   Profiler::Control::getManager().stopWriter();
   Profiler::Decoder::Decoder decoder(Profiler::Config::getConfig());
-  ;
   decoder.run();
   return 0;
 }
