@@ -1,2 +1,4 @@
 #!/bin/sh
-truncate --size 0 tidylog && for f in `find . -name *.cpp`; do clang-tidy -p=build/debug -header-filter=Profiler -config='' -fix -fix-errors $f >> tidylog; done
+H_FILES=$(find Profiler tests examples -name *.h)
+CPP_FILES=$(find Profiler tests examples -name *.cpp)
+clang-tidy -p=build/debug -config='' ${H_FILES} ${CPP_FILES}

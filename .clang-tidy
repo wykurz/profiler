@@ -1,6 +1,6 @@
 ---
-Checks:          '*,-*readability-braces-around-statements,-clang-analyzer-alpha*,-llvm-header-guard,-cppcoreguidelines-pro-type-reinterpret-cast,-cppcoreguidelines-pro-bounds-pointer-arithmetic'
-HeaderFilterRegex: ''
+Checks:          '*,-*readability-braces-around-statements,-clang-analyzer-alpha*,-llvm-header-guard,-cppcoreguidelines-pro-type-reinterpret-cast,-cppcoreguidelines-pro-bounds-pointer-arithmetic,-cert-err58-cpp,-misc-macro-parentheses,-cppcoreguidelines-pro-type-vararg'
+HeaderFilterRegex: 'Profiler'
 AnalyzeTemporaryDtors: true
 CheckOptions:
   - key:             google-readability-braces-around-statements.ShortStatementLines

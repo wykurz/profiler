@@ -24,7 +24,7 @@ struct LogicError : public std::logic_error {
   do {                                                                         \
     std::stringstream ss;                                                      \
     ss << "\n\nRuntimeError in:\n"                                             \
-       << __PRETTY_FUNCTION__ << "\n"                                          \
+       << (const char *)__PRETTY_FUNCTION__ << "\n"                            \
        << "" << message_ << "\n";                                              \
     throw Profiler::Exception::Runtime(ss.str());                              \
   } while (false);

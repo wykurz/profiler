@@ -1,17 +1,22 @@
 #ifndef _PROFILER_LOG_LOG_H
 #define _PROFILER_LOG_LOG_H
 
+#ifdef DEBUG_LOG
+
 #include <iostream>
 #include <mutex>
 
 namespace Profiler {
 namespace Log {
 
-std::mutex &logMutex();
+inline std::mutex &logMutex() {
+  static std::mutex mutex;
+  return mutex;
+}
+
 } // namespace Log
 } // namespace Profiler
 
-#ifdef DEBUG_LOG
 #define DLOG(x)                                                                \
   do {                                                                         \
     std::unique_lock<std::mutex> lk(Profiler::Log::logMutex());                \
