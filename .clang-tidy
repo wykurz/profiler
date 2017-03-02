@@ -1,5 +1,5 @@
 ---
-Checks:          '*,-*readability-braces-around-statements,-clang-analyzer-alpha*,-llvm-header-guard,-cppcoreguidelines-pro-type-reinterpret-cast,-cppcoreguidelines-pro-bounds-pointer-arithmetic,-cert-err58-cpp,-misc-macro-parentheses,-cppcoreguidelines-pro-type-vararg,-google-runtime-int'
+Checks:          '*,-*readability-braces-around-statements,-clang-analyzer-alpha*,-llvm-header-guard,-cppcoreguidelines-pro-type-reinterpret-cast,-cppcoreguidelines-pro-bounds-pointer-arithmetic,-cert-err58-cpp,-misc-macro-parentheses,-cppcoreguidelines-pro-type-vararg,-google-runtime-int,-llvm-include-order'
 HeaderFilterRegex: 'Profiler'
 AnalyzeTemporaryDtors: true
 CheckOptions:
