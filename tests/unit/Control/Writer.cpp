@@ -3,7 +3,6 @@
 #include <Profiler/Control/Writer.h>
 #include <Profiler/Instrumentation/StatsScope.h>
 #include <boost/test/unit_test.hpp>
-#include <cassert>
 #include <thread>
 #include <unordered_map>
 

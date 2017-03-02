@@ -1,4 +1,5 @@
 #include <Profiler/Algorithm/FoldLeft.h>
+#include <Profiler/Exception/Exception.h>
 #include <Profiler/Instrumentation/StatsScope.h>
 #include <Profiler/Queue/Queue.h>
 #include <array>
@@ -112,7 +113,7 @@ BOOST_AUTO_TEST_CASE(Shuffle) {
       queueTest.shuffle();
       ++loops;
     }
-    assert(0 < loops);
+    PROFILER_ASSERT(0 < loops);
   };
   auto func2 = [&]() {
     setup();
@@ -121,7 +122,7 @@ BOOST_AUTO_TEST_CASE(Shuffle) {
       queueTest.exchange();
       ++loops;
     }
-    assert(0 < loops);
+    PROFILER_ASSERT(0 < loops);
   };
   std::vector<std::unique_ptr<std::thread>> threads;
   threads.push_back(std::unique_ptr<std::thread>(new std::thread(func2)));

@@ -5,7 +5,6 @@
 #include <Profiler/Control/Manager.h>
 #include <Profiler/Control/RecordManager.h>
 #include <Profiler/Record/Record.h>
-#include <cassert>
 #include <memory>
 #include <mutex>
 #include <vector>
