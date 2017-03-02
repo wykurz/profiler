@@ -1,5 +1,4 @@
 #include <Profiler/Algorithm/FreeMap.h>
-#include <Profiler/Exception/Exception.h>
 #include <Profiler/Queue/Queue.h>
 #include <atomic>
 #include <boost/test/unit_test.hpp>
