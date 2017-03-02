@@ -3,7 +3,8 @@
 
 #include <Profiler/Algorithm/Stream.h>
 #include <chrono>
-#include <iostream>
+#include <istream>
+#include <ostream>
 #include <ratio>
 #include <x86intrin.h>
 
