@@ -15,8 +15,7 @@ namespace Record {
 struct TimeRecord {
   using Rdtsc = Instrumentation::Rdtsc;
   using TimePoint = Rdtsc::TimePoint;
-  explicit TimeRecord(const char *name_)
-      : _name(name_), _t0(Rdtsc::now()) {
+  explicit TimeRecord(const char *name_) : _name(name_), _t0(Rdtsc::now()) {
     PROFILER_ASSERT(name_);
     _depth = _threadDepth++;
     _seqNum = _threadSeqNum++;
