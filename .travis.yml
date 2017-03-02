@@ -167,6 +167,7 @@ script:
   - ./examples/basic1
   - cd ..
   - .travis_files/check_clang_format.sh
+  - .travis_files/check_clang_tidy.sh
 
 after_success:
   - .travis_files/upload_coverage.sh
