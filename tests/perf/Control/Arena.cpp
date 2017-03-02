@@ -42,7 +42,6 @@ BENCHMARK_DEFINE_F(ArenaBenchFixture, ArenaTest)(benchmark::State &state_) {
 }
 BENCHMARK_REGISTER_F(ArenaBenchFixture, ArenaTest)
     ->Ranges({{1000, 100000}, {0, 90}});
-
 } // namespace Test
 } // namespace Control
 } // namespace Profiler

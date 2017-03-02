@@ -1,6 +1,10 @@
 #include <Profiler/Instrumentation/StatsScope.h>
 #include <benchmark/benchmark.h>
 
+namespace Profiler {
+namespace Instrumentation {
+namespace Test {
+
 void statsScopeTest(benchmark::State &state_) {
   Profiler::Control::getManager().stopWriter();
   const int queryCount_ = state_.range(0);
@@ -21,3 +25,6 @@ struct StatsScopeFixture : public ::benchmark::Fixture {};
 BENCHMARK_DEFINE_F(StatsScopeFixture, StatsScopeTest)
 (benchmark::State &state_) { statsScopeTest(state_); }
 BENCHMARK_REGISTER_F(StatsScopeFixture, StatsScopeTest)->Range(1, 1 << 20);
+} // namespace Test
+} // namespace Instrumentation
+} // namespace Profiler

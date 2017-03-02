@@ -27,7 +27,6 @@ BENCHMARK_DEFINE_F(TimeBenchFixture, RtdscTimeTest)(benchmark::State &state_) {
 }
 BENCHMARK_REGISTER_F(TimeBenchFixture, RtdscTimeTest)
     ->RangePair(1, 1, 1, 1 << 10);
-
 } // namespace Test
 } // namespace Instrumentation
 } // namespace Profiler
