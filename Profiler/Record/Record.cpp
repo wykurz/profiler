@@ -1,5 +1,4 @@
 #include <Profiler/Algorithm/Stream.h>
-#include <Profiler/Exception/Exception.h>
 #include <Profiler/Instrumentation/Time.h>
 #include <Profiler/Log/Log.h>
 #include <Profiler/Record/Record.h>

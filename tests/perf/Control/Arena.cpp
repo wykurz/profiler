@@ -1,7 +1,10 @@
 #include <Profiler/Control/Arena.h>
 #include <benchmark/benchmark.h>
 
-using namespace Profiler::Control;
+namespace Profiler {
+namespace Control {
+namespace Test {
+
 struct ArenaBenchFixture : public ::benchmark::Fixture {
   void acquireTest(benchmark::State &state_) {
     const std::size_t nblocks = state_.range(0);
@@ -39,3 +42,7 @@ BENCHMARK_DEFINE_F(ArenaBenchFixture, ArenaTest)(benchmark::State &state_) {
 }
 BENCHMARK_REGISTER_F(ArenaBenchFixture, ArenaTest)
     ->Ranges({{1000, 100000}, {0, 90}});
+
+} // namespace Test
+} // namespace Control
+} // namespace Profiler

@@ -4,7 +4,8 @@
 #include <Profiler/Exception/Exception.h>
 #include <Profiler/Log/Log.h>
 #include <cstring>
-#include <iostream>
+#include <istream>
+#include <ostream>
 #include <vector>
 
 namespace Profiler {
