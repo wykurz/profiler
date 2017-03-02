@@ -9,7 +9,7 @@
 #include <Profiler/Record/Record.h>
 
 namespace Profiler {
-namespace Scope {
+namespace Instrumentation {
 
 template <typename Record_>
 void record(Control::RecordManager<Record_> &recordManager_,
@@ -23,7 +23,7 @@ void record(Control::RecordManager<Record_> &recordManager_,
 }
 
 struct StatsScope {
-  explicit StatsScope(const char *name_) : _name(name_) {}
+  explicit StatsScope(const char *name_) : _record(name_) {}
   ~StatsScope() {
     _record.finish();
     record(Control::getThreadRecords<Record::TimeRecord>().getRecordManager(),
@@ -31,10 +31,9 @@ struct StatsScope {
   }
 
 private:
-  const char *_name;
-  Record::TimeRecord _record{_name};
+  Record::TimeRecord _record;
 };
-} // namespace Scope
+} // namespace Instrumentation
 } // namespace Profiler
 
 #ifndef NO_MACROS
@@ -45,7 +44,7 @@ private:
 #define _UNIQUE_NAME(base) _CAT(base, __COUNTER__)
 
 #define STATS_SCOPE_EX(name)                                                   \
-  Profiler::Scope::StatsScope _UNIQUE_NAME(statsScope)(name)
+  Profiler::Instrumentation::StatsScope _UNIQUE_NAME(statsScope)(name)
 #define STATS_SCOPE() STATS_SCOPE_EX((const char *)__PRETTY_FUNCTION__)
 
 #endif // NO_MACROS

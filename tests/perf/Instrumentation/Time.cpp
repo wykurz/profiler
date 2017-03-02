@@ -1,6 +1,10 @@
 #include <Profiler/Instrumentation/Time.h>
 #include <benchmark/benchmark.h>
 
+namespace Profiler {
+namespace Instrumentation {
+namespace Test {
+
 template <typename Clock_> void timeTest(benchmark::State &state_) {
   const int createCount_ = state_.range(0);
   const int queryCount_ = state_.range(1);
@@ -16,7 +20,6 @@ template <typename Clock_> void timeTest(benchmark::State &state_) {
   state_.SetItemsProcessed(processed);
 }
 
-using namespace Profiler::Time;
 struct TimeBenchFixture : public ::benchmark::Fixture {};
 
 BENCHMARK_DEFINE_F(TimeBenchFixture, RtdscTimeTest)(benchmark::State &state_) {
@@ -24,3 +27,7 @@ BENCHMARK_DEFINE_F(TimeBenchFixture, RtdscTimeTest)(benchmark::State &state_) {
 }
 BENCHMARK_REGISTER_F(TimeBenchFixture, RtdscTimeTest)
     ->RangePair(1, 1, 1, 1 << 10);
+
+} // namespace Test
+} // namespace Instrumentation
+} // namespace Profiler

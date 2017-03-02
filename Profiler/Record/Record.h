@@ -13,9 +13,10 @@ namespace Profiler {
 namespace Record {
 
 struct TimeRecord {
-  using TimePoint = Time::Rdtsc::TimePoint;
+  using Rdtsc = Instrumentation::Rdtsc;
+  using TimePoint = Rdtsc::TimePoint;
   explicit TimeRecord(const char *name_)
-      : _name(name_), _t0(Time::Rdtsc::now()) {
+      : _name(name_), _t0(Rdtsc::now()) {
     PROFILER_ASSERT(name_);
     _depth = _threadDepth++;
     _seqNum = _threadSeqNum++;
@@ -23,7 +24,7 @@ struct TimeRecord {
   void finish() {
     PROFILER_ASSERT(1 <= _threadDepth);
     --_threadDepth;
-    _t1 = Time::Rdtsc::now();
+    _t1 = Rdtsc::now();
   }
   static void preamble(std::ostream &out_);
   static void decode(std::istream &in_, std::ostream &out_);

@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(Basic) {
     {
       Record::TimeRecord record("test");
       record.finish();
-      Scope::record(threadRecords.getRecordManager(), std::move(record));
+      Instrumentation::record(threadRecords.getRecordManager(), std::move(record));
     }
   }
   Writer writer(holderArray, std::chrono::microseconds(100000));
