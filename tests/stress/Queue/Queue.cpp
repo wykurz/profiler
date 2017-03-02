@@ -1,6 +1,5 @@
 #include <Profiler/Algorithm/FoldLeft.h>
 #include <Profiler/Exception/Exception.h>
-#include <Profiler/Instrumentation/StatsScope.h>
 #include <Profiler/Queue/Queue.h>
 #include <array>
 #include <boost/test/unit_test.hpp>

@@ -6,8 +6,8 @@
 #include <Profiler/Log/Log.h>
 #include <Profiler/Queue/Queue.h>
 #include <Profiler/Record/Record.h>
-#include <ostream>
 #include <memory>
+#include <ostream>
 #include <vector>
 
 namespace Profiler {
