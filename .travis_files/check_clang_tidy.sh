@@ -1,2 +1,2 @@
 #!/bin/sh
-clang-tidy -p=build/debug -config='' $(find Profiler tests examples -name *.cpp)
+clang-tidy-3.8 -p=build/debug -config='' $(find Profiler tests examples -name *.cpp)
