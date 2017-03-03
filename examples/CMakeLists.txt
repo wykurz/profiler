@@ -1,8 +1,11 @@
+find_package(Boost 1.54.0 COMPONENTS unit_test_framework filesystem system)
+include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
+
 file(GLOB examples **/*.cpp)
 foreach (example ${examples})
   string(REGEX REPLACE "/[^/]+.cpp" "" tmp ${example})
   string(REGEX REPLACE ".*/" "" testname ${tmp})
   file(GLOB example_src "${testname}/*.cpp")
   add_executable(${testname} ${example_src})
-  target_link_libraries(${testname} cxxprofiler ${LIBCXX})
+  target_link_libraries(${testname} cxxprofiler ${LIBCXX} ${Boost_LIBRARIES})
 endforeach ()

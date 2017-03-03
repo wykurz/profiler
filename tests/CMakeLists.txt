@@ -1,6 +1,6 @@
 enable_testing()
 
-find_package(Boost 1.54.0 COMPONENTS unit_test_framework)
+find_package(Boost 1.54.0 COMPONENTS unit_test_framework filesystem system)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
 if (Boost_FOUND)
@@ -24,7 +24,7 @@ if (Benchmark)
   include_directories(SYSTEM ${Benchmark_INCLUDE_DIRS})
   file(GLOB perf_tests_src "perf/**/*.cpp" "perf/Main.cpp")
   add_executable(perf_tests ${perf_tests_src})
-  target_link_libraries(perf_tests cxxprofiler ${Benchmark} ${CMAKE_THREAD_LIBS_INIT} ${LIBCXX} supc++)
+  target_link_libraries(perf_tests cxxprofiler ${Benchmark} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${LIBCXX} supc++)
   add_test(perf perf_tests)
 else ()
   message(STATUS "Google benchmark not found, performance tests disabled")
