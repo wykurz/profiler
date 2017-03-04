@@ -28,7 +28,7 @@ find_package(Threads REQUIRED)
 
 include_directories(${profiler_SOURCE_DIR})
 file(GLOB profiler_SRC "Profiler/**/*.cpp")
-add_library(cxxprofiler SHARED ${profiler_SRC})
+add_library(cxxprofiler INTERFACE ${profiler_SRC})
 
 # TODO: With C++17 support we can drop the boost::filesystem library
 find_package(Boost 1.62.0 COMPONENTS filesystem REQUIRED)
@@ -40,11 +40,13 @@ if (USE_LIBCXX)
   # Sanitizer builds
   set(CMAKE_CXX_FLAGS_ASAN_USAN "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -fsanitize=address,undefined")
   set(CMAKE_CXX_FLAGS_TSAN "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -fsanitize=thread")
+  set(CXXPROFILER_DEPS ${CMAKE_THREAD_LIBS_INIT} supc++ ${Boost_LIBRARIES})
   # Profiler library link:
-  target_link_libraries(cxxprofiler ${CMAKE_THREAD_LIBS_INIT} supc++ ${Boost_LIBRARIES})
+  # target_link_libraries(cxxprofiler ${CMAKE_THREAD_LIBS_INIT} supc++ ${Boost_LIBRARIES})
 else ()
   message(STATUS "Configuring project to use stdlibc++, sanitizer builds disabled")
-  target_link_libraries(cxxprofiler ${CMAKE_THREAD_LIBS_INIT} atomic ${Boost_LIBRARIES})
+  set(CXXPROFILER_DEPS ${CMAKE_THREAD_LIBS_INIT} atomic ${Boost_LIBRARIES})
+  # target_link_libraries(cxxprofiler ${CMAKE_THREAD_LIBS_INIT} atomic ${Boost_LIBRARIES})
 endif ()
 
 add_subdirectory(tests)
