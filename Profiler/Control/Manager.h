@@ -15,9 +15,16 @@ namespace Control {
 struct Manager {
   static constexpr std::size_t MaxThreads = 1024;
 
-  explicit Manager(const Config::Config &config_, bool startWriter_ = true);
+  explicit Manager(const Config::Config &config_, bool startWriter_ = true)
+      : _fileOutputs(config_),
+        _writer(_threadArray, std::chrono::microseconds(100000)) {
+    if (startWriter_) {
+      _writerThread = std::thread([this]() { this->_writer.run(); });
+      _writerStarted = true;
+    }
+  }
   Manager(const Manager &) = delete;
-  ~Manager();
+  ~Manager() { stopWriter(); }
 
   template <typename Record_> Allocation addThreadRecords() {
     int count = MaxThreads;
@@ -41,18 +48,34 @@ struct Manager {
    * Will start the writer thread if not already started. Must be called from
    * the main thread.
    */
-  void startWriter();
+  void startWriter() {
+    if (_writerStarted)
+      return;
+    _writerThread = std::thread([this]() { this->_writer.run(); });
+    _writerStarted = true;
+  }
 
   /**
    * If still running, will stop the writer thread.
    */
-  void stopWriter();
+  void stopWriter() {
+    if (!_writerStarted)
+      return;
+    _writer.stop();
+    if (_writerThread.joinable())
+      _writerThread.join();
+    _writerStarted = false;
+    writerFinalPass();
+  }
 
   /**
    * Will cause the writer to iterate once over record holders and write the
    * contents to logs. The writer thread must be stopped.
    */
-  void writerFinalPass();
+  void writerFinalPass() {
+    PROFILER_ASSERT(!_writerStarted);
+    _writer.finalPass();
+  }
 
 private:
   Arena _arena{100000};
@@ -67,7 +90,11 @@ private:
   bool _writerStarted = false;
 };
 
-Manager &getManager();
+inline Manager &getManager() {
+  static Manager manager(Config::getConfig());
+  return manager;
+}
+
 } // namespace Control
 } // namespace Profiler
 
