@@ -23,24 +23,65 @@ struct Output {
 
 struct Holder {
   using Ptr = std::unique_ptr<Holder, void (*)(Holder *)>;
-  std::unique_lock<std::mutex> lock();
-  bool isEmpty() const;
-  void streamDirtyRecords();
+  std::unique_lock<std::mutex> lock() {
+    return std::unique_lock<std::mutex>(*_lock);
+  }
+
+  bool isEmpty() const {
+    return (_recordExtractor == nullptr) && !_finalExtractor;
+  }
+
+  void streamDirtyRecords() {
+    if (!isEmpty()) {
+      PROFILER_ASSERT(_out.get());
+      if (_recordExtractor != nullptr) {
+        _recordExtractor->streamDirtyRecords(_out->get());
+      } else {
+        _finalExtractor->streamDirtyRecords(_out->get());
+        _finalExtractor.reset();
+        _out.reset();
+      }
+    }
+  }
+
   // TODO(mateusz): There are 2x setup functions, which will be a source of
   // errors. Use typesystem to handle initialization.
-  void setOut(std::unique_ptr<Output> &&out_);
-  void setRecordExtractor(RecordExtractor &recordExtractor_);
+  void setOut(std::unique_ptr<Output> &&out_) {
+    PROFILER_ASSERT(!_recordExtractor);
+    PROFILER_ASSERT(!_finalExtractor.get());
+    PROFILER_ASSERT(out_.get());
+    _out = std::move(out_);
+  }
+
+  void setRecordExtractor(RecordExtractor &recordExtractor_) {
+    PROFILER_ASSERT(!_recordExtractor);
+    PROFILER_ASSERT(!_finalExtractor.get());
+    _recordExtractor = &recordExtractor_;
+  }
+
   /**
    * Usually called by Finalizer's destructor when a thread using the holder is
    * shutting down. Can be called manually, but care must be taken such that the
    * thread which was using the holder should not try to write any more records,
    * otherwise the resources used to hold those records will be lost.
    */
-  void finalize();
-  void flush();
+  void finalize() {
+    if (isEmpty() || isFinalized())
+      return;
+    _finalExtractor = _recordExtractor->moveToFinalExtractor();
+    _recordExtractor = nullptr;
+  }
+
+  void flush() {
+    if (_out)
+      _out->flush();
+  }
 
 private:
-  bool isFinalized() const;
+  bool isFinalized() const {
+    return (_recordExtractor == nullptr) && _finalExtractor;
+  }
+
   RecordExtractor *_recordExtractor = nullptr;
   std::unique_ptr<RecordExtractor> _finalExtractor;
   std::unique_ptr<Output> _out;
@@ -67,9 +108,27 @@ struct OutputFactory {
   virtual Output::Ptr newOutput(std::size_t extractorId_) const = 0;
 };
 
+namespace Internal {
+
+struct FileOut : Output {
+  explicit FileOut(const std::string &name_)
+      : _out(name_, std::fstream::binary | std::fstream::trunc) {
+    DLOG("FileOut " << name_ << " " << std::size_t(&_out));
+  }
+  std::ostream &get() override { return _out; }
+  void flush() override { _out.flush(); }
+
+private:
+  std::ofstream _out;
+};
+} // namespace Internal
+
 struct FileOutputs : OutputFactory {
-  explicit FileOutputs(const Config::Config &config_);
-  Output::Ptr newOutput(std::size_t extractorId_) const override;
+  explicit FileOutputs(const Config::Config &config_) : _config(config_) {}
+  Output::Ptr newOutput(std::size_t extractorId_) const override {
+    return std::make_unique<Internal::FileOut>(_config.binaryLogPrefix + "." +
+                                               std::to_string(extractorId_));
+  }
 
 private:
   const Config::Config &_config;
