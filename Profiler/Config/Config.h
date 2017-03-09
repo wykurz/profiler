@@ -16,7 +16,7 @@ struct Config {
         yamlLogName(std::move(yamlLogName_)) {}
 
   bool operator!=(const Config &other_) const {
-    return binaryLogPrefix != other_.binaryLogPrefix or
+    return binaryLogPrefix != other_.binaryLogPrefix ||
            yamlLogName != other_.yamlLogName;
   }
 
