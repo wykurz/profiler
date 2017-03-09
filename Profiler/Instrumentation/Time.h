@@ -2,25 +2,21 @@
 #define _PROFILER_INSTRUMENTATION_TIME_H
 
 #include <Profiler/Algorithm/Stream.h>
+#include <Profiler/Intrinsics.h>
 #include <chrono>
 #include <istream>
 #include <ostream>
 #include <ratio>
-#ifdef _MSC_VER
-#include <intrin.h>
-#else
-#include <x86intrin.h>
-#endif
 
 namespace Profiler {
 namespace Instrumentation {
 
 struct Rdtsc {
   struct TimePoint {
-    using Storage = decltype(__rdtsc());
+    using Storage = decltype(Intrinsics::rdtsc());
     Storage data;
   };
-  static TimePoint now() { return {__rdtsc()}; }
+  static TimePoint now() { return {Intrinsics::rdtsc()}; }
 };
 
 inline std::ostream &operator<<(std::ostream &out_,

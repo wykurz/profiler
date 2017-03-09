@@ -2,6 +2,7 @@
 #define _PROFILER_ALGORITHM_FREEMAP_H
 
 #include <Profiler/Exception/Exception.h>
+#include <Profiler/Intrinsics.h>
 #include <Profiler/Log/Log.h>
 #include <algorithm>
 #include <array>
@@ -82,7 +83,7 @@ struct FreeMap {
                                           std::memory_order_relaxed))
       PROFILER_ASSERT(0 < newBitmask);
     BitmaskType newBit = newBitmask & ~unsetOneBit(newBitmask);
-    int bitIndex = __builtin_ffsl(newBit) - 1;
+    int bitIndex = Intrinsics::ffsl(newBit) - 1;
     PROFILER_ASSERT(0 <= bitIndex);
     const int trueIndex = index * sizeof(BitmaskType) * 8 + bitIndex;
     return trueIndex - trueIndex / (MaxSubtreeSize + 1);
