@@ -3,6 +3,7 @@
 
 #include <Profiler/Control/RecordManager.h>
 #include <Profiler/Control/ThreadRecords.h>
+#include <Profiler/Defines.h>
 #include <Profiler/Instrumentation/StatsScope.h>
 #include <Profiler/Instrumentation/Time.h>
 #include <Profiler/Log/Log.h>
@@ -45,7 +46,7 @@ private:
 
 #define STATS_SCOPE_EX(name)                                                   \
   Profiler::Instrumentation::StatsScope _UNIQUE_NAME(statsScope)(name)
-#define STATS_SCOPE() STATS_SCOPE_EX((const char *)__PRETTY_FUNCTION__)
+#define STATS_SCOPE() STATS_SCOPE_EX(PROFILER_FUNCTION)
 
 #endif // NO_MACROS
 
