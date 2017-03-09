@@ -6,7 +6,11 @@
 #include <istream>
 #include <ostream>
 #include <ratio>
+#ifdef _MSC_VER
+#include <intrin.h>
+#else
 #include <x86intrin.h>
+#endif
 
 namespace Profiler {
 namespace Instrumentation {
