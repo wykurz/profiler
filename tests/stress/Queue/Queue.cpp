@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(Shuffle) {
   auto func1 = [&]() {
     setup();
     int loops = 0;
-    while (not done.load()) {
+    while (!done.load()) {
       queueTest.shuffle();
       ++loops;
     }
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE(Shuffle) {
   auto func2 = [&]() {
     setup();
     int loops = 0;
-    while (not done.load()) {
+    while (!done.load()) {
       queueTest.exchange();
       ++loops;
     }
