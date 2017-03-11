@@ -39,7 +39,8 @@ private:
   std::uint32_t _offset = -1;
   std::uint32_t _tag = 0;
 };
-static_assert(std::is_trivially_copyable<TaggedPtr<int> >::value, "TaggetPtr must be trivially copyable for use in std::atomic");
+static_assert(std::is_trivially_copyable<TaggedPtr<int>>::value,
+              "TaggetPtr must be trivially copyable for use in std::atomic");
 } // namespace Queue
 } // namespace Profiler
 

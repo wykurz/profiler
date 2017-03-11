@@ -129,7 +129,8 @@ BOOST_AUTO_TEST_CASE(Shuffle) {
     threads.push_back(std::unique_ptr<std::thread>(new std::thread(func1)));
   {
     std::unique_lock<std::mutex> lk(lock);
-    control.wait(lk, [&waitCount] { return waitCount == numThreads; });
+    control.wait(lk,
+                 [&waitCount, numThreads] { return waitCount == numThreads; });
   }
   std::this_thread::sleep_for(std::chrono::microseconds(1000000)); // 1s
   workers.notify_all();
