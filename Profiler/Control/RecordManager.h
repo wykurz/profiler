@@ -31,48 +31,42 @@ template <typename Record_, int NumRecords_>
 using RecordArrayNodeImpl =
     typename RecordArrayQueueImpl<Record_, NumRecords_>::Node;
 
-template <typename Record_, int MaxBytes_> constexpr int minNumRecords() {
-  auto emptyNodeSize = sizeof(Queue::Queue<std::array<Record_, 0>>);
-  return (MaxBytes_ - emptyNodeSize) / sizeof(Record_);
-};
-
 template <typename Record_, int NumRecords_> constexpr int currentSize() {
   return sizeof(RecordArrayNodeImpl<Record_, NumRecords_>);
 };
 
-template <typename Record_, int NumRecords_, int MaxBytes_>
-constexpr int bytesLeft() {
-  return MaxBytes_ - currentSize<Record_, NumRecords_>();
-};
-
-template <int N_, int M_> struct LessThan {
-  enum { Value = N_ < M_ };
-};
-
-template <typename Record_, int MaxBytes_,
-          int NumRecords_ = minNumRecords<Record_, MaxBytes_>(),
-          typename std::enable_if<LessThan<
-              bytesLeft<Record_, NumRecords_, MaxBytes_>(), 0>::Value>::type * =
-              nullptr>
-constexpr int maxNumRecords() {
-  return NumRecords_ - 1;
+template <typename Record_, int Bytes_>
+constexpr int minNumRecords()
+{
+  return (Bytes_ - currentSize<Record_, 1>()) / sizeof(Record_);
 }
 
-template <int N_, int M_> struct LessThanOrEqual {
-  enum { Value = N_ <= M_ };
+template <typename Record_, int Bytes_, int NumRecords_>
+constexpr bool feasibleNumRecords()
+{
+  return currentSize<Record_, NumRecords_>() < Bytes_;
+}
+
+template <typename Record_, int Bytes_, int NumRecords_ = minNumRecords<Record_, Bytes_>(),
+          bool feasible = feasibleNumRecords<Record_, Bytes_, NumRecords_ + 1>()>
+struct FindNumRecords;
+
+template <typename Record_, int Bytes_, int NumRecords_>
+struct FindNumRecords<Record_, Bytes_, NumRecords_, false>
+{
+  static_assert(feasibleNumRecords<Record_, Bytes_, NumRecords_>(), "Current number of records we found should be feasible.");
+  static_assert(!feasibleNumRecords<Record_, Bytes_, NumRecords_ + 1>(), "We shouldn't be able to increase # records any further.");
+  enum { Value = NumRecords_ };
 };
 
-template <typename Record_, int MaxBytes_,
-          int NumRecords_ = minNumRecords<Record_, MaxBytes_>(),
-          typename std::enable_if<LessThanOrEqual<
-              0, bytesLeft<Record_, NumRecords_, MaxBytes_>()>::Value>::type * =
-              nullptr>
-constexpr int maxNumRecords() {
-  return maxNumRecords<Record_, MaxBytes_, NumRecords_ + 1>();
-}
+template <typename Record_, int Bytes_, int NumRecords_>
+struct FindNumRecords<Record_, Bytes_, NumRecords_, true>
+{
+  enum { Value = FindNumRecords<Record_, Bytes_, NumRecords_ + 1>::Value };
+};
 
 template <typename Record_, int MaxBytes_> struct RecordArray {
-  static constexpr int NumRecords = maxNumRecords<Record_, MaxBytes_>();
+  static constexpr int NumRecords = FindNumRecords<Record_, MaxBytes_>::Value;
   static_assert(10 < NumRecords, "Too few records stored in an Array::Block");
   using Array = RecordArrayImpl<Record_, NumRecords>;
   using Queue = RecordArrayQueueImpl<Record_, NumRecords>;
