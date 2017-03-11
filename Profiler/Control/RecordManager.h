@@ -35,33 +35,32 @@ template <typename Record_, int NumRecords_> constexpr int currentSize() {
   return sizeof(RecordArrayNodeImpl<Record_, NumRecords_>);
 };
 
-template <typename Record_, int Bytes_>
-constexpr int minNumRecords()
-{
+template <typename Record_, int Bytes_> constexpr int minNumRecords() {
   return (Bytes_ - currentSize<Record_, 1>()) / sizeof(Record_);
 }
 
 template <typename Record_, int Bytes_, int NumRecords_>
-constexpr bool feasibleNumRecords()
-{
+constexpr bool feasibleNumRecords() {
   return currentSize<Record_, NumRecords_>() < Bytes_;
 }
 
-template <typename Record_, int Bytes_, int NumRecords_ = minNumRecords<Record_, Bytes_>(),
-          bool feasible = feasibleNumRecords<Record_, Bytes_, NumRecords_ + 1>()>
+template <typename Record_, int Bytes_,
+          int NumRecords_ = minNumRecords<Record_, Bytes_>(),
+          bool feasible =
+              feasibleNumRecords<Record_, Bytes_, NumRecords_ + 1>()>
 struct FindNumRecords;
 
 template <typename Record_, int Bytes_, int NumRecords_>
-struct FindNumRecords<Record_, Bytes_, NumRecords_, false>
-{
-  static_assert(feasibleNumRecords<Record_, Bytes_, NumRecords_>(), "Current number of records we found should be feasible.");
-  static_assert(!feasibleNumRecords<Record_, Bytes_, NumRecords_ + 1>(), "We shouldn't be able to increase # records any further.");
+struct FindNumRecords<Record_, Bytes_, NumRecords_, false> {
+  static_assert(feasibleNumRecords<Record_, Bytes_, NumRecords_>(),
+                "Current number of records we found should be feasible.");
+  static_assert(!feasibleNumRecords<Record_, Bytes_, NumRecords_ + 1>(),
+                "We shouldn't be able to increase # records any further.");
   enum { Value = NumRecords_ };
 };
 
 template <typename Record_, int Bytes_, int NumRecords_>
-struct FindNumRecords<Record_, Bytes_, NumRecords_, true>
-{
+struct FindNumRecords<Record_, Bytes_, NumRecords_, true> {
   enum { Value = FindNumRecords<Record_, Bytes_, NumRecords_ + 1>::Value };
 };
 
