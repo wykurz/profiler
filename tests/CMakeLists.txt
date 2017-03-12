@@ -2,6 +2,8 @@ enable_testing()
 
 find_package(Boost 1.54.0 COMPONENTS unit_test_framework filesystem system)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
+# Making MSVC happy:
+add_definitions(-DBOOST_ALL_NO_LIB)
 
 if (Boost_FOUND)
   file(GLOB unit_tests_src "unit/**/*.cpp" "unit/Main.cpp")

@@ -33,6 +33,8 @@ add_library(cxxprofiler INTERFACE ${profiler_SRC})
 # TODO: With C++17 support we can drop the boost::filesystem library
 find_package(Boost 1.62.0 COMPONENTS filesystem REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
+# Making MSVC happy:
+add_definitions(-DBOOST_ALL_NO_LIB)
 
 if (USE_LIBCXX)
   message(STATUS "Configuring project to use libc++")
