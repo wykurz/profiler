@@ -35,6 +35,7 @@ find_package(Boost 1.62.0 COMPONENTS filesystem REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 # Making MSVC happy:
 add_definitions(-DBOOST_ALL_NO_LIB)
+add_definitions(-DBOOST_ALL_DYN_LINK)
 
 if (USE_LIBCXX)
   message(STATUS "Configuring project to use libc++")
