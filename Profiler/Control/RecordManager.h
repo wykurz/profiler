@@ -54,8 +54,11 @@ template <typename Record_, int Bytes_, int NumRecords_>
 struct FindNumRecords<Record_, Bytes_, NumRecords_, false> {
   static_assert(feasibleNumRecords<Record_, Bytes_, NumRecords_>(),
                 "Current number of records we found should be feasible.");
+#ifndef _MSC_VER
+  // Visual Studio 15 (2017) doesn't compile this assertion for some reason.
   static_assert(!feasibleNumRecords<Record_, Bytes_, NumRecords_ + 1>(),
                 "We shouldn't be able to increase # records any further.");
+#endif
   enum { Value = NumRecords_ };
 };
 
