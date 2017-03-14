@@ -1,0 +1,19 @@
+environment:
+  matrix:
+    - solution_name: C:/projects/profiler/build/debug/xgboost.sln
+    - solution_name: C:/projects/profiler/build/release/xgboost.sln
+
+platform:
+  - x64
+
+configuration:
+  - Debug
+  - Release
+
+before_build:
+  - mkdir build
+  - cd build
+  - cmake .. -G "Visual Studio 14 2015 Win64" -DBOOST_ROOT="C:/Libraries/boost_1_63_0" -DBoost_COMPILER=-vc140 -DBoost_USE_STATIC_LIBS=OFF -DBoost_USE_STATIC_RUNTIME=OFF -DBoost_LIBRARY_DIR="C:/Libraries/boost_1_63_0/lib64-msvc-14.0"
+
+build_script:
+  - msbuild %solution_name%
