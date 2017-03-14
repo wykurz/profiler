@@ -16,3 +16,7 @@ before_build:
 
 build_script:
   - msbuild %solution_name%
+
+test:
+  assemblies:
+    - '**\*.exe'
