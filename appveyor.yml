@@ -1,7 +1,6 @@
 environment:
   matrix:
-    - solution_name: C:/projects/profiler/build/debug/xgboost.sln
-    - solution_name: C:/projects/profiler/build/release/xgboost.sln
+    - solution_name: C:/projects/profiler/build/profiler.sln
 
 platform:
   - x64
