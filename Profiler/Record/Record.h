@@ -6,6 +6,7 @@
 #include <Profiler/Exception/Exception.h>
 #include <Profiler/Instrumentation/Time.h>
 #include <Profiler/Log/Log.h>
+#include <atomic>
 #include <chrono>
 #include <istream>
 #include <ostream>
@@ -21,8 +22,10 @@ struct TimeRecord {
     PROFILER_ASSERT(name_);
     _depth = threadDepth()++;
     _seqNum = threadSeqNum()++;
+    std::atomic_signal_fence(std::memory_order_acq_rel);
   }
   void finish() {
+    std::atomic_signal_fence(std::memory_order_acq_rel);
     PROFILER_ASSERT(1 <= threadDepth());
     --threadDepth();
     _t1 = Rdtsc::now();
