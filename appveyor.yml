@@ -1,0 +1,26 @@
+environment:
+  matrix:
+    - solution_name: C:/projects/profiler/build/profiler.sln
+
+platform:
+  - x64
+
+configuration:
+  - Debug
+  - Release
+
+before_build:
+  - mkdir build
+  - cd build
+  - cmake .. -G "Visual Studio 14 2015 Win64" -DBOOST_ROOT="C:/Libraries/boost_1_63_0" -DBoost_COMPILER=-vc140 -DBoost_USE_STATIC_LIBS=OFF -DBoost_USE_STATIC_RUNTIME=OFF -DBoost_LIBRARY_DIR="C:/Libraries/boost_1_63_0/lib64-msvc-14.0"
+
+build_script:
+  - msbuild %solution_name%
+
+before_test:
+  - set PATH=%PATH%;C:\\Libraries\\boost_1_63_0\\lib64-msvc-14.0
+
+test_script:
+  - tests\%CONFIGURATION%\unit_tests.exe --log_level=test_suite
+  - tests\%CONFIGURATION%\stress_tests.exe --log_level=test_suite
+  - examples\%CONFIGURATION%\basic1.exe
