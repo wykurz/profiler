@@ -5,24 +5,19 @@
 #include <string>
 
 namespace Profiler {
-namespace Config {
 
 struct Config {
-  explicit Config(std::string binaryLogPrefix_ = ".cxxperf-log",
-                  std::string binaryLogDir_ = ".",
-                  std::string yamlLogName_ = "cxxperf-log.yaml")
-      : binaryLogPrefix(std::move(binaryLogPrefix_)),
-        binaryLogDir(std::move(binaryLogDir_)),
-        yamlLogName(std::move(yamlLogName_)) {}
-
   bool operator!=(const Config &other_) const {
     return binaryLogPrefix != other_.binaryLogPrefix ||
+           binaryLogDir != other_.binaryLogDir ||
            yamlLogName != other_.yamlLogName;
   }
+  static const Config &getConfig();
+  static void setConfig(const Config &config_);
 
-  const std::string binaryLogPrefix;
-  const std::string binaryLogDir;
-  const std::string yamlLogName;
+  std::string binaryLogPrefix = ".cxxperf-log";
+  std::string binaryLogDir = ".";
+  std::string yamlLogName = "cxxperf-log.yaml";
 };
 
 namespace Internal {
@@ -30,21 +25,19 @@ namespace Internal {
 inline Config defaultConfig() { return Config(); }
 
 inline const Config &doGetConfig(const Config &config_ = defaultConfig()) {
-  static Config config(config_);
+  static const Config config(config_);
   return config;
 }
 } // namespace Internal
 
-inline const Config &getConfig() { return Internal::doGetConfig(); }
+inline const Config &Config::getConfig() { return Internal::doGetConfig(); }
 
-inline const Config &setConfig(const Config &config_) {
+inline void Config::setConfig(const Config &config_) {
   auto &config = Internal::doGetConfig(config_);
   if (config != config_)
     throw Exception::Runtime(
         "Config appears to have been already set to a different value");
-  return config;
 }
-} // namespace Config
 } // namespace Profiler
 
 #endif

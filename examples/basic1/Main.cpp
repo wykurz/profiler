@@ -1,5 +1,4 @@
-#include <Profiler/Decoder/Decoder.h>
-#include <Profiler/Instrumentation/StatsScope.h>
+#include <Profiler/Api.h>
 
 void f1() { STATS_SCOPE(); }
 
@@ -15,15 +14,15 @@ void f3() {
 }
 
 int main() {
-  auto logFilePrefix = ".my.perf.log";
-  auto binaryLogDir = ".";
-  auto yamlFileName = "my.perf.yaml";
-  Profiler::Config::setConfig(
-      Profiler::Config::Config(logFilePrefix, binaryLogDir, yamlFileName));
-  Profiler::Control::primeThreadRecords();
+  Profiler::Config config;
+  config.binaryLogPrefix = ".my.perf.log";
+  config.binaryLogDir = ".";
+  config.yamlLogName = "my.perf.yaml";
+  Profiler::setup(config);
+  Profiler::primeThreadRecords();
   f3();
-  Profiler::Control::getManager().stopWriter();
-  Profiler::Decoder::Decoder decoder(Profiler::Config::getConfig());
+  Profiler::stopWriter();
+  Profiler::Decoder decoder(config);
   decoder.run();
   return 0;
 }

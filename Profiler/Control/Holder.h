@@ -131,7 +131,7 @@ struct FileOutputs : OutputFactory {
   }
 
 private:
-  const Config::Config &_config;
+  const Config &_config;
 };
 } // namespace Control
 } // namespace Profiler

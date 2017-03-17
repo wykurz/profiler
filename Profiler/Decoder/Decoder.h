@@ -17,17 +17,6 @@
 #include <vector>
 
 namespace Profiler {
-namespace Decoder {
-
-template <typename Record_> void setupStream(std::ostream &out_) {
-  const std::string &recordTypeName = typeid(Record_).name();
-  DLOG("Setup: " << recordTypeName.size() << " " << recordTypeName << " "
-                 << std::size_t(&out_))
-  const std::size_t &nameSize = recordTypeName.size();
-  out_.write(reinterpret_cast<const char *>(&nameSize), sizeof(nameSize));
-  out_ << recordTypeName;
-  Record_::preamble(out_);
-}
 
 namespace fs = boost::filesystem;
 
@@ -66,6 +55,15 @@ struct Decoder {
       (it->second)(input, _out);
     }
   }
+  template <typename Record_> static void setupStream(std::ostream &out_) {
+    const std::string &recordTypeName = typeid(Record_).name();
+    DLOG("Setup: " << recordTypeName.size() << " " << recordTypeName << " "
+         << std::size_t(&out_))
+      const std::size_t &nameSize = recordTypeName.size();
+    out_.write(reinterpret_cast<const char *>(&nameSize), sizeof(nameSize));
+    out_ << recordTypeName;
+    Record_::preamble(out_);
+  }
 
 private:
   template <typename RecordTypes_>
@@ -85,7 +83,6 @@ private:
   std::ofstream _out;
   std::vector<std::ifstream> _inputs;
 };
-} // namespace Decoder
 } // namespace Profiler
 
 #endif
