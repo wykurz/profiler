@@ -1,7 +1,7 @@
 #ifndef _PROFILER_QUEUE_QUEUE_H
 #define _PROFILER_QUEUE_QUEUE_H
 
-#include <Profiler/Exception/Exception.h>
+#include <Profiler/Exception.h>
 #include <Profiler/Queue/TaggedPtr.h>
 #include <atomic>
 

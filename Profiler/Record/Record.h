@@ -3,9 +3,9 @@
 
 #include <Profiler/Algorithm/Mpl.h>
 #include <Profiler/Algorithm/Stream.h>
-#include <Profiler/Exception/Exception.h>
+#include <Profiler/Exception.h>
 #include <Profiler/Instrumentation/Time.h>
-#include <Profiler/Log/Log.h>
+#include <Profiler/Log.h>
 #include <atomic>
 #include <chrono>
 #include <istream>

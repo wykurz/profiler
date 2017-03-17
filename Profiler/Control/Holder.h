@@ -1,9 +1,9 @@
 #ifndef _PROFILER_CONTROL_HOLDER_H
 #define _PROFILER_CONTROL_HOLDER_H
 
-#include <Profiler/Config/Config.h>
+#include <Profiler/Config.h>
 #include <Profiler/Control/RecordManager.h>
-#include <Profiler/Decoder/Decoder.h>
+#include <Profiler/Decoder.h>
 #include <atomic>
 #include <memory>
 #include <mutex>

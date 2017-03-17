@@ -1,8 +1,8 @@
 #ifndef _PROFILER_ALGORITHM_STREAM_H
 #define _PROFILER_ALGORITHM_STREAM_H
 
-#include <Profiler/Exception/Exception.h>
-#include <Profiler/Log/Log.h>
+#include <Profiler/Exception.h>
+#include <Profiler/Log.h>
 #include <cstring>
 #include <istream>
 #include <ostream>

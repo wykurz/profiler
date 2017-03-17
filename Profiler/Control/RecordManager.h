@@ -2,8 +2,8 @@
 #define _PROFILER_CONTROL_RECORDMANAGER_H
 
 #include <Profiler/Control/Arena.h>
-#include <Profiler/Exception/Exception.h>
-#include <Profiler/Log/Log.h>
+#include <Profiler/Exception.h>
+#include <Profiler/Log.h>
 #include <Profiler/Queue/Queue.h>
 #include <Profiler/Record/Record.h>
 #include <memory>

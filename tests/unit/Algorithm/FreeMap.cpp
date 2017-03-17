@@ -1,5 +1,5 @@
 #include <Profiler/Algorithm/FreeMap.h>
-#include <Profiler/Exception/Exception.h>
+#include <Profiler/Exception.h>
 #include <boost/test/unit_test.hpp>
 
 namespace Profiler {

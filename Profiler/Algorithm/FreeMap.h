@@ -1,9 +1,9 @@
 #ifndef _PROFILER_ALGORITHM_FREEMAP_H
 #define _PROFILER_ALGORITHM_FREEMAP_H
 
-#include <Profiler/Exception/Exception.h>
+#include <Profiler/Exception.h>
 #include <Profiler/Intrinsics.h>
-#include <Profiler/Log/Log.h>
+#include <Profiler/Log.h>
 #include <algorithm>
 #include <array>
 #include <atomic>

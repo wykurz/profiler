@@ -6,7 +6,7 @@
 #include <Profiler/Defines.h>
 #include <Profiler/Instrumentation/StatsScope.h>
 #include <Profiler/Instrumentation/Time.h>
-#include <Profiler/Log/Log.h>
+#include <Profiler/Log.h>
 #include <Profiler/Record/Record.h>
 
 namespace Profiler {

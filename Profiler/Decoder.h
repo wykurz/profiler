@@ -3,10 +3,10 @@
 
 #include <Profiler/Algorithm/Mpl.h>
 #include <Profiler/Algorithm/Stream.h>
-#include <Profiler/Config/Config.h>
-#include <Profiler/Decoder/Decoder.h>
-#include <Profiler/Exception/Exception.h>
-#include <Profiler/Log/Log.h>
+#include <Profiler/Config.h>
+#include <Profiler/Decoder.h>
+#include <Profiler/Exception.h>
+#include <Profiler/Log.h>
 #include <Profiler/Record/Record.h>
 #include <boost/filesystem.hpp>
 #include <fstream>
@@ -58,8 +58,8 @@ struct Decoder {
   template <typename Record_> static void setupStream(std::ostream &out_) {
     const std::string &recordTypeName = typeid(Record_).name();
     DLOG("Setup: " << recordTypeName.size() << " " << recordTypeName << " "
-         << std::size_t(&out_))
-      const std::size_t &nameSize = recordTypeName.size();
+                   << std::size_t(&out_))
+    const std::size_t &nameSize = recordTypeName.size();
     out_.write(reinterpret_cast<const char *>(&nameSize), sizeof(nameSize));
     out_ << recordTypeName;
     Record_::preamble(out_);

@@ -1,7 +1,7 @@
 #ifndef _PROFILER_QUEUE_TAGGEDPTR_H
 #define _PROFILER_QUEUE_TAGGEDPTR_H
 
-#include <Profiler/Exception/Exception.h>
+#include <Profiler/Exception.h>
 
 namespace Profiler {
 namespace Queue {

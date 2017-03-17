@@ -1,7 +1,7 @@
 #ifndef _PROFILER_CONTROL_MANAGER_H
 #define _PROFILER_CONTROL_MANAGER_H
 
-#include <Profiler/Config/Config.h>
+#include <Profiler/Config.h>
 #include <Profiler/Control/Allocation.h>
 #include <Profiler/Control/Arena.h>
 #include <Profiler/Control/Holder.h>

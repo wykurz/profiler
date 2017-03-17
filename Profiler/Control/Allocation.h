@@ -4,7 +4,7 @@
 #include <Profiler/Control/Arena.h>
 #include <Profiler/Control/Holder.h>
 #include <Profiler/Control/RecordManager.h>
-#include <Profiler/Exception/Exception.h>
+#include <Profiler/Exception.h>
 #include <atomic>
 #include <mutex>
 

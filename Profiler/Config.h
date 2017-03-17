@@ -1,7 +1,7 @@
 #ifndef _PROFILER_CONFIG_CONFIG_H
 #define _PROFILER_CONFIG_CONFIG_H
 
-#include <Profiler/Exception/Exception.h>
+#include <Profiler/Exception.h>
 #include <string>
 
 namespace Profiler {

@@ -30,8 +30,6 @@ struct LogicError : public std::logic_error {
     throw Profiler::Exception::Runtime(ss.str());                              \
   } while (false);
 
-// TODO(mateusz): Replace all assertions with this.
-
 #ifdef DEBUG
 #define PROFILER_ASSERT(x)                                                     \
   if (!(x)) {                                                                  \

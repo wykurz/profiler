@@ -2,7 +2,7 @@
 #define _PROFILER_CONTROL_ARENA_H
 
 #include <Profiler/Algorithm/FreeMap.h>
-#include <Profiler/Exception/Exception.h>
+#include <Profiler/Exception.h>
 #include <array>
 #include <cstddef>
 #include <memory>
