@@ -32,7 +32,7 @@ template <typename Record_> ThreadRecords<Record_> &getThreadRecords() {
 }
 
 // TODO(mateusz): measure and document the cost of this call
-template <typename RecordTypes_ = Mpl::TypeList<>> void primeThreadRecords() {
+template <typename RecordTypes_ = Mpl::TypeList<>> void primeThisThread() {
   auto requestRecordType = [](auto dummy_) {
     using RecordType = typename decltype(dummy_)::Type;
     getThreadRecords<RecordType>();

@@ -19,7 +19,7 @@ int main() {
   config.binaryLogDir = ".";
   config.yamlLogName = "my.perf.yaml";
   Profiler::setup(config);
-  Profiler::primeThreadRecords();
+  Profiler::primeThisThread();
   f3();
   Profiler::stopWriter();
   Profiler::Decoder decoder(config);

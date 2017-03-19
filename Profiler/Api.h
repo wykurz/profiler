@@ -8,7 +8,7 @@
 namespace Profiler {
 
 inline void setup(const Config &config_) { Config::setConfig(config_); }
-inline void primeThreadRecords() { Profiler::Control::primeThreadRecords(); }
+inline void primeThisThread() { Profiler::Control::primeThisThread(); }
 inline void stopWriter() { Profiler::Control::getManager().stopWriter(); }
 } // namespace Profiler
 
