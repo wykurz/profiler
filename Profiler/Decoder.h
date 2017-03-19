@@ -22,7 +22,7 @@ namespace fs = boost::filesystem;
 
 struct Decoder {
   using DecodeFunc = std::function<void(std::istream &, std::ostream &)>;
-  explicit Decoder(const Config::Config &config_)
+  explicit Decoder(const Config &config_)
       : _funcMap(genFuncMap<Mpl::TypeList<>>()),
         _out(config_.yamlLogName, std::fstream::trunc) {
     const fs::path logDir(config_.binaryLogDir);

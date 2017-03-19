@@ -15,7 +15,7 @@ namespace Control {
 struct Manager {
   static constexpr std::size_t MaxThreads = 1024;
 
-  explicit Manager(const Config::Config &config_, bool startWriter_ = true)
+  explicit Manager(const Config &config_, bool startWriter_ = true)
       : _fileOutputs(config_),
         _writer(_threadArray, std::chrono::microseconds(100000)) {
     if (startWriter_) {

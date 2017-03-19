@@ -124,7 +124,7 @@ private:
 } // namespace Internal
 
 struct FileOutputs : OutputFactory {
-  explicit FileOutputs(const Config::Config &config_) : _config(config_) {}
+  explicit FileOutputs(const Config &config_) : _config(config_) {}
   Output::Ptr newOutput(std::size_t extractorId_) const override {
     return std::make_unique<Internal::FileOut>(_config.binaryLogPrefix + "." +
                                                std::to_string(extractorId_));
