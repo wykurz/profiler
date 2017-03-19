@@ -15,10 +15,10 @@
 namespace Profiler {
 namespace Record {
 
-struct TimeRecord {
+struct TimeScopeRecord {
   using Rdtsc = Instrumentation::Rdtsc;
   using TimePoint = Rdtsc::TimePoint;
-  explicit TimeRecord(const char *name_) : _name(name_), _t0(Rdtsc::now()) {
+  explicit TimeScopeRecord(const char *name_) : _name(name_), _t0(Rdtsc::now()) {
     PROFILER_ASSERT(name_);
     _depth = threadDepth()++;
     _seqNum = threadSeqNum()++;
@@ -53,7 +53,7 @@ struct TimeRecord {
     out_ << "- rdtsc: " << rdtscBase.data << "\n";
     out_ << "records:\n";
     while (in_.good() && in_.peek() != EOF) {
-      DLOG("Loop in TimeRecord decode, currently at: " << in_.tellg());
+      DLOG("Loop in TimeScopeRecord decode, currently at: " << in_.tellg());
       auto name = Algorithm::decodeString(in_);
       TimePoint t0;
       TimePoint t1;
@@ -70,7 +70,7 @@ struct TimeRecord {
   }
   bool dirty() const { return nullptr != _name; }
   friend std::ostream &operator<<(std::ostream & /*out_*/,
-                                  const TimeRecord & /*record_*/);
+                                  const TimeScopeRecord & /*record_*/);
 
 private:
   static std::size_t &threadDepth() {
@@ -88,7 +88,7 @@ private:
   std::size_t _seqNum;
 };
 
-inline std::ostream &operator<<(std::ostream &out_, const TimeRecord &record_) {
+inline std::ostream &operator<<(std::ostream &out_, const TimeScopeRecord &record_) {
   Algorithm::encodeString(out_, record_._name);
   out_ << record_._t0 << record_._t1;
   Algorithm::encode(out_, record_._depth);
@@ -96,7 +96,7 @@ inline std::ostream &operator<<(std::ostream &out_, const TimeRecord &record_) {
   return out_;
 }
 
-using NativeRecords = Mpl::TypeList<Record::TimeRecord>;
+using NativeRecords = Mpl::TypeList<Record::TimeScopeRecord>;
 } // namespace Record
 } // namespace Profiler
 

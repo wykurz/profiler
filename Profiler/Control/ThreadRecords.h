@@ -4,7 +4,7 @@
 #include <Profiler/Algorithm/Mpl.h>
 #include <Profiler/Control/Manager.h>
 #include <Profiler/Control/RecordManager.h>
-#include <Profiler/Record/Record.h>
+#include <Profiler/Record/TimeScopeRecord.h>
 #include <memory>
 #include <mutex>
 #include <vector>

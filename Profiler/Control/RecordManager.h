@@ -5,7 +5,7 @@
 #include <Profiler/Exception.h>
 #include <Profiler/Log.h>
 #include <Profiler/Queue/Queue.h>
-#include <Profiler/Record/Record.h>
+#include <Profiler/Record/TimeScopeRecord.h>
 #include <memory>
 #include <ostream>
 #include <vector>
