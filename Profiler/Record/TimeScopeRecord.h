@@ -18,7 +18,8 @@ namespace Record {
 struct TimeScopeRecord {
   using Rdtsc = Instrumentation::Rdtsc;
   using TimePoint = Rdtsc::TimePoint;
-  explicit TimeScopeRecord(const char *name_) : _name(name_), _t0(Rdtsc::now()) {
+  explicit TimeScopeRecord(const char *name_)
+      : _name(name_), _t0(Rdtsc::now()) {
     PROFILER_ASSERT(name_);
     _depth = threadDepth()++;
     _seqNum = threadSeqNum()++;
@@ -88,7 +89,8 @@ private:
   std::size_t _seqNum;
 };
 
-inline std::ostream &operator<<(std::ostream &out_, const TimeScopeRecord &record_) {
+inline std::ostream &operator<<(std::ostream &out_,
+                                const TimeScopeRecord &record_) {
   Algorithm::encodeString(out_, record_._name);
   out_ << record_._t0 << record_._t1;
   Algorithm::encode(out_, record_._depth);
