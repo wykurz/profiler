@@ -27,9 +27,9 @@ struct StatsScope {
   explicit StatsScope(const char *name_) : _record(name_) {}
   ~StatsScope() {
     _record.finish();
-    record(
-        Control::getThreadRecords<Record::RdtscScopeRecord>().getRecordManager(),
-        std::move(_record));
+    record(Control::getThreadRecords<Record::RdtscScopeRecord>()
+               .getRecordManager(),
+           std::move(_record));
   }
 
 private:
