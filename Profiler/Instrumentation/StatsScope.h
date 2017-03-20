@@ -7,7 +7,7 @@
 #include <Profiler/Instrumentation/StatsScope.h>
 #include <Profiler/Instrumentation/Time.h>
 #include <Profiler/Log.h>
-#include <Profiler/Record/TimeScopeRecord.h>
+#include <Profiler/Record/RdtscScopeRecord.h>
 
 namespace Profiler {
 namespace Instrumentation {
@@ -28,12 +28,12 @@ struct StatsScope {
   ~StatsScope() {
     _record.finish();
     record(
-        Control::getThreadRecords<Record::TimeScopeRecord>().getRecordManager(),
+        Control::getThreadRecords<Record::RdtscScopeRecord>().getRecordManager(),
         std::move(_record));
   }
 
 private:
-  Record::TimeScopeRecord _record;
+  Record::RdtscScopeRecord _record;
 };
 } // namespace Instrumentation
 } // namespace Profiler

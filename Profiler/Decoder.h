@@ -7,7 +7,7 @@
 #include <Profiler/Decoder.h>
 #include <Profiler/Exception.h>
 #include <Profiler/Log.h>
-#include <Profiler/Record/TimeScopeRecord.h>
+#include <Profiler/Record/RdtscScopeRecord.h>
 #include <boost/filesystem.hpp>
 #include <fstream>
 #include <functional>

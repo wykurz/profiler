@@ -1,5 +1,5 @@
-#ifndef _PROFILER_RECORD_RECORD_H
-#define _PROFILER_RECORD_RECORD_H
+#ifndef _PROFILER_RECORD_RDTSC_SCOPE_RECORD_H
+#define _PROFILER_RECORD_RDTSC_SCOPE_RECORD_H
 
 #include <Profiler/Algorithm/Mpl.h>
 #include <Profiler/Algorithm/Stream.h>
@@ -15,10 +15,10 @@
 namespace Profiler {
 namespace Record {
 
-struct TimeScopeRecord {
+struct RdtscScopeRecord {
   using Rdtsc = Instrumentation::Rdtsc;
   using TimePoint = Rdtsc::TimePoint;
-  explicit TimeScopeRecord(const char *name_)
+  explicit RdtscScopeRecord(const char *name_)
       : _name(name_), _t0(Rdtsc::now()) {
     PROFILER_ASSERT(name_);
     _depth = threadDepth()++;
@@ -54,7 +54,7 @@ struct TimeScopeRecord {
     out_ << "- rdtsc: " << rdtscBase.data << "\n";
     out_ << "records:\n";
     while (in_.good() && in_.peek() != EOF) {
-      DLOG("Loop in TimeScopeRecord decode, currently at: " << in_.tellg());
+      DLOG("Loop in RdtscScopeRecord decode, currently at: " << in_.tellg());
       auto name = Algorithm::decodeString(in_);
       TimePoint t0;
       TimePoint t1;
@@ -71,7 +71,7 @@ struct TimeScopeRecord {
   }
   bool dirty() const { return nullptr != _name; }
   friend std::ostream &operator<<(std::ostream & /*out_*/,
-                                  const TimeScopeRecord & /*record_*/);
+                                  const RdtscScopeRecord & /*record_*/);
 
 private:
   static std::size_t &threadDepth() {
@@ -90,7 +90,7 @@ private:
 };
 
 inline std::ostream &operator<<(std::ostream &out_,
-                                const TimeScopeRecord &record_) {
+                                const RdtscScopeRecord &record_) {
   Algorithm::encodeString(out_, record_._name);
   out_ << record_._t0 << record_._t1;
   Algorithm::encode(out_, record_._depth);
@@ -98,7 +98,7 @@ inline std::ostream &operator<<(std::ostream &out_,
   return out_;
 }
 
-using NativeRecords = Mpl::TypeList<Record::TimeScopeRecord>;
+using NativeRecords = Mpl::TypeList<Record::RdtscScopeRecord>;
 } // namespace Record
 } // namespace Profiler
 

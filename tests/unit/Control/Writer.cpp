@@ -43,10 +43,10 @@ BOOST_AUTO_TEST_CASE(Basic) {
   MockOutputs outputs;
   {
     holderArray[0].setOut(outputs.newOutput(0));
-    ThreadRecords<Record::TimeScopeRecord> threadRecords(
+    ThreadRecords<Record::RdtscScopeRecord> threadRecords(
         Allocation({}, arena, holderArray[0]));
     {
-      Record::TimeScopeRecord record("test");
+      Record::RdtscScopeRecord record("test");
       record.finish();
       Instrumentation::record(threadRecords.getRecordManager(),
                               std::move(record));
