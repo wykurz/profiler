@@ -10,7 +10,7 @@ struct Config {
   Config() = default;
   Config(const Config &) = default;
   bool operator!=(const Config &other_) const {
-    return instanceName != other_.instanceName ||
+    return instanceId != other_.instanceId ||
            binaryLogPrefix != other_.binaryLogPrefix ||
            binaryLogDir != other_.binaryLogDir ||
            yamlLogName != other_.yamlLogName;
@@ -18,7 +18,11 @@ struct Config {
   static const Config &getConfig();
   static void setConfig(const Config &config_);
 
-  std::string instanceName = "instance-0";
+  /**
+   * Instance id is used when synchronizing async records across multiple
+   * processes.
+   */
+  std::size_t instanceId = 0;
   std::string binaryLogPrefix = ".cxxperf-log";
   std::string binaryLogDir = ".";
   std::string yamlLogName = "cxxperf-log.yaml";
