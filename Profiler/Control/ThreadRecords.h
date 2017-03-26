@@ -15,10 +15,11 @@ namespace Control {
 template <typename Record_> struct ThreadRecords {
   using RecordManagerType = RecordManager<Record_>;
   explicit ThreadRecords(const Allocation &allocation_)
-      : _recordManager(allocation_.getArena()),
+      : id(allocation_.id), _recordManager(allocation_.getArena()),
         _finalizer(allocation_.setupHolder(_recordManager)) {}
   ThreadRecords(const ThreadRecords &) = delete;
   RecordManagerType &getRecordManager() { return _recordManager; }
+  const std::size_t id;
 
 private:
   RecordManager<Record_> _recordManager;

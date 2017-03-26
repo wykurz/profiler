@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(Basic) {
   {
     holderArray[0].setOut(outputs.newOutput(0));
     ThreadRecords<Record::RdtscScopeRecord> threadRecords(
-        Allocation({}, arena, holderArray[0]));
+        Allocation(0, {}, arena, holderArray[0]));
     {
       Record::RdtscScopeRecord record("test");
       record.finish();

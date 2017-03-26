@@ -6,6 +6,7 @@
 #include <Profiler/Exception.h>
 #include <Profiler/Instrumentation/Time.h>
 #include <Profiler/Log.h>
+#include <Profiler/Record/RdtscRecordCommon.h>
 #include <atomic>
 #include <chrono>
 #include <istream>
@@ -31,27 +32,9 @@ struct RdtscScopeRecord {
     --threadDepth();
     _t1 = Rdtsc::now();
   }
-  static void preamble(std::ostream &out_) {
-    // Measure:
-    auto hiResNow = std::chrono::high_resolution_clock::now();
-    auto rdtscNow = Rdtsc::now();
-    // Serialize:
-    auto nanosecondDuration = [](const auto &duration_) {
-      return std::chrono::duration_cast<std::chrono::nanoseconds>(duration_)
-          .count();
-    };
-    std::uint64_t timeReference =
-        nanosecondDuration(hiResNow.time_since_epoch());
-    Algorithm::encode(out_, timeReference);
-    out_ << rdtscNow;
-  }
+  static void preamble(std::ostream &out_) { rdtscPreamble(out_); }
   static void decode(std::istream &in_, std::ostream &out_) {
-    auto timeReference = Algorithm::decode<std::uint64_t>(in_);
-    out_ << "time_reference:\n";
-    out_ << "- time: " << timeReference << "\n";
-    Rdtsc::TimePoint rdtscBase;
-    in_ >> rdtscBase;
-    out_ << "- rdtsc: " << rdtscBase.data << "\n";
+    decodeRdtscReference(in_, out_);
     out_ << "records:\n";
     while (in_.good() && in_.peek() != EOF) {
       DLOG("Loop in RdtscScopeRecord decode, currently at: " << in_.tellg());
@@ -82,7 +65,7 @@ private:
     thread_local std::size_t value;
     return value;
   }
-  const char *_name = nullptr;
+  const char *_name;
   TimePoint _t0;
   TimePoint _t1;
   std::size_t _depth;

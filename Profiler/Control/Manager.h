@@ -15,9 +15,8 @@ namespace Control {
 struct Manager {
   static constexpr std::size_t MaxThreads = 1024;
 
-  explicit Manager(const Config &config_, bool startWriter_ = true)
-      : _fileOutputs(config_),
-        _writer(_threadArray, std::chrono::microseconds(100000)) {
+  explicit Manager(Config config_, bool startWriter_ = true)
+      : _config(std::move(config_)) {
     if (startWriter_) {
       _writerThread = std::thread([this]() { this->_writer.run(); });
       _writerStarted = true;
@@ -38,7 +37,7 @@ struct Manager {
       auto out = _fileOutputs.newOutput(id);
       Decoder::setupStream<Record_>(out->get());
       holder.setOut(std::move(out));
-      return {std::move(lk), _arena, holder};
+      return {id, std::move(lk), _arena, holder};
     }
     ++_droppedThreads;
     return {};
@@ -77,6 +76,12 @@ struct Manager {
     _writer.finalPass();
   }
 
+  /**
+   * Capture per-process instance name. It's particularly useful when
+   * identifying the begin of an async record if it crosses process boundaries.
+   */
+  const std::string &name() { return _config.instanceName; }
+
 private:
   Arena _arena{100000};
   Arena _empty{0};
@@ -84,8 +89,9 @@ private:
   std::atomic<int> _currentThread = {0};
   HolderArray _threadArray{MaxThreads};
   std::size_t _droppedThreads = {0};
-  FileOutputs _fileOutputs;
-  Writer _writer;
+  const Config _config;
+  FileOutputs _fileOutputs{_config};
+  Writer _writer{_threadArray, std::chrono::microseconds(100000)};
   std::thread _writerThread;
   bool _writerStarted = false;
 };

@@ -22,7 +22,6 @@ struct Output {
 // a reference to Holder.
 
 struct Holder {
-  using Ptr = std::unique_ptr<Holder, void (*)(Holder *)>;
   std::unique_lock<std::mutex> lock() {
     return std::unique_lock<std::mutex>(*_lock);
   }
