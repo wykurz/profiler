@@ -1,4 +1,4 @@
-#include <Profiler/Instrumentation/StatsScope.h>
+#include <Profiler/Instrumentation/ProfilerScope.h>
 #include <benchmark/benchmark.h>
 
 namespace Profiler {
@@ -11,7 +11,7 @@ void statsScopeTest(benchmark::State &state_) {
   long processed = 0;
   while (state_.KeepRunning()) {
     for (int i = 0; i < queryCount_; ++i)
-      STATS_SCOPE();
+      PROFILER_SCOPE();
     state_.PauseTiming();
     processed += queryCount_;
     Profiler::Control::getManager().writerFinalPass();
@@ -20,11 +20,12 @@ void statsScopeTest(benchmark::State &state_) {
   state_.SetItemsProcessed(processed);
 }
 
-struct StatsScopeFixture : public ::benchmark::Fixture {};
+struct ProfilerScopeFixture : public ::benchmark::Fixture {};
 
-BENCHMARK_DEFINE_F(StatsScopeFixture, StatsScopeTest)
+BENCHMARK_DEFINE_F(ProfilerScopeFixture, ProfilerScopeTest)
 (benchmark::State &state_) { statsScopeTest(state_); }
-BENCHMARK_REGISTER_F(StatsScopeFixture, StatsScopeTest)->Range(1, 1 << 20);
+BENCHMARK_REGISTER_F(ProfilerScopeFixture, ProfilerScopeTest)
+    ->Range(1, 1 << 20);
 } // namespace Test
 } // namespace Instrumentation
 } // namespace Profiler

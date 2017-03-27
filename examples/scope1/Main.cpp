@@ -1,14 +1,14 @@
 #include <Profiler/Api.h>
 
-void f1() { STATS_SCOPE(); }
+void f1() { PROFILER_SCOPE(); }
 
 void f2() {
-  STATS_SCOPE();
+  PROFILER_SCOPE();
   f1();
 }
 
 void f3() {
-  STATS_SCOPE();
+  PROFILER_SCOPE();
   f2();
   f1();
 }

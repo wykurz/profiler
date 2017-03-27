@@ -1,7 +1,7 @@
 #include <Profiler/Control/Holder.h>
 #include <Profiler/Control/ThreadRecords.h>
 #include <Profiler/Control/Writer.h>
-#include <Profiler/Instrumentation/StatsScope.h>
+#include <Profiler/Instrumentation/ProfilerScope.h>
 #include <boost/test/unit_test.hpp>
 #include <thread>
 #include <unordered_map>

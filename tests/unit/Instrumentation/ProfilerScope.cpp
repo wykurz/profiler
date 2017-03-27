@@ -1,5 +1,5 @@
 #include <Profiler/Control/Manager.h>
-#include <Profiler/Instrumentation/StatsScope.h>
+#include <Profiler/Instrumentation/ProfilerScope.h>
 #include <boost/test/unit_test.hpp>
 
 namespace Profiler {
@@ -9,7 +9,7 @@ namespace Test {
 namespace {
 
 int testFunc2() {
-  STATS_SCOPE();
+  PROFILER_SCOPE();
   int mod = 107;
   int res = 1;
   for (int i = 2; i < 1e7; ++i)
@@ -18,7 +18,7 @@ int testFunc2() {
 }
 
 void testFunc1() {
-  STATS_SCOPE();
+  PROFILER_SCOPE();
   testFunc2();
   testFunc2();
 }
@@ -28,7 +28,7 @@ struct Fixture {
 };
 } // namespace
 
-BOOST_FIXTURE_TEST_SUITE(StatsScopeTests, Fixture)
+BOOST_FIXTURE_TEST_SUITE(ProfilerScopeTests, Fixture)
 
 BOOST_AUTO_TEST_CASE(Basic) {
   testFunc1();

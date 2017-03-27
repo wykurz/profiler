@@ -22,9 +22,9 @@ void record(Control::RecordManager<Record_> &recordManager_,
   *record = std::forward<Record_>(record_);
 }
 
-struct StatsScope {
-  explicit StatsScope(const char *name_) : _record(name_) {}
-  ~StatsScope() {
+struct ProfilerScope {
+  explicit ProfilerScope(const char *name_) : _record(name_) {}
+  ~ProfilerScope() {
     _record.finish();
     record(Control::getThreadRecords<Record::RdtscScopeRecord>()
                .getRecordManager(),
@@ -37,17 +37,17 @@ private:
 } // namespace Instrumentation
 } // namespace Profiler
 
-#ifndef NO_MACROS
+#ifndef PROFILER_NO_MACROS
 
 #define _CAT(a, b) _CAT_I(a, b)
 #define _CAT_I(a, b) _CAT_II(~, a##b)
 #define _CAT_II(p, res) res
 #define _UNIQUE_NAME(base) _CAT(base, __COUNTER__)
 
-#define STATS_SCOPE_EX(name)                                                   \
-  Profiler::Instrumentation::StatsScope _UNIQUE_NAME(statsScope)(name)
-#define STATS_SCOPE() STATS_SCOPE_EX(PROFILER_FUNCTION)
+#define PROFILER_SCOPE_EX(name)                                                \
+  Profiler::Instrumentation::ProfilerScope _UNIQUE_NAME(statsScope)(name)
+#define PROFILER_SCOPE() PROFILER_SCOPE_EX(PROFILER_FUNCTION)
 
-#endif // NO_MACROS
+#endif // PROFILER_NO_MACROS
 
 #endif

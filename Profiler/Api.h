@@ -3,7 +3,7 @@
 
 #include <Profiler/Config.h>
 #include <Profiler/Decoder.h>
-#include <Profiler/Instrumentation/StatsScope.h>
+#include <Profiler/Instrumentation/ProfilerScope.h>
 
 namespace Profiler {
 
