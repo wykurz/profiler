@@ -8,9 +8,9 @@
 namespace Profiler {
 namespace Record {
 
-using NativeRecords = Mpl::TypeList<Record::RdtscAsyncRecordStart,
-                                    Record::RdtscAsyncRecordEnd,
-                                    Record::RdtscScopeRecord>;
+using NativeRecords =
+    Mpl::TypeList<Record::RdtscAsyncRecordStart, Record::RdtscAsyncRecordEnd,
+                  Record::RdtscScopeRecord>;
 } // namespace Record
 } // namespace Profiler
 

@@ -87,7 +87,7 @@ struct RdtscAsyncRecordEnd {
   using Rdtsc = Instrumentation::Rdtsc;
   using TimePoint = Rdtsc::TimePoint;
   RdtscAsyncRecordEnd(const char *name_, AsyncId asyncId_)
-      : _name(name_), _asyncId(asyncId_), _time(Rdtsc::now()) {
+      : _name(name_), _asyncId(std::move(asyncId_)), _time(Rdtsc::now()) {
     PROFILER_ASSERT(name_);
     std::atomic_signal_fence(std::memory_order_acq_rel);
   }
