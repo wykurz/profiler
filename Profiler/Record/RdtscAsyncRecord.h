@@ -106,11 +106,9 @@ struct RdtscAsyncRecordEnd {
       TimePoint time;
       in_ >> time;
       out_ << "- name: " << name << "\n";
-
       out_ << "  async_id:\n";
       out_ << "    instance: " << asyncId.instanceId << "\n";
       out_ << "    recorder: " << asyncId.recorderId << "\n";
-
       out_ << "  time: " << time.data << "\n";
     }
   }
@@ -131,9 +129,6 @@ inline std::ostream &operator<<(std::ostream &out_,
   out_ << record_._time;
   return out_;
 }
-
-// TODO: This must be defined in single place
-// using NativeRecords = Mpl::TypeList<Record::RdtscAsyncRecord>;
 } // namespace Record
 } // namespace Profiler
 

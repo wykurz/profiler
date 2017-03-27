@@ -35,7 +35,7 @@ struct Manager {
       if (!holder.isEmpty())
         continue;
       auto out = _fileOutputs.newOutput(id);
-      Decoder::setupStream<Record_>(out->get());
+      setupStream<Record_>(out->get());
       holder.setOut(std::move(out));
       return {id, std::move(lk), _arena, holder};
     }
@@ -83,6 +83,16 @@ struct Manager {
   const std::size_t &id() { return _config.instanceId; }
 
 private:
+  template <typename Record_> static void setupStream(std::ostream &out_) {
+    const std::string &recordTypeName = typeid(Record_).name();
+    DLOG("Setup: " << recordTypeName.size() << " " << recordTypeName << " "
+                   << std::size_t(&out_))
+    const std::size_t &nameSize = recordTypeName.size();
+    out_.write(reinterpret_cast<const char *>(&nameSize), sizeof(nameSize));
+    out_ << recordTypeName;
+    Record_::preamble(out_);
+  }
+
   Arena _arena{100000};
   Arena _empty{0};
   // TODO(mateusz): Add alignment and padding?

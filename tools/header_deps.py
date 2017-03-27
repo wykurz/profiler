@@ -28,6 +28,7 @@ def parse_includes(filepath):
 def main():
     parser = argparse.ArgumentParser(description='Create dependency graph of your project files.')
     parser.add_argument('root', help='Project root directory.')
+    parser.add_argument('filter', nargs='?', default='.*', help='Filter headers.')
     args = parser.parse_args()
 
     ngraph = nx.DiGraph()

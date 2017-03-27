@@ -80,8 +80,6 @@ inline std::ostream &operator<<(std::ostream &out_,
   Algorithm::encode(out_, record_._seqNum);
   return out_;
 }
-
-using NativeRecords = Mpl::TypeList<Record::RdtscScopeRecord>;
 } // namespace Record
 } // namespace Profiler
 

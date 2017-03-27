@@ -4,10 +4,9 @@
 #include <Profiler/Algorithm/Mpl.h>
 #include <Profiler/Algorithm/Stream.h>
 #include <Profiler/Config.h>
-#include <Profiler/Decoder.h>
 #include <Profiler/Exception.h>
 #include <Profiler/Log.h>
-#include <Profiler/Record/RdtscScopeRecord.h>
+#include <Profiler/Record/Records.h>
 #include <boost/filesystem.hpp>
 #include <fstream>
 #include <functional>
@@ -54,15 +53,6 @@ struct Decoder {
             "Attempting to decode unknown record type: " << recordName);
       (it->second)(input, _out);
     }
-  }
-  template <typename Record_> static void setupStream(std::ostream &out_) {
-    const std::string &recordTypeName = typeid(Record_).name();
-    DLOG("Setup: " << recordTypeName.size() << " " << recordTypeName << " "
-                   << std::size_t(&out_))
-    const std::size_t &nameSize = recordTypeName.size();
-    out_.write(reinterpret_cast<const char *>(&nameSize), sizeof(nameSize));
-    out_ << recordTypeName;
-    Record_::preamble(out_);
   }
 
 private:

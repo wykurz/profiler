@@ -5,7 +5,6 @@
 #include <Profiler/Exception.h>
 #include <Profiler/Log.h>
 #include <Profiler/Queue/Queue.h>
-#include <Profiler/Record/RdtscScopeRecord.h>
 #include <memory>
 #include <ostream>
 #include <vector>

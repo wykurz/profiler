@@ -3,8 +3,8 @@
 
 #include <Profiler/Config.h>
 #include <Profiler/Control/RecordManager.h>
-#include <Profiler/Decoder.h>
 #include <atomic>
+#include <fstream>
 #include <memory>
 #include <mutex>
 
