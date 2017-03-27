@@ -28,14 +28,19 @@ def parse_includes(filepath):
 def main():
     parser = argparse.ArgumentParser(description='Create dependency graph of your project files.')
     parser.add_argument('root', help='Project root directory.')
-    parser.add_argument('filter', nargs='?', default='.*', help='Filter headers.')
+    parser.add_argument('regex', nargs='?', default='.*', help='Filter headers.')
     args = parser.parse_args()
 
     ngraph = nx.DiGraph()
     pgraph = pydot.Dot(graph_type='digraph')
+    regex = re.compile(args.regex)
     for fname in find_files(args.root):
         rel_fname = os.path.relpath(fname, args.root)
+        if not regex.match(rel_fname):
+            continue
         for include in parse_includes(fname):
+            if not regex.match(include):
+                continue
             ngraph.add_edge(rel_fname, include)
             pgraph.add_edge(pydot.Edge(rel_fname, include))
 
