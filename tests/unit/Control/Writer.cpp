@@ -1,7 +1,7 @@
 #include <Profiler/Control/Holder.h>
 #include <Profiler/Control/ThreadRecords.h>
 #include <Profiler/Control/Writer.h>
-#include <Profiler/Instrumentation/ProfilerScope.h>
+#include <Profiler/Instrumentation.h>
 #include <boost/test/unit_test.hpp>
 #include <thread>
 #include <unordered_map>
@@ -48,8 +48,8 @@ BOOST_AUTO_TEST_CASE(Basic) {
     {
       Record::RdtscScopeRecord record("test");
       record.finish();
-      Instrumentation::record(threadRecords.getRecordManager(),
-                              std::move(record));
+      Instrumentation::Internal::doRecord(threadRecords.getRecordManager(),
+                                          std::move(record));
     }
   }
   Writer writer(holderArray, std::chrono::microseconds(100000));

@@ -1,5 +1,5 @@
 #include <Profiler/Control/Manager.h>
-#include <Profiler/Instrumentation/ProfilerScope.h>
+#include <Profiler/Instrumentation.h>
 #include <boost/test/unit_test.hpp>
 
 namespace Profiler {

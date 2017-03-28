@@ -4,8 +4,8 @@
 #include <Profiler/Algorithm/Mpl.h>
 #include <Profiler/Algorithm/Stream.h>
 #include <Profiler/Exception.h>
-#include <Profiler/Instrumentation/Time.h>
 #include <Profiler/Log.h>
+#include <Profiler/Rdtsc.h>
 #include <Profiler/Record/RdtscRecordCommon.h>
 #include <atomic>
 #include <chrono>

@@ -2,8 +2,8 @@
 #define _PROFILER_RECORD_RDTSCRECORDCOMMON_H
 
 #include <Profiler/Algorithm/Stream.h>
-#include <Profiler/Instrumentation/Time.h>
 #include <Profiler/Log.h>
+#include <Profiler/Rdtsc.h>
 #include <atomic>
 #include <chrono>
 #include <istream>

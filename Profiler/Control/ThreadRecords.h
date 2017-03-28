@@ -4,7 +4,6 @@
 #include <Profiler/Algorithm/Mpl.h>
 #include <Profiler/Control/Manager.h>
 #include <Profiler/Control/RecordManager.h>
-#include <Profiler/Record/Records.h>
 #include <memory>
 #include <mutex>
 #include <vector>
@@ -33,12 +32,11 @@ template <typename Record_> ThreadRecords<Record_> &getThreadRecords() {
 }
 
 // TODO(mateusz): measure and document the cost of this call
-template <typename RecordTypes_ = Mpl::TypeList<>> void primeThisThread() {
+template <typename RecordTypes_> void primeThisThread() {
   auto requestRecordType = [](auto dummy_) {
     using RecordType = typename decltype(dummy_)::Type;
     getThreadRecords<RecordType>();
   };
-  Mpl::apply<Record::NativeRecords>(requestRecordType);
   Mpl::apply<RecordTypes_>(requestRecordType);
 }
 } // namespace Control

@@ -1,4 +1,4 @@
-#include <Profiler/Instrumentation/ProfilerScope.h>
+#include <Profiler/Instrumentation.h>
 #include <benchmark/benchmark.h>
 
 namespace Profiler {

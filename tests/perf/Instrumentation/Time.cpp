@@ -1,4 +1,4 @@
-#include <Profiler/Instrumentation/Time.h>
+#include <Profiler/Rdtsc.h>
 #include <benchmark/benchmark.h>
 
 namespace Profiler {

@@ -4,9 +4,10 @@
 #include <Profiler/Algorithm/Mpl.h>
 #include <Profiler/Algorithm/Stream.h>
 #include <Profiler/Control/Manager.h>
+#include <Profiler/Control/ThreadRecords.h>
 #include <Profiler/Exception.h>
-#include <Profiler/Instrumentation/Time.h>
 #include <Profiler/Log.h>
+#include <Profiler/Rdtsc.h>
 #include <Profiler/Record/RdtscRecordCommon.h>
 #include <atomic>
 #include <chrono>
@@ -37,9 +38,9 @@ inline std::istream &operator>>(std::istream &in_, AsyncId &asyncId_) {
 
 struct RdtscAsyncRecordStart {
   using Rdtsc = Instrumentation::Rdtsc;
+  using This = RdtscAsyncRecordStart;
   using TimePoint = Rdtsc::TimePoint;
-  RdtscAsyncRecordStart(const char *name_, std::size_t recorderId_)
-      : _name(name_), _recorderId(recorderId_), _time(Rdtsc::now()) {
+  RdtscAsyncRecordStart(const char *name_) : _name(name_) {
     PROFILER_ASSERT(name_);
     std::atomic_signal_fence(std::memory_order_acq_rel);
   }
@@ -64,15 +65,15 @@ struct RdtscAsyncRecordStart {
       out_ << "  time: " << time.data << "\n";
     }
   }
-
   bool dirty() const { return nullptr != _name; }
+  AsyncId asyncId() const { return {Control::getManager().id(), _recorderId}; }
   friend std::ostream &operator<<(std::ostream & /*out_*/,
                                   const RdtscAsyncRecordStart & /*record_*/);
 
 protected:
-  const char *const _name;
-  const std::size_t _recorderId;
-  TimePoint _time;
+  const char *_name;
+  std::size_t _recorderId = Control::getThreadRecords<This>().id;
+  TimePoint _time = Rdtsc::now();
 };
 
 inline std::ostream &operator<<(std::ostream &out_,

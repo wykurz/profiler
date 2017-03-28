@@ -1,19 +1,21 @@
-#ifndef _PROFILER_INSTRUMENTATION_STATSSCOPE_H
-#define _PROFILER_INSTRUMENTATION_STATSSCOPE_H
+#ifndef _PROFILER_INSTRUMENTATION_PROFILERRECORD_H
+#define _PROFILER_INSTRUMENTATION_PROFILERRECORD_H
 
 #include <Profiler/Control/RecordManager.h>
 #include <Profiler/Control/ThreadRecords.h>
 #include <Profiler/Defines.h>
-#include <Profiler/Instrumentation/Time.h>
 #include <Profiler/Log.h>
+#include <Profiler/Rdtsc.h>
+#include <Profiler/Record/RdtscAsyncRecord.h>
 #include <Profiler/Record/RdtscScopeRecord.h>
 
 namespace Profiler {
 namespace Instrumentation {
+namespace Internal {
 
 template <typename Record_>
-void record(Control::RecordManager<Record_> &recordManager_,
-            Record_ &&record_) {
+void doRecord(Control::RecordManager<Record_> &recordManager_,
+              Record_ &&record_) {
   auto record = recordManager_.getRecord();
   if (!record) {
     DLOG("No valid record!");
@@ -21,19 +23,29 @@ void record(Control::RecordManager<Record_> &recordManager_,
   }
   *record = std::forward<Record_>(record_);
 }
+} // namespace Internal
 
 struct ProfilerScope {
   explicit ProfilerScope(const char *name_) : _record(name_) {}
   ~ProfilerScope() {
     _record.finish();
-    record(Control::getThreadRecords<Record::RdtscScopeRecord>()
-               .getRecordManager(),
-           std::move(_record));
+    Internal::doRecord(Control::getThreadRecords<Record::RdtscScopeRecord>()
+                           .getRecordManager(),
+                       std::move(_record));
   }
 
 private:
   Record::RdtscScopeRecord _record;
 };
+
+inline Record::AsyncId recordAsyncStart(const char *name_) {
+  using RecordType = Record::RdtscAsyncRecordStart;
+  auto record = Record::RdtscAsyncRecordStart(name_);
+  auto asyncId = record.asyncId();
+  Internal::doRecord(Control::getThreadRecords<RecordType>().getRecordManager(),
+                     std::move(record));
+  return asyncId;
+}
 } // namespace Instrumentation
 } // namespace Profiler
 
