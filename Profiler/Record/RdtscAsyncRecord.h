@@ -40,7 +40,7 @@ struct RdtscAsyncRecordStart {
   using Rdtsc = Instrumentation::Rdtsc;
   using This = RdtscAsyncRecordStart;
   using TimePoint = Rdtsc::TimePoint;
-  RdtscAsyncRecordStart(const char *name_) : _name(name_) {
+  explicit RdtscAsyncRecordStart(const char *name_) : _name(name_) {
     PROFILER_ASSERT(name_);
     std::atomic_signal_fence(std::memory_order_acq_rel);
   }
