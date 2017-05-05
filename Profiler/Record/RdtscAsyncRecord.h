@@ -62,7 +62,7 @@ struct RdtscAsyncRecordStart {
       in_ >> time;
       out_ << "- name: " << name << "\n";
       out_ << "  recorder: " << recorderId << "\n";
-      out_ << "  time: " << time.data << "\n";
+      out_ << "  rdtsc: " << time.data << "\n";
     }
   }
   bool dirty() const { return nullptr != _name; }
@@ -92,7 +92,10 @@ struct RdtscAsyncRecordEnd {
     PROFILER_ASSERT(name_);
     std::atomic_signal_fence(std::memory_order_acq_rel);
   }
-  static void preamble(std::ostream &out_) { rdtscPreamble(out_); }
+  static void preamble(std::ostream &out_) {
+    Algorithm::encode(out_, Control::getManager().id());
+    rdtscPreamble(out_);
+  }
   static void decode(std::istream &in_, std::ostream &out_) {
     auto instanceId = Algorithm::decode<std::size_t>(in_);
     out_ << "instance: " << instanceId << "\n";
@@ -110,7 +113,7 @@ struct RdtscAsyncRecordEnd {
       out_ << "  async_id:\n";
       out_ << "    instance: " << asyncId.instanceId << "\n";
       out_ << "    recorder: " << asyncId.recorderId << "\n";
-      out_ << "  time: " << time.data << "\n";
+      out_ << "  rdtsc: " << time.data << "\n";
     }
   }
   bool dirty() const { return nullptr != _name; }
@@ -118,7 +121,7 @@ struct RdtscAsyncRecordEnd {
                                   const RdtscAsyncRecordEnd & /*record_*/);
 
 protected:
-  const char *const _name;
+  const char *_name;
   AsyncId _asyncId;
   TimePoint _time;
 };

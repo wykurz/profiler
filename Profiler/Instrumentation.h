@@ -46,6 +46,12 @@ inline Record::AsyncId recordAsyncStart(const char *name_) {
                      std::move(record));
   return asyncId;
 }
+
+inline void recordAsyncEnd(const char *name_, Record::AsyncId asyncId_) {
+  using RecordType = Record::RdtscAsyncRecordEnd;
+  Internal::doRecord(Control::getThreadRecords<RecordType>().getRecordManager(),
+                     Record::RdtscAsyncRecordEnd(name_, asyncId_));
+}
 } // namespace Instrumentation
 } // namespace Profiler
 

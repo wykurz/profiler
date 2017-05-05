@@ -16,6 +16,9 @@ inline void stopWriter() { Profiler::Control::getManager().stopWriter(); }
 inline Record::AsyncId recordAsyncStart(const char *name_) {
   return Instrumentation::recordAsyncStart(name_);
 }
+inline void recordAsyncEnd(const char *name_, Record::AsyncId asyncId_) {
+  Instrumentation::recordAsyncEnd(name_, asyncId_);
+}
 } // namespace Profiler
 
 #endif
