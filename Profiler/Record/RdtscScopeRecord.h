@@ -33,6 +33,12 @@ struct RdtscScopeRecord {
     _t1 = Rdtsc::now();
   }
   static void preamble(std::ostream &out_) { rdtscPreamble(out_); }
+  void encode(std::ostream &out_) {
+    Algorithm::encodeString(out_, _name);
+    out_ << _t0 << _t1;
+    Algorithm::encode(out_, _depth);
+    Algorithm::encode(out_, _seqNum);
+  }
   static void decode(std::istream &in_, std::ostream &out_) {
     decodeRdtscReference(in_, out_);
     out_ << "records:\n";
@@ -53,8 +59,6 @@ struct RdtscScopeRecord {
     }
   }
   bool dirty() const { return nullptr != _name; }
-  friend std::ostream &operator<<(std::ostream & /*out_*/,
-                                  const RdtscScopeRecord & /*record_*/);
 
 private:
   static std::size_t &threadDepth() {
@@ -71,15 +75,6 @@ private:
   std::size_t _depth;
   std::size_t _seqNum;
 };
-
-inline std::ostream &operator<<(std::ostream &out_,
-                                const RdtscScopeRecord &record_) {
-  Algorithm::encodeString(out_, record_._name);
-  out_ << record_._t0 << record_._t1;
-  Algorithm::encode(out_, record_._depth);
-  Algorithm::encode(out_, record_._seqNum);
-  return out_;
-}
 } // namespace Record
 } // namespace Profiler
 

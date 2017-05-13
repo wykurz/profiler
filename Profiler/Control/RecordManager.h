@@ -92,10 +92,8 @@ template <typename Record_> struct SimpleExtractor : RecordExtractor {
         PROFILER_ASSERT(_numDirty <= size);
         size = _numDirty;
       }
-      for (int i = 0; i < size; ++i) {
-        DLOG("Streaming " << recordArray[i]);
-        out_ << recordArray[i];
-      }
+      for (int i = 0; i < size; ++i)
+        recordArray[i].encode(out_);
       auto next = _records->getNext();
       _arena.release(_records);
       _records = next;
@@ -140,8 +138,7 @@ template <typename Record_> struct RecordManager : RecordExtractor {
     while (records) {
       auto &recordArray = records->value;
       for (int i = 0; i < recordArray.size(); ++i) {
-        DLOG("Streaming " << recordArray[i]);
-        out_ << recordArray[i];
+        recordArray[i].encode(out_);
       }
       auto next = records->getNext();
       _arena.release(records);

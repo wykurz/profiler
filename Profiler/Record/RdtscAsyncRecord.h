@@ -48,6 +48,11 @@ struct RdtscAsyncRecordStart {
     Algorithm::encode(out_, Control::getManager().id());
     rdtscPreamble(out_);
   }
+  void encode(std::ostream &out_) {
+    Algorithm::encodeString(out_, _name);
+    Algorithm::encode(out_, _recorderId);
+    out_ << _time;
+  }
   static void decode(std::istream &in_, std::ostream &out_) {
     auto instanceId = Algorithm::decode<std::size_t>(in_);
     out_ << "instance: " << instanceId << "\n";
@@ -67,22 +72,12 @@ struct RdtscAsyncRecordStart {
   }
   bool dirty() const { return nullptr != _name; }
   AsyncId asyncId() const { return {Control::getManager().id(), _recorderId}; }
-  friend std::ostream &operator<<(std::ostream & /*out_*/,
-                                  const RdtscAsyncRecordStart & /*record_*/);
 
 protected:
   const char *_name;
   std::size_t _recorderId = Control::getThreadRecords<This>().id;
   TimePoint _time = Rdtsc::now();
 };
-
-inline std::ostream &operator<<(std::ostream &out_,
-                                const RdtscAsyncRecordStart &record_) {
-  Algorithm::encodeString(out_, record_._name);
-  Algorithm::encode(out_, record_._recorderId);
-  out_ << record_._time;
-  return out_;
-}
 
 struct RdtscAsyncRecordEnd {
   using Rdtsc = Instrumentation::Rdtsc;
@@ -95,6 +90,11 @@ struct RdtscAsyncRecordEnd {
   static void preamble(std::ostream &out_) {
     Algorithm::encode(out_, Control::getManager().id());
     rdtscPreamble(out_);
+  }
+  void encode(std::ostream &out_) {
+    Algorithm::encodeString(out_, _name);
+    out_ << _asyncId;
+    out_ << _time;
   }
   static void decode(std::istream &in_, std::ostream &out_) {
     auto instanceId = Algorithm::decode<std::size_t>(in_);
@@ -117,22 +117,12 @@ struct RdtscAsyncRecordEnd {
     }
   }
   bool dirty() const { return nullptr != _name; }
-  friend std::ostream &operator<<(std::ostream & /*out_*/,
-                                  const RdtscAsyncRecordEnd & /*record_*/);
 
 protected:
   const char *_name;
   AsyncId _asyncId;
   TimePoint _time;
 };
-
-inline std::ostream &operator<<(std::ostream &out_,
-                                const RdtscAsyncRecordEnd &record_) {
-  Algorithm::encodeString(out_, record_._name);
-  out_ << record_._asyncId;
-  out_ << record_._time;
-  return out_;
-}
 } // namespace Record
 } // namespace Profiler
 
