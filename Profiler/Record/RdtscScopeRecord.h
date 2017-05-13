@@ -50,7 +50,6 @@ struct RdtscScopeRecord {
       in_ >> t0 >> t1;
       auto depth = Algorithm::decode<std::size_t>(in_);
       auto seqNum = Algorithm::decode<std::size_t>(in_);
-      // TODO(mateusz): JSON this
       out_ << "- seq: " << seqNum << "\n";
       out_ << "  name: \"" << name << "\"\n";
       out_ << "  t0: " << t0.data << "\n";
