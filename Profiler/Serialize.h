@@ -9,7 +9,7 @@
 #include <vector>
 
 namespace Profiler {
-namespace Algorithm {
+namespace Serialize {
 
 template <typename T_> T_ decode(std::istream &in_) {
   T_ val;

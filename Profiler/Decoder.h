@@ -2,7 +2,7 @@
 #define _PROFILER_DECODER_DECODER_H
 
 #include <Profiler/Algorithm/Mpl.h>
-#include <Profiler/Algorithm/Stream.h>
+#include <Profiler/Serialize.h>
 #include <Profiler/Config.h>
 #include <Profiler/Exception.h>
 #include <Profiler/Log.h>
@@ -58,7 +58,7 @@ struct Decoder {
   }
   void run() {
     for (auto &input : _inputs) {
-      const auto recordName = Algorithm::decodeString(input);
+      const auto recordName = Serialize::decodeString(input);
       auto it = _funcMap.find(recordName);
       if (it == _funcMap.end())
         PROFILER_RUNTIME_ERROR(

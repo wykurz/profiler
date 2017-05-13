@@ -2,7 +2,7 @@
 #define _PROFILER_RECORD_RDTSC_ASYNC_RECORD_H
 
 #include <Profiler/Algorithm/Mpl.h>
-#include <Profiler/Algorithm/Stream.h>
+#include <Profiler/Serialize.h>
 #include <Profiler/Control/Manager.h>
 #include <Profiler/Control/ThreadRecords.h>
 #include <Profiler/Exception.h>
@@ -25,14 +25,14 @@ struct AsyncId {
 };
 
 inline std::ostream &operator<<(std::ostream &out_, const AsyncId &asyncId_) {
-  Algorithm::encode(out_, asyncId_.instanceId);
-  Algorithm::encode(out_, asyncId_.recorderId);
+  Serialize::encode(out_, asyncId_.instanceId);
+  Serialize::encode(out_, asyncId_.recorderId);
   return out_;
 }
 
 inline std::istream &operator>>(std::istream &in_, AsyncId &asyncId_) {
-  asyncId_.instanceId = Algorithm::decode<std::size_t>(in_);
-  asyncId_.recorderId = Algorithm::decode<std::size_t>(in_);
+  asyncId_.instanceId = Serialize::decode<std::size_t>(in_);
+  asyncId_.recorderId = Serialize::decode<std::size_t>(in_);
   return in_;
 }
 
@@ -45,22 +45,22 @@ struct RdtscAsyncRecordStart {
     std::atomic_signal_fence(std::memory_order_acq_rel);
   }
   static void encodePreamble(std::ostream &out_) {
-    Algorithm::encode(out_, Control::getManager().id());
+    Serialize::encode(out_, Control::getManager().id());
     rdtscPreamble(out_);
   }
   void encode(std::ostream &out_) {
-    Algorithm::encodeString(out_, _name);
-    Algorithm::encode(out_, _recorderId);
+    Serialize::encodeString(out_, _name);
+    Serialize::encode(out_, _recorderId);
     out_ << _time;
   }
   static void decodePreamble(std::istream &in_, std::ostream &out_) {
-    auto instanceId = Algorithm::decode<std::size_t>(in_);
+    auto instanceId = Serialize::decode<std::size_t>(in_);
     out_ << "instance: " << instanceId << "\n";
     decodeRdtscReference(in_, out_);
   }
   static void decode(std::istream &in_, std::ostream &out_) {
-    auto name = Algorithm::decodeString(in_);
-    auto recorderId = Algorithm::decode<std::size_t>(in_);
+    auto name = Serialize::decodeString(in_);
+    auto recorderId = Serialize::decode<std::size_t>(in_);
     TimePoint time;
     in_ >> time;
     out_ << "- name: " << name << "\n";
@@ -85,22 +85,22 @@ struct RdtscAsyncRecordEnd {
     std::atomic_signal_fence(std::memory_order_acq_rel);
   }
   static void encodePreamble(std::ostream &out_) {
-    Algorithm::encode(out_, Control::getManager().id());
+    Serialize::encode(out_, Control::getManager().id());
     rdtscPreamble(out_);
   }
   void encode(std::ostream &out_) {
-    Algorithm::encodeString(out_, _name);
+    Serialize::encodeString(out_, _name);
     out_ << _asyncId;
     out_ << _time;
   }
   static void decodePreamble(std::istream &in_, std::ostream &out_) {
-    auto instanceId = Algorithm::decode<std::size_t>(in_);
+    auto instanceId = Serialize::decode<std::size_t>(in_);
     out_ << "instance: " << instanceId << "\n";
     decodeRdtscReference(in_, out_);
   }
   static void decode(std::istream &in_, std::ostream &out_) {
     DLOG("Loop in RdtscScopeRecordStart decode, currently at: " << in_.tellg());
-    auto name = Algorithm::decodeString(in_);
+    auto name = Serialize::decodeString(in_);
     AsyncId asyncId;
     in_ >> asyncId;
     TimePoint time;

@@ -1,7 +1,7 @@
 #ifndef _PROFILER_RECORD_RDTSCRECORDCOMMON_H
 #define _PROFILER_RECORD_RDTSCRECORDCOMMON_H
 
-#include <Profiler/Algorithm/Stream.h>
+#include <Profiler/Serialize.h>
 #include <Profiler/Log.h>
 #include <Profiler/Rdtsc.h>
 #include <atomic>
@@ -24,12 +24,12 @@ inline void rdtscPreamble(std::ostream &out_) {
         .count();
   };
   std::uint64_t timeReference = nanosecondDuration(hiResNow.time_since_epoch());
-  Algorithm::encode(out_, timeReference);
+  Serialize::encode(out_, timeReference);
   out_ << rdtscNow;
 }
 
 inline void decodeRdtscReference(std::istream &in_, std::ostream &out_) {
-  auto timeReference = Algorithm::decode<std::uint64_t>(in_);
+  auto timeReference = Serialize::decode<std::uint64_t>(in_);
   out_ << "time_reference:\n";
   out_ << "- time: " << timeReference << "\n";
   Instrumentation::Rdtsc::TimePoint rdtscBase;

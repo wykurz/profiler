@@ -2,7 +2,7 @@
 #define _PROFILER_RECORD_RDTSC_SCOPE_RECORD_H
 
 #include <Profiler/Algorithm/Mpl.h>
-#include <Profiler/Algorithm/Stream.h>
+#include <Profiler/Serialize.h>
 #include <Profiler/Exception.h>
 #include <Profiler/Log.h>
 #include <Profiler/Rdtsc.h>
@@ -34,21 +34,21 @@ struct RdtscScopeRecord {
   }
   static void encodePreamble(std::ostream &out_) { rdtscPreamble(out_); }
   void encode(std::ostream &out_) {
-    Algorithm::encodeString(out_, _name);
+    Serialize::encodeString(out_, _name);
     out_ << _t0 << _t1;
-    Algorithm::encode(out_, _depth);
-    Algorithm::encode(out_, _seqNum);
+    Serialize::encode(out_, _depth);
+    Serialize::encode(out_, _seqNum);
   }
   static void decodePreamble(std::istream &in_, std::ostream &out_) {
     decodeRdtscReference(in_, out_);
   }
   static void decode(std::istream &in_, std::ostream &out_) {
-    auto name = Algorithm::decodeString(in_);
+    auto name = Serialize::decodeString(in_);
     TimePoint t0;
     TimePoint t1;
     in_ >> t0 >> t1;
-    auto depth = Algorithm::decode<std::size_t>(in_);
-    auto seqNum = Algorithm::decode<std::size_t>(in_);
+    auto depth = Serialize::decode<std::size_t>(in_);
+    auto seqNum = Serialize::decode<std::size_t>(in_);
     out_ << "- seq: " << seqNum << "\n";
     out_ << "  name: \"" << name << "\"\n";
     out_ << "  t0: " << t0.data << "\n";

@@ -1,7 +1,7 @@
 #ifndef _PROFILER_INSTRUMENTATION_TIME_H
 #define _PROFILER_INSTRUMENTATION_TIME_H
 
-#include <Profiler/Algorithm/Stream.h>
+#include <Profiler/Serialize.h>
 #include <Profiler/Intrinsics.h>
 #include <chrono>
 #include <istream>
@@ -26,7 +26,7 @@ inline std::ostream &operator<<(std::ostream &out_,
 }
 
 inline std::istream &operator>>(std::istream &in_, Rdtsc::TimePoint &time_) {
-  auto data = Algorithm::decode<Rdtsc::TimePoint::Storage>(in_);
+  auto data = Serialize::decode<Rdtsc::TimePoint::Storage>(in_);
   time_ = Rdtsc::TimePoint{data};
   return in_;
 }
