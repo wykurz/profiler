@@ -44,7 +44,7 @@ struct RdtscAsyncRecordStart {
     PROFILER_ASSERT(name_);
     std::atomic_signal_fence(std::memory_order_acq_rel);
   }
-  static void preamble(std::ostream &out_) {
+  static void encodePreamble(std::ostream &out_) {
     Algorithm::encode(out_, Control::getManager().id());
     rdtscPreamble(out_);
   }
@@ -53,22 +53,19 @@ struct RdtscAsyncRecordStart {
     Algorithm::encode(out_, _recorderId);
     out_ << _time;
   }
-  static void decode(std::istream &in_, std::ostream &out_) {
+  static void decodePreamble(std::istream &in_, std::ostream &out_) {
     auto instanceId = Algorithm::decode<std::size_t>(in_);
     out_ << "instance: " << instanceId << "\n";
     decodeRdtscReference(in_, out_);
-    out_ << "records:\n";
-    while (in_.good() && in_.peek() != EOF) {
-      DLOG("Loop in RdtscScopeRecordStart decode, currently at: "
-           << in_.tellg());
-      auto name = Algorithm::decodeString(in_);
-      auto recorderId = Algorithm::decode<std::size_t>(in_);
-      TimePoint time;
-      in_ >> time;
-      out_ << "- name: " << name << "\n";
-      out_ << "  recorder: " << recorderId << "\n";
-      out_ << "  rdtsc: " << time.data << "\n";
-    }
+  }
+  static void decode(std::istream &in_, std::ostream &out_) {
+    auto name = Algorithm::decodeString(in_);
+    auto recorderId = Algorithm::decode<std::size_t>(in_);
+    TimePoint time;
+    in_ >> time;
+    out_ << "- name: " << name << "\n";
+    out_ << "  recorder: " << recorderId << "\n";
+    out_ << "  rdtsc: " << time.data << "\n";
   }
   bool dirty() const { return nullptr != _name; }
   AsyncId asyncId() const { return {Control::getManager().id(), _recorderId}; }
@@ -87,7 +84,7 @@ struct RdtscAsyncRecordEnd {
     PROFILER_ASSERT(name_);
     std::atomic_signal_fence(std::memory_order_acq_rel);
   }
-  static void preamble(std::ostream &out_) {
+  static void encodePreamble(std::ostream &out_) {
     Algorithm::encode(out_, Control::getManager().id());
     rdtscPreamble(out_);
   }
@@ -96,25 +93,24 @@ struct RdtscAsyncRecordEnd {
     out_ << _asyncId;
     out_ << _time;
   }
-  static void decode(std::istream &in_, std::ostream &out_) {
+  static void decodePreamble(std::istream &in_, std::ostream &out_) {
     auto instanceId = Algorithm::decode<std::size_t>(in_);
     out_ << "instance: " << instanceId << "\n";
     decodeRdtscReference(in_, out_);
-    out_ << "records:\n";
-    while (in_.good() && in_.peek() != EOF) {
-      DLOG("Loop in RdtscScopeRecordStart decode, currently at: "
-           << in_.tellg());
-      auto name = Algorithm::decodeString(in_);
-      AsyncId asyncId;
-      in_ >> asyncId;
-      TimePoint time;
-      in_ >> time;
-      out_ << "- name: " << name << "\n";
-      out_ << "  async_id:\n";
-      out_ << "    instance: " << asyncId.instanceId << "\n";
-      out_ << "    recorder: " << asyncId.recorderId << "\n";
-      out_ << "  rdtsc: " << time.data << "\n";
-    }
+  }
+  static void decode(std::istream &in_, std::ostream &out_) {
+    DLOG("Loop in RdtscScopeRecordStart decode, currently at: "
+         << in_.tellg());
+    auto name = Algorithm::decodeString(in_);
+    AsyncId asyncId;
+    in_ >> asyncId;
+    TimePoint time;
+    in_ >> time;
+    out_ << "- name: " << name << "\n";
+    out_ << "  async_id:\n";
+    out_ << "    instance: " << asyncId.instanceId << "\n";
+    out_ << "    recorder: " << asyncId.recorderId << "\n";
+    out_ << "  rdtsc: " << time.data << "\n";
   }
   bool dirty() const { return nullptr != _name; }
 

@@ -90,7 +90,7 @@ private:
     const std::size_t &nameSize = recordTypeName.size();
     out_.write(reinterpret_cast<const char *>(&nameSize), sizeof(nameSize));
     out_ << recordTypeName;
-    Record_::preamble(out_);
+    Record_::encodePreamble(out_);
   }
 
   Arena _arena{100000};

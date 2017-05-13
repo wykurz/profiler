@@ -19,6 +19,18 @@ namespace Profiler {
 
 namespace fs = boost::filesystem;
 
+namespace Internal {
+template <typename RecordType_>
+inline void decodeStream(std::istream &in_, std::ostream &out_) {
+  RecordType_::decodePreamble(in_, out_);
+  out_ << "records:\n";
+  while (in_.good() && in_.peek() != EOF) {
+    DLOG("Currently at: " << in_.tellg());
+    RecordType_::decode(in_, out_);
+  }
+}
+} // namespace Internal
+
 struct Decoder {
   using DecodeFunc = std::function<void(std::istream &, std::ostream &)>;
   explicit Decoder(const Config &config_)
@@ -62,7 +74,7 @@ private:
     auto addDecodeFunc = [&funcMap](auto dummy_) {
       using RecordType = typename decltype(dummy_)::Type;
       DLOG("Registering: " << typeid(RecordType).name());
-      funcMap[typeid(RecordType).name()] = RecordType::decode;
+      funcMap[typeid(RecordType).name()] = Internal::decodeStream<RecordType>;
     };
     Mpl::apply<Record::NativeRecords>(addDecodeFunc);
     Mpl::apply<RecordTypes_>(addDecodeFunc);
