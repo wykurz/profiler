@@ -1,5 +1,5 @@
-#ifndef _PROFILER_RECORD_RDTSC_SCOPE_RECORD_H
-#define _PROFILER_RECORD_RDTSC_SCOPE_RECORD_H
+#ifndef _PROFILER_RECORD_SCOPE_RECORD_H
+#define _PROFILER_RECORD_SCOPE_RECORD_H
 
 #include <Profiler/Algorithm/Mpl.h>
 #include <Profiler/Clock.h>
