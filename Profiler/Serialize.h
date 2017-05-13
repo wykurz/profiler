@@ -33,7 +33,7 @@ inline void encodeString(std::ostream &out_, const char *str_) {
   encode(out_, strlen(str_));
   out_ << str_;
 }
-} // namespace Algorithm
+} // namespace Serialize
 } // namespace Profiler
 
 #endif
