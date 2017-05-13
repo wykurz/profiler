@@ -1,9 +1,9 @@
 #ifndef _PROFILER_RECORD_RDTSCRECORDCOMMON_H
 #define _PROFILER_RECORD_RDTSCRECORDCOMMON_H
 
-#include <Profiler/Serialize.h>
 #include <Profiler/Log.h>
 #include <Profiler/Rdtsc.h>
+#include <Profiler/Serialize.h>
 #include <atomic>
 #include <chrono>
 #include <istream>

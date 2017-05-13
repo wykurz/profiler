@@ -2,11 +2,11 @@
 #define _PROFILER_DECODER_DECODER_H
 
 #include <Profiler/Algorithm/Mpl.h>
-#include <Profiler/Serialize.h>
 #include <Profiler/Config.h>
 #include <Profiler/Exception.h>
 #include <Profiler/Log.h>
 #include <Profiler/Record/Records.h>
+#include <Profiler/Serialize.h>
 #include <boost/filesystem.hpp>
 #include <fstream>
 #include <functional>

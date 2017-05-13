@@ -2,11 +2,11 @@
 #define _PROFILER_RECORD_RDTSC_SCOPE_RECORD_H
 
 #include <Profiler/Algorithm/Mpl.h>
-#include <Profiler/Serialize.h>
 #include <Profiler/Exception.h>
 #include <Profiler/Log.h>
 #include <Profiler/Rdtsc.h>
 #include <Profiler/Record/RdtscRecordCommon.h>
+#include <Profiler/Serialize.h>
 #include <atomic>
 #include <chrono>
 #include <istream>

@@ -1,8 +1,8 @@
 #ifndef _PROFILER_INSTRUMENTATION_TIME_H
 #define _PROFILER_INSTRUMENTATION_TIME_H
 
-#include <Profiler/Serialize.h>
 #include <Profiler/Intrinsics.h>
+#include <Profiler/Serialize.h>
 #include <chrono>
 #include <istream>
 #include <ostream>
