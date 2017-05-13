@@ -16,12 +16,10 @@
 namespace Profiler {
 namespace Record {
 
-template <typename Clock_>
-struct ScopeRecord {
+template <typename Clock_> struct ScopeRecord {
   using Clock = Clock_;
   using TimePoint = typename Clock::TimePoint;
-  explicit ScopeRecord(const char *name_)
-      : _name(name_), _t0(Clock::now()) {
+  explicit ScopeRecord(const char *name_) : _name(name_), _t0(Clock::now()) {
     PROFILER_ASSERT(name_);
     _depth = threadDepth()++;
     _seqNum = threadSeqNum()++;

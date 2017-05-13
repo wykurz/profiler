@@ -36,8 +36,7 @@ inline std::istream &operator>>(std::istream &in_, AsyncId &asyncId_) {
   return in_;
 }
 
-template <typename Clock_>
-struct AsyncRecordStart {
+template <typename Clock_> struct AsyncRecordStart {
   using Clock = Clock_;
   using This = AsyncRecordStart;
   using TimePoint = typename Clock::TimePoint;
@@ -77,8 +76,7 @@ protected:
   TimePoint _time = Clock::now();
 };
 
-template <typename Clock_>
-struct AsyncRecordEnd {
+template <typename Clock_> struct AsyncRecordEnd {
   using Clock = Clock_;
   using TimePoint = typename Clock::TimePoint;
   AsyncRecordEnd(const char *name_, AsyncId asyncId_)

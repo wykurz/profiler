@@ -14,13 +14,9 @@
 namespace Profiler {
 namespace Record {
 
+template <typename Clock_> struct Preamble;
 
-template <typename Clock_>
-struct Preamble;
-
-template <>
-struct Preamble<Clock::Rdtsc>
-{
+template <> struct Preamble<Clock::Rdtsc> {
   static void encode(std::ostream &out_) {
     // Measure:
     auto hiResNow = std::chrono::high_resolution_clock::now();
@@ -28,9 +24,10 @@ struct Preamble<Clock::Rdtsc>
     // Serialize:
     auto nanosecondDuration = [](const auto &duration_) {
       return std::chrono::duration_cast<std::chrono::nanoseconds>(duration_)
-      .count();
+          .count();
     };
-    std::uint64_t timeReference = nanosecondDuration(hiResNow.time_since_epoch());
+    std::uint64_t timeReference =
+        nanosecondDuration(hiResNow.time_since_epoch());
     Serialize::encode(out_, timeReference);
     out_ << rdtscNow;
   }
