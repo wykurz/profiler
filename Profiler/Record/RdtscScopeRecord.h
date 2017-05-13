@@ -16,11 +16,12 @@
 namespace Profiler {
 namespace Record {
 
-struct RdtscScopeRecord {
-  using Rdtsc = Clock::Rdtsc;
-  using TimePoint = Rdtsc::TimePoint;
-  explicit RdtscScopeRecord(const char *name_)
-      : _name(name_), _t0(Rdtsc::now()) {
+template <typename Clock_>
+struct ScopeRecord {
+  using Clock = Clock_;
+  using TimePoint = typename Clock::TimePoint;
+  explicit ScopeRecord(const char *name_)
+      : _name(name_), _t0(Clock::now()) {
     PROFILER_ASSERT(name_);
     _depth = threadDepth()++;
     _seqNum = threadSeqNum()++;
@@ -30,9 +31,11 @@ struct RdtscScopeRecord {
     std::atomic_signal_fence(std::memory_order_acq_rel);
     PROFILER_ASSERT(1 <= threadDepth());
     --threadDepth();
-    _t1 = Rdtsc::now();
+    _t1 = Clock::now();
   }
-  static void encodePreamble(std::ostream &out_) { rdtscPreamble(out_); }
+  static void encodePreamble(std::ostream &out_) {
+    Preamble<Clock>::encode(out_);
+  }
   void encode(std::ostream &out_) {
     Serialize::encodeString(out_, _name);
     out_ << _t0 << _t1;
@@ -40,7 +43,7 @@ struct RdtscScopeRecord {
     Serialize::encode(out_, _seqNum);
   }
   static void decodePreamble(std::istream &in_, std::ostream &out_) {
-    decodeRdtscReference(in_, out_);
+    Preamble<Clock>::decode(in_, out_);
   }
   static void decode(std::istream &in_, std::ostream &out_) {
     auto name = Serialize::decodeString(in_);
@@ -72,6 +75,9 @@ private:
   std::size_t _depth;
   std::size_t _seqNum;
 };
+
+using RdtscScopeRecord = ScopeRecord<Clock::Rdtsc>;
+
 } // namespace Record
 } // namespace Profiler
 

@@ -36,17 +36,18 @@ inline std::istream &operator>>(std::istream &in_, AsyncId &asyncId_) {
   return in_;
 }
 
-struct RdtscAsyncRecordStart {
-  using Rdtsc = Clock::Rdtsc;
-  using This = RdtscAsyncRecordStart;
-  using TimePoint = Rdtsc::TimePoint;
-  explicit RdtscAsyncRecordStart(const char *name_) : _name(name_) {
+template <typename Clock_>
+struct AsyncRecordStart {
+  using Clock = Clock_;
+  using This = AsyncRecordStart;
+  using TimePoint = typename Clock::TimePoint;
+  explicit AsyncRecordStart(const char *name_) : _name(name_) {
     PROFILER_ASSERT(name_);
     std::atomic_signal_fence(std::memory_order_acq_rel);
   }
   static void encodePreamble(std::ostream &out_) {
     Serialize::encode(out_, Control::getManager().id());
-    rdtscPreamble(out_);
+    Preamble<Clock>::encode(out_);
   }
   void encode(std::ostream &out_) {
     Serialize::encodeString(out_, _name);
@@ -56,7 +57,7 @@ struct RdtscAsyncRecordStart {
   static void decodePreamble(std::istream &in_, std::ostream &out_) {
     auto instanceId = Serialize::decode<std::size_t>(in_);
     out_ << "instance: " << instanceId << "\n";
-    decodeRdtscReference(in_, out_);
+    Preamble<Clock>::decode(in_, out_);
   }
   static void decode(std::istream &in_, std::ostream &out_) {
     auto name = Serialize::decodeString(in_);
@@ -65,7 +66,7 @@ struct RdtscAsyncRecordStart {
     in_ >> time;
     out_ << "- name: " << name << "\n";
     out_ << "  recorder: " << recorderId << "\n";
-    out_ << "  rdtsc: " << time.data << "\n";
+    out_ << "  time: " << time.data << "\n";
   }
   bool dirty() const { return nullptr != _name; }
   AsyncId asyncId() const { return {Control::getManager().id(), _recorderId}; }
@@ -73,20 +74,21 @@ struct RdtscAsyncRecordStart {
 protected:
   const char *_name;
   std::size_t _recorderId = Control::getThreadRecords<This>().id;
-  TimePoint _time = Rdtsc::now();
+  TimePoint _time = Clock::now();
 };
 
-struct RdtscAsyncRecordEnd {
-  using Rdtsc = Clock::Rdtsc;
-  using TimePoint = Rdtsc::TimePoint;
-  RdtscAsyncRecordEnd(const char *name_, AsyncId asyncId_)
-      : _name(name_), _asyncId(std::move(asyncId_)), _time(Rdtsc::now()) {
+template <typename Clock_>
+struct AsyncRecordEnd {
+  using Clock = Clock_;
+  using TimePoint = typename Clock::TimePoint;
+  AsyncRecordEnd(const char *name_, AsyncId asyncId_)
+      : _name(name_), _asyncId(std::move(asyncId_)), _time(Clock::now()) {
     PROFILER_ASSERT(name_);
     std::atomic_signal_fence(std::memory_order_acq_rel);
   }
   static void encodePreamble(std::ostream &out_) {
     Serialize::encode(out_, Control::getManager().id());
-    rdtscPreamble(out_);
+    Preamble<Clock>::encode(out_);
   }
   void encode(std::ostream &out_) {
     Serialize::encodeString(out_, _name);
@@ -96,10 +98,10 @@ struct RdtscAsyncRecordEnd {
   static void decodePreamble(std::istream &in_, std::ostream &out_) {
     auto instanceId = Serialize::decode<std::size_t>(in_);
     out_ << "instance: " << instanceId << "\n";
-    decodeRdtscReference(in_, out_);
+    Preamble<Clock>::decode(in_, out_);
   }
   static void decode(std::istream &in_, std::ostream &out_) {
-    DLOG("Loop in RdtscScopeRecordStart decode, currently at: " << in_.tellg());
+    DLOG("Loop in ScopeRecordStart decode, currently at: " << in_.tellg());
     auto name = Serialize::decodeString(in_);
     AsyncId asyncId;
     in_ >> asyncId;
@@ -109,7 +111,7 @@ struct RdtscAsyncRecordEnd {
     out_ << "  async_id:\n";
     out_ << "    instance: " << asyncId.instanceId << "\n";
     out_ << "    recorder: " << asyncId.recorderId << "\n";
-    out_ << "  rdtsc: " << time.data << "\n";
+    out_ << "  time: " << time.data << "\n";
   }
   bool dirty() const { return nullptr != _name; }
 
@@ -118,6 +120,10 @@ protected:
   AsyncId _asyncId;
   TimePoint _time;
 };
+
+using RdtscAsyncRecordStart = AsyncRecordStart<Clock::Rdtsc>;
+using RdtscAsyncRecordEnd = AsyncRecordEnd<Clock::Rdtsc>;
+
 } // namespace Record
 } // namespace Profiler
 
