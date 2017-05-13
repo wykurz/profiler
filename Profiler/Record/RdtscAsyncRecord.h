@@ -99,8 +99,7 @@ struct RdtscAsyncRecordEnd {
     decodeRdtscReference(in_, out_);
   }
   static void decode(std::istream &in_, std::ostream &out_) {
-    DLOG("Loop in RdtscScopeRecordStart decode, currently at: "
-         << in_.tellg());
+    DLOG("Loop in RdtscScopeRecordStart decode, currently at: " << in_.tellg());
     auto name = Algorithm::decodeString(in_);
     AsyncId asyncId;
     in_ >> asyncId;
