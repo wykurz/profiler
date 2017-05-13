@@ -19,6 +19,7 @@ namespace Record {
 template <typename Clock_> struct ScopeRecord {
   using Clock = Clock_;
   using TimePoint = typename Clock::TimePoint;
+  using Duration = typename Clock::Duration;
   explicit ScopeRecord(const char *name_) : _name(name_), _t0(Clock::now()) {
     PROFILER_ASSERT(name_);
     _depth = threadDepth()++;
@@ -45,8 +46,8 @@ template <typename Clock_> struct ScopeRecord {
   }
   static void decode(std::istream &in_, std::ostream &out_) {
     auto name = Serialize::decodeString(in_);
-    TimePoint t0;
-    TimePoint t1;
+    Duration t0;
+    Duration t1;
     in_ >> t0 >> t1;
     auto depth = Serialize::decode<std::size_t>(in_);
     auto seqNum = Serialize::decode<std::size_t>(in_);

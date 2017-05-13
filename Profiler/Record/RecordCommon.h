@@ -35,7 +35,7 @@ template <> struct Preamble<Clock::Rdtsc> {
     auto timeReference = Serialize::decode<std::uint64_t>(in_);
     out_ << "time_reference:\n";
     out_ << "- time: " << timeReference << "\n";
-    Clock::Rdtsc::TimePoint rdtscBase;
+    Clock::Rdtsc::Duration rdtscBase;
     in_ >> rdtscBase;
     out_ << "- rdtsc: " << rdtscBase.data << "\n";
   }

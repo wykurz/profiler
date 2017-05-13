@@ -16,18 +16,23 @@ struct Rdtsc {
     using Storage = decltype(Intrinsics::rdtsc());
     Storage data;
   };
+  struct Duration {
+    using Storage = std::uint64_t;
+    Storage data;
+  };
   static TimePoint now() { return {Intrinsics::rdtsc()}; }
 };
 
 inline std::ostream &operator<<(std::ostream &out_,
                                 const Rdtsc::TimePoint &time_) {
-  Serialize::encode(out_, time_.data);
+  std::uint64_t ticks = time_.data;
+  Serialize::encode(out_, ticks);
   return out_;
 }
 
-inline std::istream &operator>>(std::istream &in_, Rdtsc::TimePoint &time_) {
-  auto data = Serialize::decode<Rdtsc::TimePoint::Storage>(in_);
-  time_ = Rdtsc::TimePoint{data};
+inline std::istream &operator>>(std::istream &in_, Rdtsc::Duration &duration_) {
+  auto ticks = Serialize::decode<std::uint64_t>(in_);
+  duration_ = Rdtsc::Duration{ticks};
   return in_;
 }
 

@@ -40,6 +40,7 @@ template <typename Clock_> struct AsyncRecordStart {
   using Clock = Clock_;
   using This = AsyncRecordStart;
   using TimePoint = typename Clock::TimePoint;
+  using Duration = typename Clock::Duration;
   explicit AsyncRecordStart(const char *name_) : _name(name_) {
     PROFILER_ASSERT(name_);
     std::atomic_signal_fence(std::memory_order_acq_rel);
@@ -61,11 +62,11 @@ template <typename Clock_> struct AsyncRecordStart {
   static void decode(std::istream &in_, std::ostream &out_) {
     auto name = Serialize::decodeString(in_);
     auto recorderId = Serialize::decode<std::size_t>(in_);
-    TimePoint time;
-    in_ >> time;
+    Duration duration;
+    in_ >> duration;
     out_ << "- name: " << name << "\n";
     out_ << "  recorder: " << recorderId << "\n";
-    out_ << "  time: " << time.data << "\n";
+    out_ << "  time: " << duration.data << "\n";
   }
   bool dirty() const { return nullptr != _name; }
   AsyncId asyncId() const { return {Control::getManager().id(), _recorderId}; }
@@ -79,6 +80,7 @@ protected:
 template <typename Clock_> struct AsyncRecordEnd {
   using Clock = Clock_;
   using TimePoint = typename Clock::TimePoint;
+  using Duration = typename Clock::Duration;
   AsyncRecordEnd(const char *name_, AsyncId asyncId_)
       : _name(name_), _asyncId(std::move(asyncId_)), _time(Clock::now()) {
     PROFILER_ASSERT(name_);
@@ -103,13 +105,13 @@ template <typename Clock_> struct AsyncRecordEnd {
     auto name = Serialize::decodeString(in_);
     AsyncId asyncId;
     in_ >> asyncId;
-    TimePoint time;
-    in_ >> time;
+    Duration duration;
+    in_ >> duration;
     out_ << "- name: " << name << "\n";
     out_ << "  async_id:\n";
     out_ << "    instance: " << asyncId.instanceId << "\n";
     out_ << "    recorder: " << asyncId.recorderId << "\n";
-    out_ << "  time: " << time.data << "\n";
+    out_ << "  time: " << duration.data << "\n";
   }
   bool dirty() const { return nullptr != _name; }
 
