@@ -7,7 +7,7 @@
 #include <Profiler/Control/ThreadRecords.h>
 #include <Profiler/Exception.h>
 #include <Profiler/Log.h>
-#include <Profiler/Record/RdtscRecordCommon.h>
+#include <Profiler/Record/RecordCommon.h>
 #include <Profiler/Serialize.h>
 #include <atomic>
 #include <chrono>
