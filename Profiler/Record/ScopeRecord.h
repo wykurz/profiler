@@ -75,6 +75,7 @@ private:
 };
 
 using RdtscScopeRecord = ScopeRecord<Clock::Rdtsc>;
+using SteadyScopeRecord = ScopeRecord<Clock::Steady>;
 
 } // namespace Record
 } // namespace Profiler
