@@ -2,11 +2,11 @@
 #define _PROFILER_RECORD_RDTSC_ASYNC_RECORD_H
 
 #include <Profiler/Algorithm/Mpl.h>
+#include <Profiler/Clock.h>
 #include <Profiler/Control/Manager.h>
 #include <Profiler/Control/ThreadRecords.h>
 #include <Profiler/Exception.h>
 #include <Profiler/Log.h>
-#include <Profiler/Clock.h>
 #include <Profiler/Record/RdtscRecordCommon.h>
 #include <Profiler/Serialize.h>
 #include <atomic>

@@ -1,8 +1,8 @@
 #ifndef _PROFILER_RECORD_RDTSCRECORDCOMMON_H
 #define _PROFILER_RECORD_RDTSCRECORDCOMMON_H
 
-#include <Profiler/Log.h>
 #include <Profiler/Clock.h>
+#include <Profiler/Log.h>
 #include <Profiler/Serialize.h>
 #include <atomic>
 #include <chrono>

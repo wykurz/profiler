@@ -1,11 +1,11 @@
 #ifndef _PROFILER_INSTRUMENTATION_PROFILERRECORD_H
 #define _PROFILER_INSTRUMENTATION_PROFILERRECORD_H
 
+#include <Profiler/Clock.h>
 #include <Profiler/Control/RecordManager.h>
 #include <Profiler/Control/ThreadRecords.h>
 #include <Profiler/Defines.h>
 #include <Profiler/Log.h>
-#include <Profiler/Clock.h>
 #include <Profiler/Record/RdtscAsyncRecord.h>
 #include <Profiler/Record/RdtscScopeRecord.h>
 
