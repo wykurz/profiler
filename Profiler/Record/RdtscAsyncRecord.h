@@ -6,7 +6,7 @@
 #include <Profiler/Control/ThreadRecords.h>
 #include <Profiler/Exception.h>
 #include <Profiler/Log.h>
-#include <Profiler/Rdtsc.h>
+#include <Profiler/Clock.h>
 #include <Profiler/Record/RdtscRecordCommon.h>
 #include <Profiler/Serialize.h>
 #include <atomic>
@@ -37,7 +37,7 @@ inline std::istream &operator>>(std::istream &in_, AsyncId &asyncId_) {
 }
 
 struct RdtscAsyncRecordStart {
-  using Rdtsc = Instrumentation::Rdtsc;
+  using Rdtsc = Clock::Rdtsc;
   using This = RdtscAsyncRecordStart;
   using TimePoint = Rdtsc::TimePoint;
   explicit RdtscAsyncRecordStart(const char *name_) : _name(name_) {
@@ -77,7 +77,7 @@ protected:
 };
 
 struct RdtscAsyncRecordEnd {
-  using Rdtsc = Instrumentation::Rdtsc;
+  using Rdtsc = Clock::Rdtsc;
   using TimePoint = Rdtsc::TimePoint;
   RdtscAsyncRecordEnd(const char *name_, AsyncId asyncId_)
       : _name(name_), _asyncId(std::move(asyncId_)), _time(Rdtsc::now()) {

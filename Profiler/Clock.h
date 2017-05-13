@@ -9,7 +9,7 @@
 #include <ratio>
 
 namespace Profiler {
-namespace Instrumentation {
+namespace Clock {
 
 struct Rdtsc {
   struct TimePoint {
@@ -30,7 +30,7 @@ inline std::istream &operator>>(std::istream &in_, Rdtsc::TimePoint &time_) {
   time_ = Rdtsc::TimePoint{data};
   return in_;
 }
-} // namespace Instrumentation
+} // namespace Clock
 } // namespace Profiler
 
 #endif

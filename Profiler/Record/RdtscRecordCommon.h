@@ -2,7 +2,7 @@
 #define _PROFILER_RECORD_RDTSCRECORDCOMMON_H
 
 #include <Profiler/Log.h>
-#include <Profiler/Rdtsc.h>
+#include <Profiler/Clock.h>
 #include <Profiler/Serialize.h>
 #include <atomic>
 #include <chrono>
@@ -17,7 +17,7 @@ namespace Record {
 inline void rdtscPreamble(std::ostream &out_) {
   // Measure:
   auto hiResNow = std::chrono::high_resolution_clock::now();
-  auto rdtscNow = Instrumentation::Rdtsc::now();
+  auto rdtscNow = Clock::Rdtsc::now();
   // Serialize:
   auto nanosecondDuration = [](const auto &duration_) {
     return std::chrono::duration_cast<std::chrono::nanoseconds>(duration_)
@@ -32,7 +32,7 @@ inline void decodeRdtscReference(std::istream &in_, std::ostream &out_) {
   auto timeReference = Serialize::decode<std::uint64_t>(in_);
   out_ << "time_reference:\n";
   out_ << "- time: " << timeReference << "\n";
-  Instrumentation::Rdtsc::TimePoint rdtscBase;
+  Clock::Rdtsc::TimePoint rdtscBase;
   in_ >> rdtscBase;
   out_ << "- rdtsc: " << rdtscBase.data << "\n";
 }

@@ -5,7 +5,7 @@
 #include <Profiler/Control/ThreadRecords.h>
 #include <Profiler/Defines.h>
 #include <Profiler/Log.h>
-#include <Profiler/Rdtsc.h>
+#include <Profiler/Clock.h>
 #include <Profiler/Record/RdtscAsyncRecord.h>
 #include <Profiler/Record/RdtscScopeRecord.h>
 

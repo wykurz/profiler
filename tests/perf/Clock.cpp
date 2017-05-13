@@ -1,8 +1,8 @@
-#include <Profiler/Rdtsc.h>
+#include <Profiler/Clock.h>
 #include <benchmark/benchmark.h>
 
 namespace Profiler {
-namespace Instrumentation {
+namespace Clock {
 namespace Test {
 
 template <typename Clock_> void timeTest(benchmark::State &state_) {
@@ -28,5 +28,5 @@ BENCHMARK_DEFINE_F(TimeBenchFixture, RtdscTimeTest)(benchmark::State &state_) {
 BENCHMARK_REGISTER_F(TimeBenchFixture, RtdscTimeTest)
     ->RangePair(1, 1, 1, 1 << 10);
 } // namespace Test
-} // namespace Instrumentation
+} // namespace Clock
 } // namespace Profiler

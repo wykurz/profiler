@@ -4,7 +4,7 @@
 #include <Profiler/Algorithm/Mpl.h>
 #include <Profiler/Exception.h>
 #include <Profiler/Log.h>
-#include <Profiler/Rdtsc.h>
+#include <Profiler/Clock.h>
 #include <Profiler/Record/RdtscRecordCommon.h>
 #include <Profiler/Serialize.h>
 #include <atomic>
@@ -17,7 +17,7 @@ namespace Profiler {
 namespace Record {
 
 struct RdtscScopeRecord {
-  using Rdtsc = Instrumentation::Rdtsc;
+  using Rdtsc = Clock::Rdtsc;
   using TimePoint = Rdtsc::TimePoint;
   explicit RdtscScopeRecord(const char *name_)
       : _name(name_), _t0(Rdtsc::now()) {
