@@ -53,8 +53,8 @@ template <typename Clock_> struct ScopeRecord {
     auto seqNum = Serialize::decode<std::size_t>(in_);
     out_ << "- seq: " << seqNum << "\n";
     out_ << "  name: \"" << name << "\"\n";
-    out_ << "  t0: " << t0.data << "\n";
-    out_ << "  t1: " << t1.data << "\n";
+    out_ << "  t0: " << t0 << "\n";
+    out_ << "  t1: " << t1 << "\n";
     out_ << "  depth: " << depth << "\n";
   }
   bool dirty() const { return nullptr != _name; }

@@ -19,18 +19,21 @@
 namespace Profiler {
 namespace Record {
 
+template <typename Clock_>
 struct AsyncId {
   std::size_t instanceId;
   std::size_t recorderId;
 };
 
-inline std::ostream &operator<<(std::ostream &out_, const AsyncId &asyncId_) {
+template <typename Clock_>
+std::ostream &operator<<(std::ostream &out_, const AsyncId<Clock_> &asyncId_) {
   Serialize::encode(out_, asyncId_.instanceId);
   Serialize::encode(out_, asyncId_.recorderId);
   return out_;
 }
 
-inline std::istream &operator>>(std::istream &in_, AsyncId &asyncId_) {
+template <typename Clock_>
+std::istream &operator>>(std::istream &in_, AsyncId<Clock_> &asyncId_) {
   asyncId_.instanceId = Serialize::decode<std::size_t>(in_);
   asyncId_.recorderId = Serialize::decode<std::size_t>(in_);
   return in_;
@@ -66,10 +69,10 @@ template <typename Clock_> struct AsyncRecordStart {
     in_ >> duration;
     out_ << "- name: " << name << "\n";
     out_ << "  recorder: " << recorderId << "\n";
-    out_ << "  time: " << duration.data << "\n";
+    out_ << "  time: " << duration << "\n";
   }
   bool dirty() const { return nullptr != _name; }
-  AsyncId asyncId() const { return {Control::getManager().id(), _recorderId}; }
+  AsyncId<Clock> asyncId() const { return {Control::getManager().id(), _recorderId}; }
 
 protected:
   const char *_name;
@@ -83,7 +86,7 @@ template <typename Clock_> struct AsyncRecordEnd {
   using Clock = Clock_;
   using TimePoint = typename Clock::TimePoint;
   using Duration = typename Clock::Duration;
-  AsyncRecordEnd(const char *name_, AsyncId asyncId_)
+  AsyncRecordEnd(const char *name_, AsyncId<Clock> asyncId_)
       : _name(name_), _asyncId(std::move(asyncId_)), _time(Clock::now()) {
     PROFILER_ASSERT(name_);
     std::atomic_signal_fence(std::memory_order_acq_rel);
@@ -105,7 +108,7 @@ template <typename Clock_> struct AsyncRecordEnd {
   static void decode(std::istream &in_, std::ostream &out_) {
     DLOG("Loop in ScopeRecordStart decode, currently at: " << in_.tellg());
     auto name = Serialize::decodeString(in_);
-    AsyncId asyncId;
+    AsyncId<Clock> asyncId;
     in_ >> asyncId;
     Duration duration;
     in_ >> duration;
@@ -113,13 +116,13 @@ template <typename Clock_> struct AsyncRecordEnd {
     out_ << "  async_id:\n";
     out_ << "    instance: " << asyncId.instanceId << "\n";
     out_ << "    recorder: " << asyncId.recorderId << "\n";
-    out_ << "  time: " << duration.data << "\n";
+    out_ << "  time: " << duration << "\n";
   }
   bool dirty() const { return nullptr != _name; }
 
 protected:
   const char *_name;
-  AsyncId _asyncId;
+  AsyncId<Clock> _asyncId;
   TimePoint _time;
 };
 

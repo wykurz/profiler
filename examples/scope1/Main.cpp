@@ -1,14 +1,14 @@
 #include <Profiler/Api.h>
 
-void f1() { PROFILER_SCOPE(); }
+void f1() { PROFILER_RDTSC_SCOPE(); }
 
 void f2() {
-  PROFILER_SCOPE();
+  PROFILER_STEADY_SCOPE();
   f1();
 }
 
 void f3() {
-  PROFILER_SCOPE();
+  PROFILER_STEADY_SCOPE();
   f2();
   f1();
 }

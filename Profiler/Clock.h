@@ -36,6 +36,11 @@ inline std::istream &operator>>(std::istream &in_, Rdtsc::Duration &duration_) {
   return in_;
 }
 
+inline std::ostream &operator<<(std::ostream &out_, const Rdtsc::Duration &duration_) {
+  out_ << duration_.data;
+  return out_;
+}
+
 struct Steady {
   struct TimePoint {
     using Storage = decltype(std::chrono::steady_clock::now());
@@ -59,6 +64,11 @@ inline std::ostream &operator<<(std::ostream &out_,
 inline std::istream &operator>>(std::istream &in_, Steady::Duration &duration_) {
   duration_.data = Steady::Duration::Storage{Serialize::decode<std::uint64_t>(in_)};
   return in_;
+}
+
+inline std::ostream &operator<<(std::ostream &out_, const Steady::Duration &duration_) {
+  out_ << duration_.data.count();
+  return out_;
 }
 } // namespace Clock
 } // namespace Profiler

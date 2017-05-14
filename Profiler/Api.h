@@ -1,6 +1,7 @@
 #ifndef _PROFILER_API_H
 #define _PROFILER_API_H
 
+#include <Profiler/Clock.h>
 #include <Profiler/Config.h>
 #include <Profiler/Decoder.h>
 #include <Profiler/Instrumentation.h>
@@ -13,11 +14,13 @@ template <typename RecordTypes_ = Mpl::TypeList<>> void primeThisThread() {
   Profiler::Control::primeThisThread<RecordTypes_>();
 }
 inline void stopWriter() { Profiler::Control::getManager().stopWriter(); }
-inline Record::AsyncId recordAsyncStart(const char *name_) {
-  return Instrumentation::recordAsyncStart(name_);
+template <typename Clock_>
+inline Record::AsyncId<Clock_> recordAsyncStart(const char *name_) {
+  return Instrumentation::recordAsyncStart<Clock_>(name_);
 }
-inline void recordAsyncEnd(const char *name_, Record::AsyncId asyncId_) {
-  Instrumentation::recordAsyncEnd(name_, asyncId_);
+template <typename Clock_>
+inline void recordAsyncEnd(const char *name_, Record::AsyncId<Clock_> asyncId_) {
+  Instrumentation::recordAsyncEnd<Clock_>(name_, asyncId_);
 }
 } // namespace Profiler
 

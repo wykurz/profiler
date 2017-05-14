@@ -40,6 +40,15 @@ template <> struct Preamble<Clock::Rdtsc> {
     out_ << "- rdtsc: " << rdtscBase.data << "\n";
   }
 };
+
+template <> struct Preamble<Clock::Steady> {
+  static void encode(std::ostream &out_) {
+    // TODO(mateusz): fill in!
+  }
+  static void decode(std::istream &in_, std::ostream &out_) {
+    // TODO(mateusz): fill in!
+  }
+};
 } // namespace Record
 } // namespace Profiler
 

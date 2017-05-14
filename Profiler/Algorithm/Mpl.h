@@ -44,13 +44,13 @@ struct Concat;
 template <typename Arg_, typename... Args_, typename Types2_, typename Res_>
 struct Concat<TypeList<Arg_, Args_...>, Types2_, Res_>
 {
-  using type = Concat<TypeList<Args_...>, Types2_, Append<Arg_, Res_> >;
+  using type = typename Concat<TypeList<Args_...>, Types2_, typename Append<Arg_, Res_>::type>::type;
 };
 
 template <typename Arg_, typename... Args_, typename Res_>
 struct Concat<TypeList<>, TypeList<Arg_, Args_...>, Res_>
 {
-  using type = Concat<TypeList<>, TypeList<Args_...>, Append<Arg_, Res_> >;
+  using type = typename Concat<TypeList<>, TypeList<Args_...>, typename Append<Arg_, Res_>::type>::type;
 };
 
 template <typename Res_>

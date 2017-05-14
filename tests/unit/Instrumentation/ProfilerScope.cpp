@@ -9,7 +9,7 @@ namespace Test {
 namespace {
 
 int testFunc2() {
-  PROFILER_SCOPE();
+  PROFILER_RDTSC_SCOPE();
   int mod = 107;
   int res = 1;
   for (int i = 2; i < 1e7; ++i)
@@ -18,7 +18,7 @@ int testFunc2() {
 }
 
 void testFunc1() {
-  PROFILER_SCOPE();
+  PROFILER_STEADY_SCOPE();
   testFunc2();
   testFunc2();
 }

@@ -1,7 +1,6 @@
 #ifndef _PROFILER_INSTRUMENTATION_PROFILERRECORD_H
 #define _PROFILER_INSTRUMENTATION_PROFILERRECORD_H
 
-#include <Profiler/Clock.h>
 #include <Profiler/Control/RecordManager.h>
 #include <Profiler/Control/ThreadRecords.h>
 #include <Profiler/Defines.h>
@@ -25,32 +24,35 @@ void doRecord(Control::RecordManager<Record_> &recordManager_,
 }
 } // namespace Internal
 
+template <typename Clock_>
 struct ProfilerScope {
   explicit ProfilerScope(const char *name_) : _record(name_) {}
   ~ProfilerScope() {
     _record.finish();
-    Internal::doRecord(Control::getThreadRecords<Record::RdtscScopeRecord>()
+    Internal::doRecord(Control::getThreadRecords<Record::ScopeRecord<Clock_> >()
                            .getRecordManager(),
                        std::move(_record));
   }
 
 private:
-  Record::RdtscScopeRecord _record;
+  Record::ScopeRecord<Clock_> _record;
 };
 
-inline Record::AsyncId recordAsyncStart(const char *name_) {
-  using RecordType = Record::RdtscAsyncRecordStart;
-  auto record = Record::RdtscAsyncRecordStart(name_);
+template <typename Clock_>
+inline Record::AsyncId<Clock_> recordAsyncStart(const char *name_) {
+  using RecordType = Record::AsyncRecordStart<Clock_>;
+  auto record = RecordType(name_);
   auto asyncId = record.asyncId();
   Internal::doRecord(Control::getThreadRecords<RecordType>().getRecordManager(),
                      std::move(record));
   return asyncId;
 }
 
-inline void recordAsyncEnd(const char *name_, Record::AsyncId asyncId_) {
-  using RecordType = Record::RdtscAsyncRecordEnd;
+template <typename Clock_>
+inline void recordAsyncEnd(const char *name_, Record::AsyncId<Clock_> asyncId_) {
+  using RecordType = Record::AsyncRecordEnd<Clock_>;
   Internal::doRecord(Control::getThreadRecords<RecordType>().getRecordManager(),
-                     Record::RdtscAsyncRecordEnd(name_, asyncId_));
+                     RecordType(name_, asyncId_));
 }
 } // namespace Instrumentation
 } // namespace Profiler
@@ -62,9 +64,15 @@ inline void recordAsyncEnd(const char *name_, Record::AsyncId asyncId_) {
 #define _CAT_II(p, res) res
 #define _UNIQUE_NAME(base) _CAT(base, __COUNTER__)
 
-#define PROFILER_SCOPE_EX(name)                                                \
-  Profiler::Instrumentation::ProfilerScope _UNIQUE_NAME(statsScope)(name)
-#define PROFILER_SCOPE() PROFILER_SCOPE_EX(PROFILER_FUNCTION)
+#define PROFILER_RDTSC_SCOPE_EX(name_)                               \
+  Profiler::Instrumentation::ProfilerScope<Profiler::Clock::Rdtsc>   \
+  _UNIQUE_NAME(statsScope)(name_)
+#define PROFILER_RDTSC_SCOPE(ClockType_) PROFILER_RDTSC_SCOPE_EX(PROFILER_FUNCTION)
+
+#define PROFILER_STEADY_SCOPE_EX(name_)                               \
+  Profiler::Instrumentation::ProfilerScope<Profiler::Clock::Steady>   \
+  _UNIQUE_NAME(statsScope)(name_)
+#define PROFILER_STEADY_SCOPE(ClockType_) PROFILER_STEADY_SCOPE_EX(PROFILER_FUNCTION)
 
 #endif // PROFILER_NO_MACROS
 
