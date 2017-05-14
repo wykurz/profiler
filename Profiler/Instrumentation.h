@@ -30,9 +30,9 @@ template <typename Clock_> struct ProfilerScope {
   using StorageType = typename RecordBundle::Storage;
   explicit ProfilerScope(const char *name_) : _record(name_) {}
   ~ProfilerScope() {
-    Internal::doRecord(Control::getThreadRecords<StorageType>()
-                           .getRecordManager(),
-                       _record.finish());
+    Internal::doRecord(
+        Control::getThreadRecords<StorageType>().getRecordManager(),
+        _record.finish());
   }
 
 private:
@@ -46,8 +46,9 @@ inline Record::AsyncId<Clock_> recordAsyncStart(const char *name_) {
   using StorageType = typename RecordBundle::Storage;
   auto record = RecordType(name_);
   auto asyncId = record.asyncId();
-  Internal::doRecord(Control::getThreadRecords<StorageType>().getRecordManager(),
-                     std::move(record));
+  Internal::doRecord(
+      Control::getThreadRecords<StorageType>().getRecordManager(),
+      std::move(record));
   return asyncId;
 }
 
@@ -57,8 +58,9 @@ inline void recordAsyncEnd(const char *name_,
   using RecordBundle = Record::AsyncRecordEnd<Clock_>;
   using RecordType = typename RecordBundle::Record;
   using StorageType = typename RecordBundle::Storage;
-  Internal::doRecord(Control::getThreadRecords<StorageType>().getRecordManager(),
-                     RecordType(name_, asyncId_));
+  Internal::doRecord(
+      Control::getThreadRecords<StorageType>().getRecordManager(),
+      RecordType(name_, asyncId_));
 }
 } // namespace Instrumentation
 } // namespace Profiler

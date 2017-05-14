@@ -128,14 +128,12 @@ protected:
   TimePoint _time;
 };
 
-template <typename Clock_>
-struct AsyncRecordStart {
+template <typename Clock_> struct AsyncRecordStart {
   using Record = AsyncRecordStartImpl<Clock_>;
   using Storage = AsyncRecordStartImpl<Clock_>;
 };
 
-template <typename Clock_>
-struct AsyncRecordEnd {
+template <typename Clock_> struct AsyncRecordEnd {
   using Record = AsyncRecordEndImpl<Clock_>;
   using Storage = AsyncRecordEndImpl<Clock_>;
 };

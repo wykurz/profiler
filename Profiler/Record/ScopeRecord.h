@@ -20,9 +20,9 @@ template <typename Clock_> struct ScopeStorage {
   using Clock = Clock_;
   using TimePoint = typename Clock::TimePoint;
   using Duration = typename Clock::Duration;
-  ScopeStorage(const char *name_, TimePoint t0_, TimePoint t1_, std::size_t depth_,
-               std::size_t seqNum_)
-      : _name(name_), _t0(t0_), _t1(t1_), _depth(depth_), _seqNum(seqNum_) { }
+  ScopeStorage(const char *name_, TimePoint t0_, TimePoint t1_,
+               std::size_t depth_, std::size_t seqNum_)
+      : _name(name_), _t0(t0_), _t1(t1_), _depth(depth_), _seqNum(seqNum_) {}
   static void encodePreamble(std::ostream &out_) {
     Preamble<Clock>::encode(out_);
   }
@@ -69,7 +69,8 @@ struct ScopeRecordBase {
   }
   std::size_t depth() const { return _depth; }
   std::size_t seqNum() const { return _seqNum; }
- private:
+
+private:
   static std::size_t &threadDepth() {
     thread_local std::size_t value;
     return value;
@@ -85,7 +86,8 @@ struct ScopeRecordBase {
 template <typename Clock_> struct ScopeRecordImpl : ScopeRecordBase {
   using Clock = Clock_;
   using TimePoint = typename Clock::TimePoint;
-  explicit ScopeRecordImpl(const char *name_) : _name(name_), _t0(Clock::now()) {
+  explicit ScopeRecordImpl(const char *name_)
+      : _name(name_), _t0(Clock::now()) {
     PROFILER_ASSERT(name_);
     std::atomic_signal_fence(std::memory_order_acq_rel);
   }
@@ -99,8 +101,7 @@ private:
   TimePoint _t0;
 };
 
-template <typename Clock_>
-struct ScopeRecord {
+template <typename Clock_> struct ScopeRecord {
   using Record = ScopeRecordImpl<Clock_>;
   using Storage = ScopeStorage<Clock_>;
 };
