@@ -42,10 +42,10 @@ template <> struct Preamble<Clock::Rdtsc> {
 };
 
 template <> struct Preamble<Clock::Steady> {
-  static void encode(std::ostream &out_) {
+  static void encode(std::ostream & /*out_*/) {
     // TODO(mateusz): fill in!
   }
-  static void decode(std::istream &in_, std::ostream &out_) {
+  static void decode(std::istream & /*in_*/, std::ostream & /*out_*/) {
     // TODO(mateusz): fill in!
   }
 };

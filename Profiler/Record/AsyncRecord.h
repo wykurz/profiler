@@ -81,7 +81,7 @@ protected:
   TimePoint _time = Clock::now();
 };
 
-// TODO: Make End a Cont (Continuation), meaning that we should be able to chain
+// TODO(mateusz): Make End a Cont (Continuation), meaning that we should be able to chain
 // more than 2 async events: Start -> Cont -> Cont -> ... -> Cont
 template <typename Clock_> struct AsyncRecordEnd {
   using Clock = Clock_;
