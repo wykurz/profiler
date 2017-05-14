@@ -25,24 +25,28 @@ void doRecord(Control::RecordManager<Record_> &recordManager_,
 } // namespace Internal
 
 template <typename Clock_> struct ProfilerScope {
+  using RecordBundle = typename Record::ScopeRecord<Clock_>;
+  using RecordType = typename RecordBundle::Record;
+  using StorageType = typename RecordBundle::Storage;
   explicit ProfilerScope(const char *name_) : _record(name_) {}
   ~ProfilerScope() {
-    _record.finish();
-    Internal::doRecord(Control::getThreadRecords<Record::ScopeRecord<Clock_>>()
+    Internal::doRecord(Control::getThreadRecords<StorageType>()
                            .getRecordManager(),
-                       std::move(_record));
+                       _record.finish());
   }
 
 private:
-  Record::ScopeRecord<Clock_> _record;
+  RecordType _record;
 };
 
 template <typename Clock_>
 inline Record::AsyncId<Clock_> recordAsyncStart(const char *name_) {
-  using RecordType = Record::AsyncRecordStart<Clock_>;
+  using RecordBundle = Record::AsyncRecordStart<Clock_>;
+  using RecordType = typename RecordBundle::Record;
+  using StorageType = typename RecordBundle::Storage;
   auto record = RecordType(name_);
   auto asyncId = record.asyncId();
-  Internal::doRecord(Control::getThreadRecords<RecordType>().getRecordManager(),
+  Internal::doRecord(Control::getThreadRecords<StorageType>().getRecordManager(),
                      std::move(record));
   return asyncId;
 }
@@ -50,8 +54,10 @@ inline Record::AsyncId<Clock_> recordAsyncStart(const char *name_) {
 template <typename Clock_>
 inline void recordAsyncEnd(const char *name_,
                            Record::AsyncId<Clock_> asyncId_) {
-  using RecordType = Record::AsyncRecordEnd<Clock_>;
-  Internal::doRecord(Control::getThreadRecords<RecordType>().getRecordManager(),
+  using RecordBundle = Record::AsyncRecordEnd<Clock_>;
+  using RecordType = typename RecordBundle::Record;
+  using StorageType = typename RecordBundle::Storage;
+  Internal::doRecord(Control::getThreadRecords<StorageType>().getRecordManager(),
                      RecordType(name_, asyncId_));
 }
 } // namespace Instrumentation

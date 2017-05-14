@@ -38,12 +38,12 @@ std::istream &operator>>(std::istream &in_, AsyncId<Clock_> &asyncId_) {
   return in_;
 }
 
-template <typename Clock_> struct AsyncRecordStart {
+template <typename Clock_> struct AsyncRecordStartImpl {
   using Clock = Clock_;
-  using This = AsyncRecordStart;
+  using This = AsyncRecordStartImpl;
   using TimePoint = typename Clock::TimePoint;
   using Duration = typename Clock::Duration;
-  explicit AsyncRecordStart(const char *name_) : _name(name_) {
+  explicit AsyncRecordStartImpl(const char *name_) : _name(name_) {
     PROFILER_ASSERT(name_);
     std::atomic_signal_fence(std::memory_order_acq_rel);
   }
@@ -84,11 +84,11 @@ protected:
 // TODO(mateusz): Make End a Cont (Continuation), meaning that we should be able
 // to chain
 // more than 2 async events: Start -> Cont -> Cont -> ... -> Cont
-template <typename Clock_> struct AsyncRecordEnd {
+template <typename Clock_> struct AsyncRecordEndImpl {
   using Clock = Clock_;
   using TimePoint = typename Clock::TimePoint;
   using Duration = typename Clock::Duration;
-  AsyncRecordEnd(const char *name_, AsyncId<Clock> asyncId_)
+  AsyncRecordEndImpl(const char *name_, AsyncId<Clock> asyncId_)
       : _name(name_), _asyncId(std::move(asyncId_)), _time(Clock::now()) {
     PROFILER_ASSERT(name_);
     std::atomic_signal_fence(std::memory_order_acq_rel);
@@ -128,9 +128,17 @@ protected:
   TimePoint _time;
 };
 
-using RdtscAsyncRecordStart = AsyncRecordStart<Clock::Rdtsc>;
-using RdtscAsyncRecordEnd = AsyncRecordEnd<Clock::Rdtsc>;
+template <typename Clock_>
+struct AsyncRecordStart {
+  using Record = AsyncRecordStartImpl<Clock_>;
+  using Storage = AsyncRecordStartImpl<Clock_>;
+};
 
+template <typename Clock_>
+struct AsyncRecordEnd {
+  using Record = AsyncRecordEndImpl<Clock_>;
+  using Storage = AsyncRecordEndImpl<Clock_>;
+};
 } // namespace Record
 } // namespace Profiler
 

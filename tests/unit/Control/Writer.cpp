@@ -38,18 +38,19 @@ struct MockOutputs : OutputFactory {
 BOOST_AUTO_TEST_SUITE(WriterTests)
 
 BOOST_AUTO_TEST_CASE(Basic) {
+  using RecordType = Record::ScopeRecord<Clock::Rdtsc>::Record;
+  using StorageType = Record::ScopeRecord<Clock::Rdtsc>::Storage;
   Arena arena{100000};
   HolderArray holderArray{1};
   MockOutputs outputs;
   {
     holderArray[0].setOut(outputs.newOutput(0));
-    ThreadRecords<Record::RdtscScopeRecord> threadRecords(
+    ThreadRecords<StorageType> threadRecords(
         Allocation(0, {}, arena, holderArray[0]));
     {
-      Record::RdtscScopeRecord record("test");
-      record.finish();
+      RecordType record("test");
       Instrumentation::Internal::doRecord(threadRecords.getRecordManager(),
-                                          std::move(record));
+                                          record.finish());
     }
   }
   Writer writer(holderArray, std::chrono::microseconds(100000));

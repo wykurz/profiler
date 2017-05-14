@@ -16,51 +16,21 @@
 namespace Profiler {
 namespace Record {
 
-struct ScopeRecordBase {
-  ScopeRecordBase() {
-    _depth = threadDepth()++;
-    _seqNum = threadSeqNum()++;
-  }
-  void finish() {
-    PROFILER_ASSERT(1 <= threadDepth());
-    --threadDepth();
-  }
-  std::size_t depth() const { return _depth; }
-  std::size_t seqNum() const { return _seqNum; }
- private:
-  static std::size_t &threadDepth() {
-    thread_local std::size_t value;
-    return value;
-  }
-  static std::size_t &threadSeqNum() {
-    thread_local std::size_t value;
-    return value;
-  }
-  std::size_t _depth;
-  std::size_t _seqNum;
-};
-
-template <typename Clock_> struct ScopeRecord : ScopeRecordBase {
+template <typename Clock_> struct ScopeStorage {
   using Clock = Clock_;
   using TimePoint = typename Clock::TimePoint;
   using Duration = typename Clock::Duration;
-  explicit ScopeRecord(const char *name_) : _name(name_), _t0(Clock::now()) {
-    PROFILER_ASSERT(name_);
-    std::atomic_signal_fence(std::memory_order_acq_rel);
-  }
-  void finish() {
-    std::atomic_signal_fence(std::memory_order_acq_rel);
-    ScopeRecordBase::finish();
-    _t1 = Clock::now();
-  }
+  ScopeStorage(const char *name_, TimePoint t0_, TimePoint t1_, std::size_t depth_,
+               std::size_t seqNum_)
+      : _name(name_), _t0(t0_), _t1(t1_), _depth(depth_), _seqNum(seqNum_) { }
   static void encodePreamble(std::ostream &out_) {
     Preamble<Clock>::encode(out_);
   }
   void encode(std::ostream &out_) {
     Serialize::encodeString(out_, _name);
     out_ << _t0 << _t1;
-    Serialize::encode(out_, depth());
-    Serialize::encode(out_, seqNum());
+    Serialize::encode(out_, _depth);
+    Serialize::encode(out_, _seqNum);
   }
   static void decodePreamble(std::istream &in_, std::ostream &out_) {
     Preamble<Clock>::decode(in_, out_);
@@ -84,11 +54,56 @@ private:
   const char *_name;
   TimePoint _t0;
   TimePoint _t1;
+  std::size_t _depth;
+  std::size_t _seqNum;
 };
 
-using RdtscScopeRecord = ScopeRecord<Clock::Rdtsc>;
-using SteadyScopeRecord = ScopeRecord<Clock::Steady>;
+struct ScopeRecordBase {
+  ScopeRecordBase() {
+    _depth = threadDepth()++;
+    _seqNum = threadSeqNum()++;
+  }
+  ~ScopeRecordBase() {
+    PROFILER_ASSERT(1 <= threadDepth());
+    --threadDepth();
+  }
+  std::size_t depth() const { return _depth; }
+  std::size_t seqNum() const { return _seqNum; }
+ private:
+  static std::size_t &threadDepth() {
+    thread_local std::size_t value;
+    return value;
+  }
+  static std::size_t &threadSeqNum() {
+    thread_local std::size_t value;
+    return value;
+  }
+  std::size_t _depth;
+  std::size_t _seqNum;
+};
 
+template <typename Clock_> struct ScopeRecordImpl : ScopeRecordBase {
+  using Clock = Clock_;
+  using TimePoint = typename Clock::TimePoint;
+  explicit ScopeRecordImpl(const char *name_) : _name(name_), _t0(Clock::now()) {
+    PROFILER_ASSERT(name_);
+    std::atomic_signal_fence(std::memory_order_acq_rel);
+  }
+  ScopeStorage<Clock_> finish() {
+    std::atomic_signal_fence(std::memory_order_acq_rel);
+    return {_name, _t0, Clock::now(), depth(), seqNum()};
+  }
+
+private:
+  const char *_name;
+  TimePoint _t0;
+};
+
+template <typename Clock_>
+struct ScopeRecord {
+  using Record = ScopeRecordImpl<Clock_>;
+  using Storage = ScopeStorage<Clock_>;
+};
 } // namespace Record
 } // namespace Profiler
 
