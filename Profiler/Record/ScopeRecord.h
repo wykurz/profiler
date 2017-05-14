@@ -16,20 +16,41 @@
 namespace Profiler {
 namespace Record {
 
-template <typename Clock_> struct ScopeRecord {
+struct ScopeRecordBase {
+  ScopeRecordBase() {
+    _depth = threadDepth()++;
+    _seqNum = threadSeqNum()++;
+  }
+  void finish() {
+    PROFILER_ASSERT(1 <= threadDepth());
+    --threadDepth();
+  }
+  std::size_t depth() const { return _depth; }
+  std::size_t seqNum() const { return _seqNum; }
+ private:
+  static std::size_t &threadDepth() {
+    thread_local std::size_t value;
+    return value;
+  }
+  static std::size_t &threadSeqNum() {
+    thread_local std::size_t value;
+    return value;
+  }
+  std::size_t _depth;
+  std::size_t _seqNum;
+};
+
+template <typename Clock_> struct ScopeRecord : ScopeRecordBase {
   using Clock = Clock_;
   using TimePoint = typename Clock::TimePoint;
   using Duration = typename Clock::Duration;
   explicit ScopeRecord(const char *name_) : _name(name_), _t0(Clock::now()) {
     PROFILER_ASSERT(name_);
-    _depth = threadDepth()++;
-    _seqNum = threadSeqNum()++;
     std::atomic_signal_fence(std::memory_order_acq_rel);
   }
   void finish() {
     std::atomic_signal_fence(std::memory_order_acq_rel);
-    PROFILER_ASSERT(1 <= threadDepth());
-    --threadDepth();
+    ScopeRecordBase::finish();
     _t1 = Clock::now();
   }
   static void encodePreamble(std::ostream &out_) {
@@ -38,8 +59,8 @@ template <typename Clock_> struct ScopeRecord {
   void encode(std::ostream &out_) {
     Serialize::encodeString(out_, _name);
     out_ << _t0 << _t1;
-    Serialize::encode(out_, _depth);
-    Serialize::encode(out_, _seqNum);
+    Serialize::encode(out_, depth());
+    Serialize::encode(out_, seqNum());
   }
   static void decodePreamble(std::istream &in_, std::ostream &out_) {
     Preamble<Clock>::decode(in_, out_);
@@ -60,19 +81,9 @@ template <typename Clock_> struct ScopeRecord {
   bool dirty() const { return nullptr != _name; }
 
 private:
-  static std::size_t &threadDepth() {
-    thread_local std::size_t value;
-    return value;
-  }
-  static std::size_t &threadSeqNum() {
-    thread_local std::size_t value;
-    return value;
-  }
   const char *_name;
   TimePoint _t0;
   TimePoint _t1;
-  std::size_t _depth;
-  std::size_t _seqNum;
 };
 
 using RdtscScopeRecord = ScopeRecord<Clock::Rdtsc>;
