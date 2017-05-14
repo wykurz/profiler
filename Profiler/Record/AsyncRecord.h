@@ -19,8 +19,7 @@
 namespace Profiler {
 namespace Record {
 
-template <typename Clock_>
-struct AsyncId {
+template <typename Clock_> struct AsyncId {
   std::size_t instanceId;
   std::size_t recorderId;
 };
@@ -72,7 +71,9 @@ template <typename Clock_> struct AsyncRecordStart {
     out_ << "  time: " << duration << "\n";
   }
   bool dirty() const { return nullptr != _name; }
-  AsyncId<Clock> asyncId() const { return {Control::getManager().id(), _recorderId}; }
+  AsyncId<Clock> asyncId() const {
+    return {Control::getManager().id(), _recorderId};
+  }
 
 protected:
   const char *_name;

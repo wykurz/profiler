@@ -24,12 +24,11 @@ void doRecord(Control::RecordManager<Record_> &recordManager_,
 }
 } // namespace Internal
 
-template <typename Clock_>
-struct ProfilerScope {
+template <typename Clock_> struct ProfilerScope {
   explicit ProfilerScope(const char *name_) : _record(name_) {}
   ~ProfilerScope() {
     _record.finish();
-    Internal::doRecord(Control::getThreadRecords<Record::ScopeRecord<Clock_> >()
+    Internal::doRecord(Control::getThreadRecords<Record::ScopeRecord<Clock_>>()
                            .getRecordManager(),
                        std::move(_record));
   }
@@ -49,7 +48,8 @@ inline Record::AsyncId<Clock_> recordAsyncStart(const char *name_) {
 }
 
 template <typename Clock_>
-inline void recordAsyncEnd(const char *name_, Record::AsyncId<Clock_> asyncId_) {
+inline void recordAsyncEnd(const char *name_,
+                           Record::AsyncId<Clock_> asyncId_) {
   using RecordType = Record::AsyncRecordEnd<Clock_>;
   Internal::doRecord(Control::getThreadRecords<RecordType>().getRecordManager(),
                      RecordType(name_, asyncId_));
@@ -64,15 +64,17 @@ inline void recordAsyncEnd(const char *name_, Record::AsyncId<Clock_> asyncId_) 
 #define _CAT_II(p, res) res
 #define _UNIQUE_NAME(base) _CAT(base, __COUNTER__)
 
-#define PROFILER_RDTSC_SCOPE_EX(name_)                               \
-  Profiler::Instrumentation::ProfilerScope<Profiler::Clock::Rdtsc>   \
-  _UNIQUE_NAME(statsScope)(name_)
-#define PROFILER_RDTSC_SCOPE(ClockType_) PROFILER_RDTSC_SCOPE_EX(PROFILER_FUNCTION)
+#define PROFILER_RDTSC_SCOPE_EX(name_)                                         \
+  Profiler::Instrumentation::ProfilerScope<Profiler::Clock::Rdtsc>             \
+      _UNIQUE_NAME(statsScope)(name_)
+#define PROFILER_RDTSC_SCOPE(ClockType_)                                       \
+  PROFILER_RDTSC_SCOPE_EX(PROFILER_FUNCTION)
 
-#define PROFILER_STEADY_SCOPE_EX(name_)                               \
-  Profiler::Instrumentation::ProfilerScope<Profiler::Clock::Steady>   \
-  _UNIQUE_NAME(statsScope)(name_)
-#define PROFILER_STEADY_SCOPE(ClockType_) PROFILER_STEADY_SCOPE_EX(PROFILER_FUNCTION)
+#define PROFILER_STEADY_SCOPE_EX(name_)                                        \
+  Profiler::Instrumentation::ProfilerScope<Profiler::Clock::Steady>            \
+      _UNIQUE_NAME(statsScope)(name_)
+#define PROFILER_STEADY_SCOPE(ClockType_)                                      \
+  PROFILER_STEADY_SCOPE_EX(PROFILER_FUNCTION)
 
 #endif // PROFILER_NO_MACROS
 

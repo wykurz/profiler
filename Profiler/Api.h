@@ -19,7 +19,8 @@ inline Record::AsyncId<Clock_> recordAsyncStart(const char *name_) {
   return Instrumentation::recordAsyncStart<Clock_>(name_);
 }
 template <typename Clock_>
-inline void recordAsyncEnd(const char *name_, Record::AsyncId<Clock_> asyncId_) {
+inline void recordAsyncEnd(const char *name_,
+                           Record::AsyncId<Clock_> asyncId_) {
   Instrumentation::recordAsyncEnd<Clock_>(name_, asyncId_);
 }
 } // namespace Profiler

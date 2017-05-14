@@ -36,7 +36,8 @@ inline std::istream &operator>>(std::istream &in_, Rdtsc::Duration &duration_) {
   return in_;
 }
 
-inline std::ostream &operator<<(std::ostream &out_, const Rdtsc::Duration &duration_) {
+inline std::ostream &operator<<(std::ostream &out_,
+                                const Rdtsc::Duration &duration_) {
   out_ << duration_.data;
   return out_;
 }
@@ -55,18 +56,22 @@ struct Steady {
 
 inline std::ostream &operator<<(std::ostream &out_,
                                 const Steady::TimePoint &time_) {
-  std::uint64_t nanos =
-    std::chrono::duration_cast<std::chrono::nanoseconds>(time_.data.time_since_epoch()).count();
+  std::uint64_t nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                            time_.data.time_since_epoch())
+                            .count();
   Serialize::encode(out_, nanos);
   return out_;
 }
 
-inline std::istream &operator>>(std::istream &in_, Steady::Duration &duration_) {
-  duration_.data = Steady::Duration::Storage{Serialize::decode<std::uint64_t>(in_)};
+inline std::istream &operator>>(std::istream &in_,
+                                Steady::Duration &duration_) {
+  duration_.data =
+      Steady::Duration::Storage{Serialize::decode<std::uint64_t>(in_)};
   return in_;
 }
 
-inline std::ostream &operator<<(std::ostream &out_, const Steady::Duration &duration_) {
+inline std::ostream &operator<<(std::ostream &out_,
+                                const Steady::Duration &duration_) {
   out_ << duration_.data.count();
   return out_;
 }
