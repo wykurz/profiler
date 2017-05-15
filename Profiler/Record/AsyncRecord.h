@@ -48,6 +48,7 @@ template <typename Clock_> struct AsyncRecordImpl {
     PROFILER_ASSERT(name_);
     std::atomic_signal_fence(std::memory_order_acq_rel);
   }
+  AsyncId<Clock_> asyncId() const { return _asyncId; }
   static void encodePreamble(std::ostream &out_) {
     Serialize::encode(out_, Control::getManager().id());
     Preamble<Clock>::encode(out_);

@@ -39,28 +39,17 @@ private:
   RecordType _record;
 };
 
-template <typename Clock_>
-inline Record::AsyncId<Clock_> recordAsyncStart(const char *name_) {
-  using RecordBundle = Record::AsyncRecordStart<Clock_>;
+template <typename Clock_, typename... Args_>
+inline Record::AsyncId<Clock_> recordAsync(const char *name_, Args_... args_) {
+  using RecordBundle = Record::AsyncRecord<Clock_>;
   using RecordType = typename RecordBundle::Record;
   using StorageType = typename RecordBundle::Storage;
-  auto record = RecordType(name_);
+  auto record = RecordType(name_, std::forward<Args_...>(args_)...);
   auto asyncId = record.asyncId();
   Internal::doRecord(
       Control::getThreadRecords<StorageType>().getRecordManager(),
       std::move(record));
   return asyncId;
-}
-
-template <typename Clock_>
-inline void recordAsyncEnd(const char *name_,
-                           Record::AsyncId<Clock_> asyncId_) {
-  using RecordBundle = Record::AsyncRecordEnd<Clock_>;
-  using RecordType = typename RecordBundle::Record;
-  using StorageType = typename RecordBundle::Storage;
-  Internal::doRecord(
-      Control::getThreadRecords<StorageType>().getRecordManager(),
-      RecordType(name_, asyncId_));
 }
 } // namespace Instrumentation
 } // namespace Profiler
