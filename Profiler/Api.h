@@ -16,7 +16,8 @@ template <typename RecordTypes_ = Mpl::TypeList<>> void primeThisThread() {
 inline void stopWriter() { Profiler::Control::getManager().stopWriter(); }
 template <typename Clock_, typename... Args_>
 inline Record::AsyncId<Clock_> recordAsync(const char *name_, Args_... args_) {
-  return Instrumentation::recordAsync<Clock_>(name_, std::forward<Args_...>(args_)...);
+  return Instrumentation::recordAsync<Clock_>(name_,
+                                              std::forward<Args_...>(args_)...);
 }
 } // namespace Profiler
 

@@ -43,7 +43,9 @@ template <typename Clock_> struct AsyncRecordImpl {
   using This = AsyncRecordImpl<Clock_>;
   using TimePoint = typename Clock::TimePoint;
   using Duration = typename Clock::Duration;
-  AsyncRecordImpl(const char *name_, AsyncId<Clock> asyncId_ = {Control::getManager().id(), Control::getThreadRecords<This>().id})
+  AsyncRecordImpl(const char *name_, AsyncId<Clock> asyncId_ =
+                                         {Control::getManager().id(),
+                                          Control::getThreadRecords<This>().id})
       : _name(name_), _asyncId(std::move(asyncId_)), _time(Clock::now()) {
     PROFILER_ASSERT(name_);
     std::atomic_signal_fence(std::memory_order_acq_rel);
