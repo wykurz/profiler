@@ -7,7 +7,6 @@
 #include <Profiler/Control/ThreadRecords.h>
 #include <Profiler/Exception.h>
 #include <Profiler/Log.h>
-#include <Profiler/Record/RecordCommon.h>
 #include <Profiler/Serialize.h>
 #include <atomic>
 #include <chrono>
@@ -54,7 +53,6 @@ template <typename Clock_> struct AsyncRecordImpl {
   AsyncId<Clock_> asyncId() const { return _asyncId; }
   static void encodePreamble(std::ostream &out_) {
     Serialize::encode(out_, Control::getManager().id());
-    Preamble<Clock>::encode(out_);
   }
   void encode(std::ostream &out_) {
     Serialize::encodeString(out_, _name);
@@ -64,7 +62,6 @@ template <typename Clock_> struct AsyncRecordImpl {
   static void decodePreamble(std::istream &in_, std::ostream &out_) {
     auto instanceId = Serialize::decode<std::size_t>(in_);
     out_ << "instance: " << instanceId << "\n";
-    Preamble<Clock>::decode(in_, out_);
   }
   static void decode(std::istream &in_, std::ostream &out_) {
     DLOG("Loop in ScopeRecordStart decode, currently at: " << in_.tellg());

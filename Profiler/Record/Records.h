@@ -14,7 +14,8 @@ using RecordTemplates =
     Mpl::TypeList<Record::AsyncRecord<Clock_>, Record::ScopeRecord<Clock_>>;
 
 using NativeRecords = Mpl::Concat<RecordTemplates<Clock::Rdtsc>,
-                                  RecordTemplates<Clock::Steady>>::type;
+                                  RecordTemplates<Clock::Steady>,
+                                  RecordTemplates<Clock::System>>::type;
 } // namespace Record
 } // namespace Profiler
 

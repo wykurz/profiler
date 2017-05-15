@@ -75,7 +75,40 @@ inline std::ostream &operator<<(std::ostream &out_,
   out_ << duration_.data.count();
   return out_;
 }
-// TODO(mateusz): - add system clock!
+
+struct System {
+  struct TimePoint {
+    using Storage = decltype(std::chrono::system_clock::now());
+    Storage data;
+  };
+  struct Duration {
+    using Storage = std::chrono::nanoseconds;
+    Storage data;
+  };
+  static TimePoint now() { return {std::chrono::system_clock::now()}; }
+};
+
+inline std::ostream &operator<<(std::ostream &out_,
+                                const System::TimePoint &time_) {
+  std::uint64_t nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                            time_.data.time_since_epoch())
+                            .count();
+  Serialize::encode(out_, nanos);
+  return out_;
+}
+
+inline std::istream &operator>>(std::istream &in_,
+                                System::Duration &duration_) {
+  duration_.data =
+      System::Duration::Storage{Serialize::decode<std::uint64_t>(in_)};
+  return in_;
+}
+
+inline std::ostream &operator<<(std::ostream &out_,
+                                const System::Duration &duration_) {
+  out_ << duration_.data.count();
+  return out_;
+}
 } // namespace Clock
 } // namespace Profiler
 
