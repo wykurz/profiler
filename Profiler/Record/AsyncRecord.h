@@ -38,57 +38,12 @@ std::istream &operator>>(std::istream &in_, AsyncId<Clock_> &asyncId_) {
   return in_;
 }
 
-template <typename Clock_> struct AsyncRecordStartImpl {
+template <typename Clock_> struct AsyncRecordImpl {
   using Clock = Clock_;
-  using This = AsyncRecordStartImpl;
+  using This = AsyncRecordImpl<Clock_>;
   using TimePoint = typename Clock::TimePoint;
   using Duration = typename Clock::Duration;
-  explicit AsyncRecordStartImpl(const char *name_) : _name(name_) {
-    PROFILER_ASSERT(name_);
-    std::atomic_signal_fence(std::memory_order_acq_rel);
-  }
-  static void encodePreamble(std::ostream &out_) {
-    Serialize::encode(out_, Control::getManager().id());
-    Preamble<Clock>::encode(out_);
-  }
-  void encode(std::ostream &out_) {
-    Serialize::encodeString(out_, _name);
-    Serialize::encode(out_, _recorderId);
-    out_ << _time;
-  }
-  static void decodePreamble(std::istream &in_, std::ostream &out_) {
-    auto instanceId = Serialize::decode<std::size_t>(in_);
-    out_ << "instance: " << instanceId << "\n";
-    Preamble<Clock>::decode(in_, out_);
-  }
-  static void decode(std::istream &in_, std::ostream &out_) {
-    auto name = Serialize::decodeString(in_);
-    auto recorderId = Serialize::decode<std::size_t>(in_);
-    Duration duration;
-    in_ >> duration;
-    out_ << "- name: " << name << "\n";
-    out_ << "  recorder: " << recorderId << "\n";
-    out_ << "  time: " << duration << "\n";
-  }
-  bool dirty() const { return nullptr != _name; }
-  AsyncId<Clock> asyncId() const {
-    return {Control::getManager().id(), _recorderId};
-  }
-
-protected:
-  const char *_name;
-  std::size_t _recorderId = Control::getThreadRecords<This>().id;
-  TimePoint _time = Clock::now();
-};
-
-// TODO(mateusz): Make End a Cont (Continuation), meaning that we should be able
-// to chain
-// more than 2 async events: Start -> Cont -> Cont -> ... -> Cont
-template <typename Clock_> struct AsyncRecordEndImpl {
-  using Clock = Clock_;
-  using TimePoint = typename Clock::TimePoint;
-  using Duration = typename Clock::Duration;
-  AsyncRecordEndImpl(const char *name_, AsyncId<Clock> asyncId_)
+  AsyncRecordImpl(const char *name_, AsyncId<Clock> asyncId_ = {Control::getManager().id(), Control::getThreadRecords<This>().id})
       : _name(name_), _asyncId(std::move(asyncId_)), _time(Clock::now()) {
     PROFILER_ASSERT(name_);
     std::atomic_signal_fence(std::memory_order_acq_rel);
@@ -128,14 +83,9 @@ protected:
   TimePoint _time;
 };
 
-template <typename Clock_> struct AsyncRecordStart {
-  using Record = AsyncRecordStartImpl<Clock_>;
-  using Storage = AsyncRecordStartImpl<Clock_>;
-};
-
-template <typename Clock_> struct AsyncRecordEnd {
-  using Record = AsyncRecordEndImpl<Clock_>;
-  using Storage = AsyncRecordEndImpl<Clock_>;
+template <typename Clock_> struct AsyncRecord {
+  using Record = AsyncRecordImpl<Clock_>;
+  using Storage = AsyncRecordImpl<Clock_>;
 };
 } // namespace Record
 } // namespace Profiler

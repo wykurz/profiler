@@ -22,7 +22,7 @@ template <typename Clock_> struct ScopeStorage {
   using Duration = typename Clock::Duration;
   ScopeStorage(const char *name_, TimePoint t0_, TimePoint t1_,
                std::size_t depth_, std::size_t seqNum_)
-      : _name(name_), _t0(t0_), _t1(t1_), _depth(depth_), _seqNum(seqNum_) {}
+      : _name(name_), _t0(std::move(t0_)), _t1(std::move(t1_)), _depth(depth_), _seqNum(seqNum_) {}
   static void encodePreamble(std::ostream &out_) {
     Preamble<Clock>::encode(out_);
   }
