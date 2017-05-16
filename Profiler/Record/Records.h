@@ -13,7 +13,7 @@ template <typename Clock_>
 using RecordStorageTemplates =
   Mpl::TypeList<Record::AsyncRecord<Clock_>, typename Record::ScopeRecord<Clock_>::Storage>;
 
-using NativeRecords =
+using RecordStorageTypes =
     Mpl::Concat<RecordStorageTemplates<Clock::Rdtsc>, RecordStorageTemplates<Clock::Steady>,
                 RecordStorageTemplates<Clock::System>>::type;
 } // namespace Record

@@ -76,7 +76,7 @@ private:
       DLOG("Registering: " << typeid(StorageType).name());
       funcMap[typeid(StorageType).name()] = Internal::decodeStream<StorageType>;
     };
-    Mpl::apply<Record::NativeRecords>(addDecodeFunc);
+    Mpl::apply<Record::RecordStorageTypes>(addDecodeFunc);
     Mpl::apply<RecordTypes_>(addDecodeFunc);
     return funcMap;
   }
