@@ -78,7 +78,7 @@ struct Manager {
 
   /**
    * Capture per-process instance name. It's particularly useful when
-   * identifying the begin of an async record if it crosses process boundaries.
+   * identifying the begin of an event record if it crosses process boundaries.
    */
   const std::size_t &id() { return _config.instanceId; }
 

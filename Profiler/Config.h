@@ -19,7 +19,7 @@ struct Config {
   static void setConfig(const Config &config_);
 
   /**
-   * Instance id is used when synchronizing async records across multiple
+   * Instance id is used when synchronizing event records across multiple
    * processes.
    */
   std::size_t instanceId = 0;

@@ -71,7 +71,7 @@ template <typename Clock_> struct EventRecord {
     Duration duration;
     in_ >> duration;
     out_ << "- name: " << name << "\n";
-    out_ << "  async_id:\n";
+    out_ << "  event_id:\n";
     out_ << "    instance: " << eventId.instanceId << "\n";
     out_ << "    recorder: " << eventId.recorderId << "\n";
     out_ << "  time: " << duration << "\n";
