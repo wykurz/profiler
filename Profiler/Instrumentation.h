@@ -7,6 +7,7 @@
 #include <Profiler/Log.h>
 #include <Profiler/Record/EventRecord.h>
 #include <Profiler/Record/ScopeRecord.h>
+#include <utility>
 
 namespace Profiler {
 namespace Instrumentation {
@@ -39,9 +40,9 @@ private:
 };
 
 template <typename Clock_, typename... Args_>
-inline Record::EventId<Clock_> recordEvent(const char *name_, Args_... args_) {
+auto eventRecord(Args_&&... args_) {
   using RecordType = Record::EventRecord<Clock_>;
-  auto record = RecordType(name_, std::forward<Args_...>(args_)...);
+  auto record = RecordType(std::forward<Args_>(args_)...);
   auto eventId = record.eventId();
   Internal::doRecord(Control::getThreadRecords<RecordType>().getRecordManager(),
                      std::move(record));

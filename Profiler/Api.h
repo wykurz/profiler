@@ -5,6 +5,7 @@
 #include <Profiler/Config.h>
 #include <Profiler/Decoder.h>
 #include <Profiler/Instrumentation.h>
+#include <utility>
 
 namespace Profiler {
 
@@ -15,9 +16,8 @@ template <typename RecordTypes_ = Mpl::TypeList<>> void primeThisThread() {
 }
 inline void stopWriter() { Profiler::Control::getManager().stopWriter(); }
 template <typename Clock_, typename... Args_>
-inline Record::EventId<Clock_> recordEvent(const char *name_, Args_... args_) {
-  return Instrumentation::recordEvent<Clock_>(name_,
-                                              std::forward<Args_...>(args_)...);
+auto eventRecord(Args_&&... args_) {
+  return Instrumentation::eventRecord<Clock_>(std::forward<Args_>(args_)...);
 }
 } // namespace Profiler
 
