@@ -10,12 +10,12 @@ namespace Profiler {
 namespace Record {
 
 template <typename Clock_>
-using RecordTemplates =
-    Mpl::TypeList<Record::AsyncRecord<Clock_>, Record::ScopeRecord<Clock_>>;
+using RecordStorageTemplates =
+  Mpl::TypeList<Record::AsyncRecord<Clock_>, typename Record::ScopeRecord<Clock_>::Storage>;
 
 using NativeRecords =
-    Mpl::Concat<RecordTemplates<Clock::Rdtsc>, RecordTemplates<Clock::Steady>,
-                RecordTemplates<Clock::System>>::type;
+    Mpl::Concat<RecordStorageTemplates<Clock::Rdtsc>, RecordStorageTemplates<Clock::Steady>,
+                RecordStorageTemplates<Clock::System>>::type;
 } // namespace Record
 } // namespace Profiler
 

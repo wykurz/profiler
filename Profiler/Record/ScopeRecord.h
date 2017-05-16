@@ -79,15 +79,16 @@ private:
   std::size_t _seqNum;
 };
 
-template <typename Clock_> struct ScopeRecordImpl : ScopeRecordBase {
+template <typename Clock_> struct ScopeRecord : ScopeRecordBase {
   using Clock = Clock_;
+  using Storage = ScopeStorage<Clock_>;
   using TimePoint = typename Clock::TimePoint;
-  explicit ScopeRecordImpl(const char *name_)
+  explicit ScopeRecord(const char *name_)
       : _name(name_), _t0(Clock::now()) {
     PROFILER_ASSERT(name_);
     std::atomic_signal_fence(std::memory_order_acq_rel);
   }
-  ScopeStorage<Clock_> finish() {
+  Storage finish() {
     std::atomic_signal_fence(std::memory_order_acq_rel);
     return {_name, _t0, Clock::now(), depth(), seqNum()};
   }
@@ -97,10 +98,6 @@ private:
   TimePoint _t0;
 };
 
-template <typename Clock_> struct ScopeRecord {
-  using Record = ScopeRecordImpl<Clock_>;
-  using Storage = ScopeStorage<Clock_>;
-};
 } // namespace Record
 } // namespace Profiler
 

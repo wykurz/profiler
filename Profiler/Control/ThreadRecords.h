@@ -35,7 +35,7 @@ template <typename Record_> ThreadRecords<Record_> &getThreadRecords() {
 template <typename RecordTypes_> void primeThisThread() {
   auto requestRecordType = [](auto dummy_) {
     using RecordType = typename decltype(dummy_)::Type;
-    getThreadRecords<typename RecordType::Storage>();
+    getThreadRecords<RecordType>();
   };
   Mpl::apply<RecordTypes_>(requestRecordType);
 }

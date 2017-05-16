@@ -72,7 +72,7 @@ private:
   static std::unordered_map<std::string, DecodeFunc> genFuncMap() {
     std::unordered_map<std::string, Decoder::DecodeFunc> funcMap;
     auto addDecodeFunc = [&funcMap](auto dummy_) {
-      using StorageType = typename decltype(dummy_)::Type::Storage;
+      using StorageType = typename decltype(dummy_)::Type;
       DLOG("Registering: " << typeid(StorageType).name());
       funcMap[typeid(StorageType).name()] = Internal::decodeStream<StorageType>;
     };

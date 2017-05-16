@@ -38,7 +38,7 @@ struct MockOutputs : OutputFactory {
 BOOST_AUTO_TEST_SUITE(WriterTests)
 
 BOOST_AUTO_TEST_CASE(Basic) {
-  using RecordType = Record::ScopeRecord<Clock::Rdtsc>::Record;
+  using RecordType = Record::ScopeRecord<Clock::Rdtsc>;
   using StorageType = Record::ScopeRecord<Clock::Rdtsc>::Storage;
   Arena arena{100000};
   HolderArray holderArray{1};

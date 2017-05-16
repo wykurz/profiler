@@ -37,12 +37,12 @@ std::istream &operator>>(std::istream &in_, AsyncId<Clock_> &asyncId_) {
   return in_;
 }
 
-template <typename Clock_> struct AsyncRecordImpl {
+template <typename Clock_> struct AsyncRecord {
   using Clock = Clock_;
-  using This = AsyncRecordImpl<Clock_>;
+  using This = AsyncRecord<Clock_>;
   using TimePoint = typename Clock::TimePoint;
   using Duration = typename Clock::Duration;
-  explicit AsyncRecordImpl(
+  explicit AsyncRecord(
       const char *name_,
       AsyncId<Clock> asyncId_ = {Control::getManager().id(),
                                  Control::getThreadRecords<This>().id})
@@ -82,11 +82,6 @@ protected:
   const char *_name;
   AsyncId<Clock> _asyncId;
   TimePoint _time;
-};
-
-template <typename Clock_> struct AsyncRecord {
-  using Record = AsyncRecordImpl<Clock_>;
-  using Storage = AsyncRecordImpl<Clock_>;
 };
 } // namespace Record
 } // namespace Profiler
