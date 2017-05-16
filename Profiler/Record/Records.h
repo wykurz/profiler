@@ -3,7 +3,7 @@
 
 #include <Profiler/Algorithm/Mpl.h>
 #include <Profiler/Clock.h>
-#include <Profiler/Record/AsyncRecord.h>
+#include <Profiler/Record/EventRecord.h>
 #include <Profiler/Record/ScopeRecord.h>
 
 namespace Profiler {
@@ -11,7 +11,7 @@ namespace Record {
 
 template <typename Clock_>
 using RecordStorageTemplates =
-    Mpl::TypeList<Record::AsyncRecord<Clock_>,
+    Mpl::TypeList<Record::EventRecord<Clock_>,
                   typename Record::ScopeRecord<Clock_>::Storage>;
 
 using RecordStorageTypes =

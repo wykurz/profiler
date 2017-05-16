@@ -5,7 +5,7 @@
 #include <Profiler/Control/ThreadRecords.h>
 #include <Profiler/Defines.h>
 #include <Profiler/Log.h>
-#include <Profiler/Record/AsyncRecord.h>
+#include <Profiler/Record/EventRecord.h>
 #include <Profiler/Record/ScopeRecord.h>
 
 namespace Profiler {
@@ -40,7 +40,7 @@ private:
 
 template <typename Clock_, typename... Args_>
 inline Record::AsyncId<Clock_> recordAsync(const char *name_, Args_... args_) {
-  using RecordType = Record::AsyncRecord<Clock_>;
+  using RecordType = Record::EventRecord<Clock_>;
   auto record = RecordType(name_, std::forward<Args_...>(args_)...);
   auto asyncId = record.asyncId();
   Internal::doRecord(Control::getThreadRecords<RecordType>().getRecordManager(),

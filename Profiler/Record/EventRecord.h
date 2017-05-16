@@ -37,12 +37,12 @@ std::istream &operator>>(std::istream &in_, AsyncId<Clock_> &asyncId_) {
   return in_;
 }
 
-template <typename Clock_> struct AsyncRecord {
+template <typename Clock_> struct EventRecord {
   using Clock = Clock_;
-  using This = AsyncRecord<Clock_>;
+  using This = EventRecord<Clock_>;
   using TimePoint = typename Clock::TimePoint;
   using Duration = typename Clock::Duration;
-  explicit AsyncRecord(
+  explicit EventRecord(
       const char *name_,
       AsyncId<Clock> asyncId_ = {Control::getManager().id(),
                                  Control::getThreadRecords<This>().id})
