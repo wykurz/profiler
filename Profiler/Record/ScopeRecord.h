@@ -96,7 +96,6 @@ private:
   const char *_name;
   TimePoint _t0;
 };
-
 } // namespace Record
 } // namespace Profiler
 

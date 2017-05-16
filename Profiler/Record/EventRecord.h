@@ -18,20 +18,20 @@
 namespace Profiler {
 namespace Record {
 
-template <typename Clock_> struct AsyncId {
+template <typename Clock_> struct EventId {
   std::size_t instanceId;
   std::size_t recorderId;
 };
 
 template <typename Clock_>
-std::ostream &operator<<(std::ostream &out_, const AsyncId<Clock_> &asyncId_) {
+std::ostream &operator<<(std::ostream &out_, const EventId<Clock_> &asyncId_) {
   Serialize::encode(out_, asyncId_.instanceId);
   Serialize::encode(out_, asyncId_.recorderId);
   return out_;
 }
 
 template <typename Clock_>
-std::istream &operator>>(std::istream &in_, AsyncId<Clock_> &asyncId_) {
+std::istream &operator>>(std::istream &in_, EventId<Clock_> &asyncId_) {
   asyncId_.instanceId = Serialize::decode<std::size_t>(in_);
   asyncId_.recorderId = Serialize::decode<std::size_t>(in_);
   return in_;
@@ -44,13 +44,13 @@ template <typename Clock_> struct EventRecord {
   using Duration = typename Clock::Duration;
   explicit EventRecord(
       const char *name_,
-      AsyncId<Clock> asyncId_ = {Control::getManager().id(),
+      EventId<Clock> asyncId_ = {Control::getManager().id(),
                                  Control::getThreadRecords<This>().id})
       : _name(name_), _asyncId(std::move(asyncId_)), _time(Clock::now()) {
     PROFILER_ASSERT(name_);
     std::atomic_signal_fence(std::memory_order_acq_rel);
   }
-  AsyncId<Clock_> asyncId() const { return _asyncId; }
+  EventId<Clock_> asyncId() const { return _asyncId; }
   static void encodePreamble(std::ostream &out_) {
     Serialize::encode(out_, Control::getManager().id());
   }
@@ -66,7 +66,7 @@ template <typename Clock_> struct EventRecord {
   static void decode(std::istream &in_, std::ostream &out_) {
     DLOG("Loop in ScopeRecordStart decode, currently at: " << in_.tellg());
     auto name = Serialize::decodeString(in_);
-    AsyncId<Clock> asyncId;
+    EventId<Clock> asyncId;
     in_ >> asyncId;
     Duration duration;
     in_ >> duration;
@@ -80,7 +80,7 @@ template <typename Clock_> struct EventRecord {
 
 protected:
   const char *_name;
-  AsyncId<Clock> _asyncId;
+  EventId<Clock> _asyncId;
   TimePoint _time;
 };
 } // namespace Record
