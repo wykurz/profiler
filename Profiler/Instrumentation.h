@@ -42,10 +42,10 @@ template <typename Clock_, typename... Args_>
 inline Record::EventId<Clock_> recordAsync(const char *name_, Args_... args_) {
   using RecordType = Record::EventRecord<Clock_>;
   auto record = RecordType(name_, std::forward<Args_...>(args_)...);
-  auto asyncId = record.asyncId();
+  auto eventId = record.eventId();
   Internal::doRecord(Control::getThreadRecords<RecordType>().getRecordManager(),
                      std::move(record));
-  return asyncId;
+  return eventId;
 }
 } // namespace Instrumentation
 } // namespace Profiler
