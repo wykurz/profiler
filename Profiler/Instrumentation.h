@@ -39,7 +39,7 @@ private:
 };
 
 template <typename Clock_, typename... Args_>
-inline Record::EventId<Clock_> recordAsync(const char *name_, Args_... args_) {
+inline Record::EventId<Clock_> recordEvent(const char *name_, Args_... args_) {
   using RecordType = Record::EventRecord<Clock_>;
   auto record = RecordType(name_, std::forward<Args_...>(args_)...);
   auto eventId = record.eventId();
