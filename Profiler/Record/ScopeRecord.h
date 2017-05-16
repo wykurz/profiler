@@ -83,8 +83,7 @@ template <typename Clock_> struct ScopeRecord : ScopeRecordBase {
   using Clock = Clock_;
   using Storage = ScopeStorage<Clock_>;
   using TimePoint = typename Clock::TimePoint;
-  explicit ScopeRecord(const char *name_)
-      : _name(name_), _t0(Clock::now()) {
+  explicit ScopeRecord(const char *name_) : _name(name_), _t0(Clock::now()) {
     PROFILER_ASSERT(name_);
     std::atomic_signal_fence(std::memory_order_acq_rel);
   }

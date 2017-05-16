@@ -43,9 +43,8 @@ inline Record::AsyncId<Clock_> recordAsync(const char *name_, Args_... args_) {
   using RecordType = Record::AsyncRecord<Clock_>;
   auto record = RecordType(name_, std::forward<Args_...>(args_)...);
   auto asyncId = record.asyncId();
-  Internal::doRecord(
-      Control::getThreadRecords<RecordType>().getRecordManager(),
-      std::move(record));
+  Internal::doRecord(Control::getThreadRecords<RecordType>().getRecordManager(),
+                     std::move(record));
   return asyncId;
 }
 } // namespace Instrumentation
