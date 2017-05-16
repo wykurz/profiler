@@ -16,7 +16,7 @@ template <typename RecordTypes_ = Mpl::TypeList<>> void primeThisThread() {
 }
 inline void stopWriter() { Profiler::Control::getManager().stopWriter(); }
 template <typename Clock_, typename... Args_>
-auto eventRecord(Args_&&... args_) {
+auto eventRecord(Args_ &&... args_) {
   return Instrumentation::eventRecord<Clock_>(std::forward<Args_>(args_)...);
 }
 } // namespace Profiler

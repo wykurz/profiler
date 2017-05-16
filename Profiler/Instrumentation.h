@@ -40,7 +40,7 @@ private:
 };
 
 template <typename Clock_, typename... Args_>
-auto eventRecord(Args_&&... args_) {
+auto eventRecord(Args_ &&... args_) {
   using RecordType = Record::EventRecord<Clock_>;
   auto record = RecordType(std::forward<Args_>(args_)...);
   auto eventId = record.eventId();
