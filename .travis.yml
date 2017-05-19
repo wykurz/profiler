@@ -129,11 +129,14 @@ matrix:
             - graphviz
           sources:
             - ubuntu-toolchain-r-test
+        sonarqube:
+          organization: "cxxprofiler"
       env:
         - C_COMPILER=gcc-6 CXX_COMPILER=g++-6 GCOV=gcov-6
         - BUILD_TYPE=coverage
         - COVERAGE=1
         - BOOST_DIR=${HOME}/boost
+        - sonar-scanner
 
 before_install:
   - sudo apt-get update -qq
