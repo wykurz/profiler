@@ -23,5 +23,5 @@ before_test:
 test_script:
   - tests\%CONFIGURATION%\unit_tests.exe --log_level=test_suite
   - tests\%CONFIGURATION%\stress_tests.exe --log_level=test_suite
-  - examples\%CONFIGURATION%\async1.exe
+  - examples\%CONFIGURATION%\event1.exe
   - examples\%CONFIGURATION%\scope1.exe

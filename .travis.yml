@@ -164,7 +164,7 @@ script:
   - if [ "${BUILD_TYPE}" == "release" ]; then
       ./tests/perf_tests;
     fi
-  - ./examples/async1
+  - ./examples/event1
   - ./examples/scope1
   - cd ..
   - .travis_files/check_clang_format.sh
