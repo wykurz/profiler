@@ -1,0 +1,4 @@
+sonar.projectKey=cxxprofiler
+sonar.projectName=cxxprofiler
+sonar.projectVersion=0.1
+sonar.sources=.
