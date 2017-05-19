@@ -136,7 +136,6 @@ matrix:
         - BUILD_TYPE=coverage
         - COVERAGE=1
         - BOOST_DIR=${HOME}/boost
-        - sonar-scanner
 
 before_install:
   - sudo apt-get update -qq
@@ -172,6 +171,7 @@ script:
   - cd ..
   - .travis_files/check_clang_format.sh
   - .travis_files/check_clang_tidy.sh
+  - sonar-scanner
 
 after_success:
   - .travis_files/upload_coverage.sh
