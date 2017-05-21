@@ -25,7 +25,7 @@ struct LogicError : public std::logic_error {
   do {                                                                         \
     std::stringstream ss;                                                      \
     ss << "\n\nRuntimeError in:\n"                                             \
-       << PROFILER_FUNC_NAME << "\n"                                            \
+       << PROFILER_FUNC_NAME << "\n"                                           \
        << "" << message_ << "\n";                                              \
     throw Profiler::Exception::Runtime(ss.str());                              \
   } while (false);
@@ -35,7 +35,7 @@ struct LogicError : public std::logic_error {
   if (!(x)) {                                                                  \
     std::stringstream ss;                                                      \
     ss << "\n\nLogic error in:\n"                                              \
-       << __FILE__ << ":" << __LINE__ << "\n  " << PROFILER_FUNC_NAME           \
+       << __FILE__ << ":" << __LINE__ << "\n  " << PROFILER_FUNC_NAME          \
        << "\nThe following is false: ( " << #x << " )";                        \
     throw Profiler::Exception::LogicError(ss.str());                           \
   }
