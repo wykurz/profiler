@@ -63,9 +63,10 @@ auto eventRecord(Args_ &&... args_) {
       _UNIQUE_NAME(statsScope)(name_)
 #define PROFILER_SCOPE(clock_) PROFILER_SCOPE_EX(clock_, PROFILER_FUNC_NAME)
 
-#define PROFILER_EVENT_EX(clock_, name_, args...)                               \
+#define PROFILER_EVENT_EX(clock_, name_, args...)                              \
   Profiler::Instrumentation::eventRecord<Profiler::Clock::clock_>(name_, ##args)
-#define PROFILER_EVENT(clock_, args...) PROFILER_EVENT_EX(clock_, PROFILER_FUNC_NAME, ##args)
+#define PROFILER_EVENT(clock_, args...)                                        \
+  PROFILER_EVENT_EX(clock_, PROFILER_FUNC_NAME, ##args)
 
 #endif // PROFILER_NO_MACROS
 
