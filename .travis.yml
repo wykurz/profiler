@@ -171,7 +171,9 @@ script:
   - cd ..
   - .travis_files/check_clang_format.sh
   - .travis_files/check_clang_tidy.sh
-  - sonar-scanner
+  - if [ "${BUILD_TYPE}" == "coverage" ]; then
+      sonar-scanner
+    fi
 
 after_success:
   - .travis_files/upload_coverage.sh
