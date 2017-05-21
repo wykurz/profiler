@@ -58,17 +58,11 @@ auto eventRecord(Args_ &&... args_) {
 #define _CAT_II(p, res) res
 #define _UNIQUE_NAME(base) _CAT(base, __COUNTER__)
 
-#define PROFILER_RDTSC_SCOPE_EX(name_)                                         \
-  Profiler::Instrumentation::ProfilerScope<Profiler::Clock::Rdtsc>             \
+#define PROFILER_SCOPE_EX(clock_, name_)                          \
+  Profiler::Instrumentation::ProfilerScope<Profiler::Clock::clock_>             \
       _UNIQUE_NAME(statsScope)(name_)
-#define PROFILER_RDTSC_SCOPE(ClockType_)                                       \
-  PROFILER_RDTSC_SCOPE_EX(PROFILER_FUNCTION)
-
-#define PROFILER_STEADY_SCOPE_EX(name_)                                        \
-  Profiler::Instrumentation::ProfilerScope<Profiler::Clock::Steady>            \
-      _UNIQUE_NAME(statsScope)(name_)
-#define PROFILER_STEADY_SCOPE(ClockType_)                                      \
-  PROFILER_STEADY_SCOPE_EX(PROFILER_FUNCTION)
+#define PROFILER_SCOPE(clock_)                                       \
+  PROFILER_SCOPE_EX(clock_, PROFILER_FUNC_NAME)
 
 #endif // PROFILER_NO_MACROS
 

@@ -21,7 +21,7 @@ inline std::mutex &logMutex() {
 #define DLOG(x)                                                                \
   do {                                                                         \
     std::unique_lock<std::mutex> lk(Profiler::Log::logMutex());                \
-    std::cerr << __FILE__ << "(" << __LINE__ << "): " << PROFILER_FUNCTION     \
+    std::cerr << __FILE__ << "(" << __LINE__ << "): " << PROFILER_FUNC_NAME     \
               << " :: " << x << "\n";                                          \
   } while (false);
 #else

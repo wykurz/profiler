@@ -11,7 +11,7 @@ void statsScopeTest(benchmark::State &state_) {
   long processed = 0;
   while (state_.KeepRunning()) {
     for (int i = 0; i < queryCount_; ++i)
-      PROFILER_RDTSC_SCOPE();
+      PROFILER_SCOPE(Rdtsc);
     state_.PauseTiming();
     processed += queryCount_;
     Profiler::Control::getManager().writerFinalPass();
