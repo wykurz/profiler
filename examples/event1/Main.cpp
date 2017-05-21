@@ -7,8 +7,8 @@ int main() {
   config.yamlLogName = "my.perf.yaml";
   Profiler::setup(config);
   Profiler::primeThisThread();
-  auto recordId = Profiler::eventRecord<Profiler::Clock::Rdtsc>("Foo");
-  Profiler::eventRecord<Profiler::Clock::Rdtsc>("Bar", recordId);
+  auto recordId = PROFILER_EVENT(Rdtsc);
+  PROFILER_EVENT(Rdtsc, recordId);
   Profiler::stopWriter();
   Profiler::Decoder decoder(config);
   decoder.run();
