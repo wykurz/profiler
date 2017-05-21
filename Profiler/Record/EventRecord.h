@@ -48,8 +48,8 @@ template <typename Clock_> struct EventRecord {
     std::atomic_signal_fence(std::memory_order_acq_rel);
   }
   explicit EventRecord(const char *name_)
-      : EventRecord(name_, {Control::getManager().id(), Control::getThreadRecords<This>().id})
-    { }
+      : EventRecord(name_, {Control::getManager().id(),
+                            Control::getThreadRecords<This>().id}) {}
   EventId<Clock_> eventId() const { return _eventId; }
   static void encodePreamble(std::ostream &out_) {
     Serialize::encode(out_, Control::getManager().id());

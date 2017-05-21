@@ -46,8 +46,7 @@ void eventRecord(const char *name_, Record::EventId<Clock_> eventId_) {
                      RecordType(name_, eventId_));
 }
 
-template <typename Clock_>
-auto eventRecord(const char *name_) {
+template <typename Clock_> auto eventRecord(const char *name_) {
   using RecordType = Record::EventRecord<Clock_>;
   auto record = RecordType(name_);
   auto eventId = record.eventId();
