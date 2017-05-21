@@ -42,14 +42,14 @@ template <typename Clock_> struct EventRecord {
   using This = EventRecord<Clock_>;
   using TimePoint = typename Clock::TimePoint;
   using Duration = typename Clock::Duration;
-  explicit EventRecord(
-      const char *name_,
-      EventId<Clock> eventId_ = {Control::getManager().id(),
-                                 Control::getThreadRecords<This>().id})
+  explicit EventRecord(const char *name_, EventId<Clock> eventId_)
       : _name(name_), _eventId(std::move(eventId_)), _time(Clock::now()) {
     PROFILER_ASSERT(name_);
     std::atomic_signal_fence(std::memory_order_acq_rel);
   }
+  explicit EventRecord(const char *name_)
+      : EventRecord(name_, {Control::getManager().id(), Control::getThreadRecords<This>().id})
+    { }
   EventId<Clock_> eventId() const { return _eventId; }
   static void encodePreamble(std::ostream &out_) {
     Serialize::encode(out_, Control::getManager().id());

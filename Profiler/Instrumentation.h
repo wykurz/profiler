@@ -39,15 +39,23 @@ private:
   RecordType _record;
 };
 
-template <typename Clock_, typename... Args_>
-auto eventRecord(Args_ &&... args_) {
+template <typename Clock_>
+void eventRecord(const char *name_, Record::EventId<Clock_> eventId_) {
   using RecordType = Record::EventRecord<Clock_>;
-  auto record = RecordType(std::forward<Args_>(args_)...);
+  Internal::doRecord(Control::getThreadRecords<RecordType>().getRecordManager(),
+                     RecordType(name_, eventId_));
+}
+
+template <typename Clock_>
+auto eventRecord(const char *name_) {
+  using RecordType = Record::EventRecord<Clock_>;
+  auto record = RecordType(name_);
   auto eventId = record.eventId();
   Internal::doRecord(Control::getThreadRecords<RecordType>().getRecordManager(),
                      std::move(record));
   return eventId;
 }
+
 } // namespace Instrumentation
 } // namespace Profiler
 
