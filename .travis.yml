@@ -129,8 +129,6 @@ matrix:
             - graphviz
           sources:
             - ubuntu-toolchain-r-test
-        sonarqube:
-          organization: "cxxprofiler"
       env:
         - C_COMPILER=gcc-6 CXX_COMPILER=g++-6 GCOV=gcov-6
         - BUILD_TYPE=coverage
@@ -171,9 +169,6 @@ script:
   - cd ..
   - .travis_files/check_clang_format.sh
   - .travis_files/check_clang_tidy.sh
-  - if [ "${BUILD_TYPE}" == "coverage" ]; then
-      sonar-scanner;
-    fi
 
 after_success:
   - .travis_files/upload_coverage.sh
