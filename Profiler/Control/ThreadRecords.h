@@ -11,9 +11,10 @@
 namespace Profiler {
 namespace Control {
 
-template <typename Record_> struct ThreadRecords {
-  using RecordManagerType = RecordManager<Record_>;
-  explicit ThreadRecords(const Allocation &allocation_)
+template <typename RecordType_> struct ThreadRecords {
+  using RecordType = RecordType_;
+  using RecordManagerType = RecordManager<RecordType>;
+  explicit ThreadRecords(const Allocation<RecordType> &allocation_)
       : id(allocation_.id), _recordManager(allocation_.getArena()),
         _finalizer(allocation_.setupHolder(_recordManager)) {}
   ThreadRecords(const ThreadRecords &) = delete;
@@ -21,13 +22,13 @@ template <typename Record_> struct ThreadRecords {
   const std::size_t id;
 
 private:
-  RecordManager<Record_> _recordManager;
-  Finalizer _finalizer;
+  RecordManager<RecordType> _recordManager;
+  Finalizer<RecordType> _finalizer;
 };
 
-template <typename Record_> ThreadRecords<Record_> &getThreadRecords() {
-  thread_local ThreadRecords<Record_> threadRecords(
-      getManager().addThreadRecords<Record_>());
+template <typename RecordType_> ThreadRecords<RecordType_> &getThreadRecords() {
+  thread_local ThreadRecords<RecordType_> threadRecords(
+      getManager().addThreadRecords<RecordType_>());
   return threadRecords;
 }
 

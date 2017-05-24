@@ -2,7 +2,6 @@
 #define _PROFILER_DECODER_DECODER_H
 
 #include <Profiler/Algorithm/Mpl.h>
-#include <Profiler/Config.h>
 #include <Profiler/Exception.h>
 #include <Profiler/Log.h>
 #include <Profiler/Record/Records.h>
@@ -31,10 +30,14 @@ inline void decodeStream(std::istream &in_, std::ostream &out_) {
 }
 } // namespace Internal
 
+// TODO: convert to a function
+template <typename ConfigType_>
 struct Decoder {
+  using ConfigType = ConfigType_;
+  using RecordList = typename ConfigType::RecordList;
   using DecodeFunc = std::function<void(std::istream &, std::ostream &)>;
-  explicit Decoder(const Config &config_)
-      : _funcMap(genFuncMap<Mpl::TypeList<>>()),
+  explicit Decoder(const ConfigType &config_)
+      : _funcMap(genFuncMap<RecordList>()),
         _out(config_.yamlLogName, std::fstream::trunc) {
     const fs::path logDir(config_.binaryLogDir);
     DLOG("Traversing: " << logDir);

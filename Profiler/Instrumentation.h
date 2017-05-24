@@ -34,6 +34,7 @@ template <typename Clock_> struct ProfilerScope {
         Control::getThreadRecords<StorageType>().getRecordManager(),
         _record.finish());
   }
+  ProfilerScope(const ProfilerScope &) = delete;
 
 private:
   RecordType _record;

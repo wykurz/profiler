@@ -11,16 +11,18 @@
 namespace Profiler {
 namespace Control {
 
+template <typename RecordType_>
 struct Allocation {
+  using RecordType = RecordType_;
   Allocation(std::size_t id_, std::unique_lock<std::mutex> &&lock_,
-             Arena &arena_, Holder &holder_)
+             Arena &arena_, Holder<RecordType> &holder_)
       : id(id_), _lock(std::move(lock_)), _arena(arena_), _holder(&holder_) {}
   Allocation() : id(-1), _arena(empty()), _holder(nullptr) {}
   Arena &getArena() const { return _arena; }
-  Finalizer setupHolder(RecordExtractor &recordExtractor_) const {
+  Finalizer<RecordType> setupHolder(RecordManager<RecordType> &recordManager_) const {
     if (_holder != nullptr)
-      _holder->setRecordExtractor(recordExtractor_);
-    return Finalizer(_holder);
+      _holder->setRecordManager(recordManager_);
+    return Finalizer<RecordType>(_holder);
   }
   const std::size_t id;
 
@@ -31,7 +33,7 @@ private:
   }
   std::unique_lock<std::mutex> _lock;
   Arena &_arena;
-  Holder *const _holder;
+  Holder<RecordType> *const _holder;
 };
 } // namespace Control
 } // namespace Profiler

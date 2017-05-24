@@ -14,7 +14,7 @@ void f3() {
 }
 
 int main() {
-  Profiler::Config config;
+  Profiler::DefaultConfig config;
   config.binaryLogPrefix = ".my.perf.log";
   config.binaryLogDir = ".";
   config.yamlLogName = "my.perf.yaml";
@@ -22,7 +22,7 @@ int main() {
   Profiler::primeThisThread();
   f3();
   Profiler::stopWriter();
-  Profiler::Decoder decoder(config);
-  decoder.run();
+  // auto decoder = Profiler::Decoder(config);
+  // decoder.run();
   return 0;
 }

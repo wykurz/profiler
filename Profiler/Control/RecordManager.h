@@ -12,12 +12,6 @@
 namespace Profiler {
 namespace Control {
 
-struct RecordExtractor {
-  virtual ~RecordExtractor() = default;
-  virtual void streamDirtyRecords(std::ostream &out_) = 0;
-  virtual std::unique_ptr<RecordExtractor> moveToFinalExtractor() = 0;
-};
-
 namespace Internal {
 
 template <typename Record_, int NumRecords_>
@@ -75,49 +69,57 @@ template <typename Record_, int MaxBytes_> struct RecordArray {
 };
 } // namespace Internal
 
-template <typename Record_> struct SimpleExtractor : RecordExtractor {
+// TODO(mateusz): Convert into InputIterator:
+// http://en.cppreference.com/w/cpp/concept/InputIterator
+template <typename Record_> struct DirtyRecordsIter {
   using RecordType = Record_;
-  using RecordArrayNode =
-      typename Internal::RecordArray<Record_, Arena::DataSize>::Node;
-  SimpleExtractor(Arena &arena_, RecordArrayNode *const records_, int numDirty_)
-      : _arena(arena_), _records(records_), _numDirty(numDirty_) {}
-  std::unique_ptr<RecordExtractor> moveToFinalExtractor() override {
-    throw Exception::LogicError("Attempting to finalize SimpleExtractor");
-  }
-  void streamDirtyRecords(std::ostream &out_) override {
+  using This = DirtyRecordsIter<RecordType>;
+  using Node = typename Internal::RecordArray<Record_, Arena::DataSize>::Node;
+  DirtyRecordsIter() = default;
+  DirtyRecordsIter(Arena &arena_, Node *const records_, std::size_t lastNodeSize_)
+      : _arena(&arena_), _records(records_), _lastNodeSize(lastNodeSize_) {}
+  ~DirtyRecordsIter() {
+    if (!_arena) return;
     while (_records) {
-      auto &recordArray = _records->value;
-      auto size = recordArray.size();
-      if (!_records->getNext()) {
-        PROFILER_ASSERT(_numDirty <= size);
-        size = _numDirty;
-      }
-      for (int i = 0; i < size; ++i)
-        recordArray[i].encode(out_);
       auto next = _records->getNext();
-      _arena.release(_records);
+      _arena->release(_records);
       _records = next;
     }
   }
+  RecordType* next() {
+    if (!_records) return nullptr;
+    auto &recordArray = _records->value;
+    auto size = recordArray.size();
+    if (!_records->getNext()) {
+      size = _lastNodeSize;
+    }
+    PROFILER_ASSERT(_nextRecord <= size);
+    auto ans = recordArray[_nextRecord++];
+    if (size <= _nextRecord) {
+      auto _prev = _records;
+      _records = _records->getNext();
+      _arena->release(_prev);
+      _nextRecord = 0;
+    }
+    return ans;
+  }
 
-private:
-  Arena &_arena;
-  RecordArrayNode *_records;
-  const std::size_t _numDirty;
+ private:
+  Arena *_arena = nullptr;
+  Node *_records = nullptr;
+  std::size_t _lastNodeSize = 0;
+  std::size_t _nextRecord = 0;
 };
 
-template <typename Record_> struct RecordManager : RecordExtractor {
+template <typename Record_> struct RecordManager {
   using RecordType = Record_;
   using This = RecordManager<RecordType>;
   using RecordArrayTypes = Internal::RecordArray<Record_, Arena::DataSize>;
-  // using Array = typename RecordArrayTypes::Array;
   using Node = typename RecordArrayTypes::Node;
   using Queue = typename RecordArrayTypes::Queue;
-
   explicit RecordManager(Arena &arena_)
       : _arena(arena_), _dirty(arena_.basePtr()) {}
   RecordManager(const This &) = delete;
-
   RecordType *getRecord() {
     if (!_current || _current->value.size() <= _nextRecord) {
       if (_current)
@@ -132,34 +134,16 @@ template <typename Record_> struct RecordManager : RecordExtractor {
     }
     return &_current->value[_nextRecord++];
   }
-
-  void streamDirtyRecords(std::ostream &out_) override {
-    auto records = extractDirtyRecords();
-    while (records) {
-      auto &recordArray = records->value;
-      for (int i = 0; i < recordArray.size(); ++i) {
-        recordArray[i].encode(out_);
-      }
-      auto next = records->getNext();
-      _arena.release(records);
-      records = next;
-    }
+  DirtyRecordsIter<RecordType> getDirtyRecords() {
+    return {_arena, _dirty.extract(), 0};
   }
-
-  std::unique_ptr<RecordExtractor> moveToFinalExtractor() override {
+  DirtyRecordsIter<RecordType> getFinalRecords() {
     if (_current)
       _dirty.push(_current);
-    return std::make_unique<SimpleExtractor<RecordType>>(
-        _arena, extractDirtyRecords(), _nextRecord);
+    return {_arena, _dirty.extract(), _nextRecord};
   }
 
 private:
-  Node *extractDirtyRecords() {
-    auto node = _dirty.extract();
-    DLOG("extractDirtyRecords, node " << node);
-    return node;
-  }
-
   Arena &_arena;
   // TODO(mateusz): add padding
   Node *_current = nullptr;

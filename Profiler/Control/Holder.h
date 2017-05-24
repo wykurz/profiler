@@ -3,135 +3,128 @@
 
 #include <Profiler/Config.h>
 #include <Profiler/Control/RecordManager.h>
+#include <Profiler/Algorithm/Mpl.h>
 #include <atomic>
 #include <fstream>
 #include <memory>
 #include <mutex>
+#include <typeindex>
+#include <unordered_map>
+#include <vector>
+#include <boost/variant.hpp>
 
 namespace Profiler {
 namespace Control {
 
-struct Output {
-  using Ptr = std::unique_ptr<Output>;
-  virtual ~Output() = default;
-  virtual std::ostream &get() = 0;
-  virtual void flush() = 0;
-};
-
-// TODO(mateusz): redesign this to use unique_ptr with a custom deleter holding
-// a reference to Holder.
-
+template <typename RecordType_>
 struct Holder {
-  std::unique_lock<std::mutex> lock() {
-    return std::unique_lock<std::mutex>(*_lock);
+  using RecordType = RecordType_;
+  using RecordManager = Control::RecordManager<RecordType>;
+  using DirtyRecordsIter = Control::DirtyRecordsIter<RecordType>;
+  Holder(std::mutex &lock_)
+      : _lock(&lock_) { }
+  void setRecordManager(RecordManager &recordManager_) {
+    _recordManager = &recordManager_;
+  }
+  Control::DirtyRecordsIter<RecordType> getDirtyRecords()
+  {
+    std::unique_lock<std::mutex> ulock(*_lock);
+    if (_recordManager) return _recordManager->getDirtyRecords();
+    return _dirtyRecords;
+  }
+  void finalize()
+  {
+    std::unique_lock<std::mutex> ulock(*_lock);
+    PROFILER_ASSERT(_recordManager);
+    _dirtyRecords = _recordManager->getFinalRecords();
+    _recordManager = nullptr;
+  }
+  std::unique_lock<std::mutex> adoptLock() {
+    return std::unique_lock<std::mutex>(*_lock, std::adopt_lock);
   }
 
-  bool isEmpty() const {
-    return (_recordExtractor == nullptr) && !_finalExtractor;
-  }
-
-  void streamDirtyRecords() {
-    if (!isEmpty()) {
-      PROFILER_ASSERT(_out.get());
-      if (_recordExtractor != nullptr) {
-        _recordExtractor->streamDirtyRecords(_out->get());
-      } else {
-        _finalExtractor->streamDirtyRecords(_out->get());
-        _finalExtractor.reset();
-        _out.reset();
-      }
-    }
-  }
-
-  // TODO(mateusz): There are 2x setup functions, which will be a source of
-  // errors. Use typesystem to handle initialization.
-  void setOut(std::unique_ptr<Output> &&out_) {
-    PROFILER_ASSERT(!_recordExtractor);
-    PROFILER_ASSERT(!_finalExtractor.get());
-    PROFILER_ASSERT(out_.get());
-    _out = std::move(out_);
-  }
-
-  void setRecordExtractor(RecordExtractor &recordExtractor_) {
-    PROFILER_ASSERT(!_recordExtractor);
-    PROFILER_ASSERT(!_finalExtractor.get());
-    _recordExtractor = &recordExtractor_;
-  }
-
-  /**
-   * Usually called by Finalizer's destructor when a thread using the holder is
-   * shutting down. Can be called manually, but care must be taken such that the
-   * thread which was using the holder should not try to write any more records,
-   * otherwise the resources used to hold those records will be lost.
-   */
-  void finalize() {
-    if (isEmpty() || isFinalized())
-      return;
-    _finalExtractor = _recordExtractor->moveToFinalExtractor();
-    _recordExtractor = nullptr;
-  }
-
-  void flush() {
-    if (_out)
-      _out->flush();
-  }
-
-private:
-  bool isFinalized() const {
-    return (_recordExtractor == nullptr) && _finalExtractor;
-  }
-
-  RecordExtractor *_recordExtractor = nullptr;
-  std::unique_ptr<RecordExtractor> _finalExtractor;
-  std::unique_ptr<Output> _out;
-  std::unique_ptr<std::mutex> _lock = std::make_unique<std::mutex>();
+ private:
+  std::mutex *_lock;
+  RecordManager *_recordManager = nullptr;
+  DirtyRecordsIter _dirtyRecords;
 };
 
+template <typename... RecordList_>
+struct HolderVariant {
+  struct Empty { };
+  using VariantType = boost::variant<Empty, Holder<RecordList_>...>;
+  void* reserve(std::type_index type_) {
+    _lock->lock();
+    if (_variant.which() == 0) return nullptr;
+    return initializer().set(_variant, type_, *_lock);
+  }
+
+ private:
+  struct Initializer {
+    using FuncMap = std::unordered_map<std::type_index, std::function<void*(VariantType&, std::mutex&)> >;
+    Initializer() {
+      Mpl::apply<Mpl::TypeList<RecordList_...> >([this](auto dummy_) {
+          using RecordType = typename decltype(dummy_)::Type;
+          auto func = [this](VariantType& variant_, std::mutex& lock_) {
+            variant_ = Holder<RecordType>(lock_);
+            return static_cast<void*>(boost::get<Holder<RecordType>>(&variant_));
+          };
+          this->_funcmap[typeid(RecordType)] = func;
+        });
+    }
+    void* set(VariantType& variant_, std::type_index type_, std::mutex &lock_) const {
+      auto it = _funcmap.find(type_);
+      PROFILER_ASSERT(it != _funcmap.end());
+      return it->second(variant_, lock_);
+    }
+   private:
+    FuncMap _funcmap;
+  };
+  static const Initializer initializer() {
+    static Initializer instance;
+    return instance;
+  }
+  // TODO(mateusz): use array not vector, and put lock inline?
+  mutable std::unique_ptr<std::mutex> _lock = std::make_unique<std::mutex>();
+  VariantType _variant{Empty()};
+};
+
+template <typename RecordType_>
 struct Finalizer {
+  using Holder = Holder<RecordType_>;
+  using FinalizerFunc = std::function<void(Control::DirtyRecordsIter<RecordType_> &&)>;
   explicit Finalizer(Holder *holder_) : _holder(holder_) {}
   ~Finalizer() {
-    if (_holder != nullptr) {
-      auto lk = _holder->lock();
-      _holder->finalize();
+    if (_holder) _holder->finalize();
+  }
+
+private:
+  Holder *_holder;
+};
+
+template <typename... RecordList_>
+struct HolderArray;
+
+template <typename... RecordList_>
+struct HolderArray<Mpl::TypeList<RecordList_...> > {
+  static constexpr std::size_t MaxThreads = 1024;
+  // Map RecordList_ types into std::type_index hash according to the variant index.
+  void* findHolder(std::type_index type_) {
+    // TODO(mateusz): add per-thread offset based on where was the last found holder
+    int index = 0;
+    int count = MaxThreads;
+    while (0 < count--) {
+      auto &variant = _array[index % _array.size()];
+      auto res = variant.reserve(type_);
+      if (res) return res;
     }
+    return nullptr;
   }
 
-private:
-  Holder *const _holder;
+ private:
+  std::vector<HolderVariant<RecordList_...> > _array{MaxThreads};
 };
 
-using HolderArray = std::vector<Holder>;
-
-struct OutputFactory {
-  virtual ~OutputFactory() = default;
-  virtual Output::Ptr newOutput(std::size_t extractorId_) const = 0;
-};
-
-namespace Internal {
-
-struct FileOut : Output {
-  explicit FileOut(const std::string &name_)
-      : _out(name_, std::fstream::binary | std::fstream::trunc) {
-    DLOG("FileOut " << name_ << " " << std::size_t(&_out));
-  }
-  std::ostream &get() override { return _out; }
-  void flush() override { _out.flush(); }
-
-private:
-  std::ofstream _out;
-};
-} // namespace Internal
-
-struct FileOutputs : OutputFactory {
-  explicit FileOutputs(const Config &config_) : _config(config_) {}
-  Output::Ptr newOutput(std::size_t extractorId_) const override {
-    return std::make_unique<Internal::FileOut>(_config.binaryLogPrefix + "." +
-                                               std::to_string(extractorId_));
-  }
-
-private:
-  const Config &_config;
-};
 } // namespace Control
 } // namespace Profiler
 

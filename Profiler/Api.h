@@ -9,7 +9,15 @@
 
 namespace Profiler {
 
-inline void setup(const Config &config_) { Config::setConfig(config_); }
+using DefaultConfig = Config<Record::RecordStorageTypes, Mpl::TypeList<Control::WriteToFile> >;
+
+template <typename RecordList_, typename WriterList_>
+void setup(Config<RecordList_, WriterList_> config_) {
+  Control::setManager(config_);
+  Control::getManager().startWriter();
+  // append Record::RecordStorageTypes to RecordList_
+}
+// TODO: Use config stored on the Manager
 template <typename RecordTypes_ = Mpl::TypeList<>> void primeThisThread() {
   Profiler::Control::primeThisThread<Record::RecordStorageTypes>();
   Profiler::Control::primeThisThread<RecordTypes_>();

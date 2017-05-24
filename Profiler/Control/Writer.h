@@ -12,20 +12,21 @@
 #include <utility>
 
 namespace Profiler {
-namespace Control {
+namespace Control { // TODO(mateusz): Move to Writer namespace?
 
-/**
- * Writer is responsible for collecting data from all the threads and writing it
- * to the output.
- */
+struct WriteToFile {
+  template <typename RecortType_>
+  void process(const RecortType_ &record_) {
+  }
+};
+
+template <typename ConfigType_>
 struct Writer {
-  /**
-   * Writer takes output pointer, global thread array and time interval of how
-   * long it should sleep between each
-   * activity period.
-   */
-  Writer(HolderArray &threadArray_, std::chrono::microseconds sleepTime_)
-      : _threadArray(threadArray_), _sleepTime(std::move(sleepTime_)) {}
+  using ConfigType = ConfigType_;
+  using RecordList = typename ConfigType::RecordList;
+  // TODO(mateusz): specify sleepTime in the Config
+  Writer(const ConfigType& config_, HolderArray<RecordList> &holderArray_)
+      : _config(config_), _holderArray(holderArray_) { }
   Writer(const Writer &) = delete;
   ~Writer() { PROFILER_ASSERT(_done.load(std::memory_order_acquire)); }
 
@@ -35,12 +36,14 @@ struct Writer {
    * there is no synchronization provided.
    */
   void finalPass() {
-    for (auto &holder : this->_threadArray) {
-      auto lk = holder.lock();
-      holder.finalize();
-      holder.streamDirtyRecords();
-      holder.flush();
-    }
+    // TODO - remove!
+    // _holderArray.findHolder(typeid(int));
+    // for (auto &holder : this->_holderArray) {
+    //   auto lk = holder.lock();
+    //   holder.finalize();
+    //   holder.streamDirtyRecords();
+    //   holder.flush();
+    // }
   }
 
   /**
@@ -52,7 +55,7 @@ struct Writer {
   void run() {
     auto doRun = [this]() {
       onePass();
-      std::this_thread::sleep_for(_sleepTime);
+      std::this_thread::sleep_for(_config.writerSleepTime);
     };
     do
       doRun();
@@ -60,8 +63,8 @@ struct Writer {
     // One final run to capture any events that may have been missed due to
     // notification timing
     doRun();
-    for (auto &holder : _threadArray)
-      holder.flush();
+    // for (auto &holder : _holderArray)
+    //   holder.flush();
   }
 
   /**
@@ -71,16 +74,48 @@ struct Writer {
 
 private:
   void onePass() {
-    for (auto &holder : this->_threadArray) {
-      auto lk = holder.lock();
-      holder.streamDirtyRecords();
-    }
+    // for (auto &holder : this->_holderArray) {
+    //   auto lk = holder.lock();
+    //   holder.streamDirtyRecords();
+    // }
   }
 
-  HolderArray &_threadArray;
-  const std::chrono::microseconds _sleepTime;
+  const ConfigType& _config;
+  HolderArray<RecordList> &_holderArray;
   std::atomic<bool> _done{false};
 };
+
+// struct OutputFactory {
+//   virtual ~OutputFactory() = default;
+//   virtual Output::Ptr newOutput(std::size_t extractorId_) const = 0;
+// };
+
+// namespace Internal {
+
+// struct FileOut : Output {
+//   explicit FileOut(const std::string &name_)
+//       : _out(name_, std::fstream::binary | std::fstream::trunc) {
+//     DLOG("FileOut " << name_ << " " << std::size_t(&_out));
+//   }
+//   std::ostream &get() override { return _out; }
+//   void flush() override { _out.flush(); }
+
+// private:
+//   std::ofstream _out;
+// };
+// } // namespace Internal
+
+// struct FileOutputs : OutputFactory {
+//   explicit FileOutputs(const Config &config_) : _config(config_) {}
+//   Output::Ptr newOutput(std::size_t extractorId_) const override {
+//     return std::make_unique<Internal::FileOut>(_config.binaryLogPrefix + "." +
+//                                                std::to_string(extractorId_));
+//   }
+
+// private:
+//   const Config &_config;
+// };
+
 } // namespace Control
 } // namespace Profiler
 
