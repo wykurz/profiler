@@ -33,7 +33,7 @@ struct Holder {
   {
     std::unique_lock<std::mutex> ulock(*_lockPtr);
     if (_recordManagerPtr) return _recordManagerPtr->getDirtyRecords();
-    return _dirtyRecords;
+    return std::move(_dirtyRecords);
   }
   void finalize()
   {
@@ -59,7 +59,7 @@ struct HolderVariant {
   struct Empty { };
   using VariantType = boost::variant<Empty, Holder<RecordList_>...>;
   void* reserve(std::type_index type_) {
-    DLOG("Reserving variant, lock ptr: " << &_lock);
+    // DLOG("Reserving variant, lock ptr: " << &_lock);
     _lock.lock();
     if (_variant.which() != 0) {
       _lock.unlock();

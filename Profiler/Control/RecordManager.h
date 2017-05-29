@@ -81,10 +81,20 @@ template <typename Record_> struct DirtyRecordsIter {
   ~DirtyRecordsIter() {
     if (!_arena) return;
     while (_records) {
+      DLOG("Releasing records: " << _records);
       auto next = _records->getNext();
       _arena->release(_records);
       _records = next;
     }
+  }
+  DirtyRecordsIter(DirtyRecordsIter &&other_)
+      : DirtyRecordsIter(other_) {
+    other_.clear();
+  }
+  DirtyRecordsIter& operator=(DirtyRecordsIter &&other_) {
+    *this = other_;
+    other_.clear();
+    return *this;
   }
   RecordType* next() {
     if (!_records) return nullptr;
@@ -105,6 +115,13 @@ template <typename Record_> struct DirtyRecordsIter {
   }
 
  private:
+  DirtyRecordsIter(const DirtyRecordsIter &) = default;
+  DirtyRecordsIter& operator=(const DirtyRecordsIter &other_) = default;
+  void clear() {
+    _arena = nullptr;
+    _records = nullptr;
+    _arena = nullptr;
+  }
   Arena *_arena = nullptr;
   Node *_records = nullptr;
   std::size_t _lastNodeSize = 0;

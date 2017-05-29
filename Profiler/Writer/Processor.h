@@ -82,7 +82,7 @@ private:
     void operator()(HolderType_ &holder_) {
       auto recordIter = holder_.getDirtyRecords();
       auto recordPtr = recordIter.next();
-      DLOG("Processing recordIter");
+      // DLOG("Processing recordIter");
       while (recordPtr) {
         _writer(*recordPtr);
         recordPtr = recordIter.next();
