@@ -16,7 +16,9 @@ template <typename RecordType_> struct ThreadRecords {
   using RecordManagerType = RecordManager<RecordType>;
   explicit ThreadRecords(const Allocation<RecordType> &allocation_)
       : id(allocation_.id), _recordManager(allocation_.getArena()),
-        _finalizer(allocation_.setupHolder(_recordManager)) {}
+        _finalizer(allocation_.setupHolder(_recordManager)) {
+    DLOG("ThreadRecords construction complete");
+  }
   ThreadRecords(const ThreadRecords &) = delete;
   RecordManagerType &getRecordManager() { return _recordManager; }
   const std::size_t id;

@@ -5,6 +5,7 @@
 #include <Profiler/Control/Holder.h>
 #include <Profiler/Control/RecordManager.h>
 #include <Profiler/Exception.h>
+#include <Profiler/Log.h>
 #include <atomic>
 #include <mutex>
 

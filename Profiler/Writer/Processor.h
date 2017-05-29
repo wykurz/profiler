@@ -4,6 +4,7 @@
 #include <Profiler/Algorithm/Mpl.h>
 #include <Profiler/Control/Allocation.h>
 #include <Profiler/Control/Holder.h>
+#include <Profiler/Log.h>
 #include <atomic>
 #include <chrono>
 #include <fstream>
@@ -81,6 +82,7 @@ private:
     void operator()(HolderType_ &holder_) {
       auto recordIter = holder_.getDirtyRecords();
       auto recordPtr = recordIter.next();
+      DLOG("Processing recordIter");
       while (recordPtr) {
         _writer(*recordPtr);
         recordPtr = recordIter.next();

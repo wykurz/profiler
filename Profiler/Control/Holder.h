@@ -4,6 +4,7 @@
 #include <Profiler/Config.h>
 #include <Profiler/Control/RecordManager.h>
 #include <Profiler/Algorithm/Mpl.h>
+#include <Profiler/Log.h>
 #include <atomic>
 #include <fstream>
 #include <memory>
@@ -42,6 +43,7 @@ struct Holder {
     _recordManagerPtr = nullptr;
   }
   std::unique_lock<std::mutex> adoptLock() {
+    DLOG("Adopting lock for holder, lock ptr: " << _lockPtr);
     return std::unique_lock<std::mutex>(*_lockPtr, std::adopt_lock);
   }
 
@@ -57,8 +59,12 @@ struct HolderVariant {
   struct Empty { };
   using VariantType = boost::variant<Empty, Holder<RecordList_>...>;
   void* reserve(std::type_index type_) {
+    DLOG("Reserving variant, lock ptr: " << &_lock);
     _lock.lock();
-    if (_variant.which() == 0) return nullptr;
+    if (_variant.which() != 0) {
+      _lock.unlock();
+      return nullptr;
+    }
     return initializer().set(_variant, type_, _lock);
   }
   template <typename VisitorFunc_>
@@ -136,7 +142,7 @@ struct HolderArray<Mpl::TypeList<RecordList_...> > {
     int index = 0;
     int count = MaxThreads;
     while (0 < count--) {
-      auto &variant = _array[index % _array.size()];
+      auto &variant = _array[index++ % _array.size()];
       auto res = variant.reserve(type_);
       if (res) return res;
     }
