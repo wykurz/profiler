@@ -143,7 +143,6 @@ template <typename Record_> struct RecordManager {
         _dirty.push(_current);
       _current = _arena.acquire<Node>();
       _nextRecord = 0;
-      DLOG("Arena acquire, block: " << _current);
     }
     if (!_current) {
       ++_droppedRecords;

@@ -9,7 +9,7 @@ int main() {
   Profiler::primeThisThread();
   auto recordId = PROFILER_EVENT(Rdtsc);
   PROFILER_EVENT(Rdtsc, recordId);
-  Profiler::stopWriter();
+  Profiler::stopProcessor();
   // Profiler::Decoder decoder(config);
   // decoder.run();
   return 0;

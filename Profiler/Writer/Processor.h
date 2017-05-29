@@ -16,7 +16,7 @@
 namespace Profiler {
 namespace Writer { // TODO(mateusz): Move to Writer namespace?
 
-struct WriteToFile {
+struct FileWriter {
   template <typename RecortType_>
   void operator()(const RecortType_ &record_) {
     std::cerr << "Saw record type " << typeid(record_).name() << "\n";
@@ -39,12 +39,8 @@ struct Processor {
    * there is no synchronization provided.
    */
   void finalPass() {
-    // for (auto &holder : this->_holderArray) {
-    //   auto lk = holder.lock();
-    //   holder.finalize();
-    //   holder.streamDirtyRecords();
-    //   holder.flush();
-    // }
+    finalizeAll();
+    onePass();
   }
 
   /**
@@ -71,7 +67,18 @@ struct Processor {
   /**
    * The run loop will eventually terminate after stop() was called.
    */
-  void stop() { _done.store(true, std::memory_order_release); }
+  void stop() {
+    DLOG("Stopping Processor!");
+    _done.store(true, std::memory_order_release); }
+
+  void onePass() {
+    Mpl::apply<typename ConfigType::WriterList>([this](auto dummy_) {
+        using RecordWriterType = typename decltype(dummy_)::Type;
+        auto writer = RecordWriterType(); // TODO (mateusz): turn into object provided by user
+        HolderRecordIter<RecordWriterType> iter(writer);
+        this->_holderArray.applyAll(iter);
+      });
+  }
 
 private:
   template <typename RecordWriterType_>
@@ -82,7 +89,6 @@ private:
     void operator()(HolderType_ &holder_) {
       auto recordIter = holder_.getDirtyRecords();
       auto recordPtr = recordIter.next();
-      // DLOG("Processing recordIter");
       while (recordPtr) {
         _writer(*recordPtr);
         recordPtr = recordIter.next();
@@ -91,15 +97,17 @@ private:
    private:
     RecordWriterType_ &_writer;
   };
-  void onePass() {
+  template <typename RecordWriterType_>
+  struct HolderFinalizer {
+    template <typename HolderType_>
+    void operator()(HolderType_ &holder_) { holder_.finalize(); }
+  };
+  void finalizeAll() {
     Mpl::apply<typename ConfigType::WriterList>([this](auto dummy_) {
         using RecordWriterType = typename decltype(dummy_)::Type;
-        auto writer = RecordWriterType(); // TODO (mateusz): turn into object provided by user
-        HolderRecordIter<RecordWriterType> iter(writer);
-        this->_holderArray.applyAll(iter);
+        this->_holderArray.applyAll(HolderFinalizer<RecordWriterType>());
       });
   }
-
   const ConfigType& _config;
   Control::HolderArray<RecordList> &_holderArray;
   std::atomic<bool> _done{false};

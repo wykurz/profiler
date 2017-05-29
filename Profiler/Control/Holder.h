@@ -38,7 +38,7 @@ struct Holder {
   void finalize()
   {
     std::unique_lock<std::mutex> ulock(*_lockPtr);
-    PROFILER_ASSERT(_recordManagerPtr);
+    if (!_recordManagerPtr) return;
     _dirtyRecords = _recordManagerPtr->getFinalRecords();
     _recordManagerPtr = nullptr;
   }
@@ -59,7 +59,7 @@ struct HolderVariant {
   struct Empty { };
   using VariantType = boost::variant<Empty, Holder<RecordList_>...>;
   void* reserve(std::type_index type_) {
-    // DLOG("Reserving variant, lock ptr: " << &_lock);
+    DLOG("Reserving variant, lock ptr: " << &_lock);
     _lock.lock();
     if (_variant.which() != 0) {
       _lock.unlock();
@@ -79,6 +79,7 @@ struct HolderVariant {
     Initializer() {
       Mpl::apply<Mpl::TypeList<RecordList_...> >([this](auto dummy_) {
           using RecordType = typename decltype(dummy_)::Type;
+          DLOG("Defining init function for record type " << typeid(RecordType).name());
           auto func = [this](VariantType& variant_, std::mutex& lock_) {
             variant_ = Holder<RecordType>(lock_);
             return static_cast<void*>(boost::get<Holder<RecordType>>(&variant_));
@@ -87,6 +88,7 @@ struct HolderVariant {
         });
     }
     void* set(VariantType& variant_, std::type_index type_, std::mutex &lock_) const {
+      DLOG("Setting variant of type " << type_.name());
       auto it = _funcmap.find(type_);
       PROFILER_ASSERT(it != _funcmap.end());
       return it->second(variant_, lock_);

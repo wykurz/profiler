@@ -21,7 +21,7 @@ int main() {
   Profiler::setup(config);
   Profiler::primeThisThread();
   f3();
-  Profiler::stopWriter();
+  Profiler::stopProcessor();
   // auto decoder = Profiler::Decoder(config);
   // decoder.run();
   return 0;

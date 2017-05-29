@@ -81,7 +81,7 @@ private:
 
 template <typename Clock_> struct ScopeRecord : ScopeRecordBase {
   using Clock = Clock_;
-  using Storage = ScopeStorage<Clock_>;
+  using Storage = ScopeStorage<Clock>;
   using TimePoint = typename Clock::TimePoint;
   explicit ScopeRecord(const char *name_) : _name(name_), _t0(Clock::now()) {
     PROFILER_ASSERT(name_);

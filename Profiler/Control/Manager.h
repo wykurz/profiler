@@ -21,9 +21,9 @@ struct Manager {
   template <typename RecordType_> Allocation<RecordType_> addThreadRecords() {
     std::size_t id = _currentThread++;
     // TODO(mateusz): Add stress tests with tons of threads...
-    auto holder = static_cast<Holder<RecordType_>*>(findHolder(typeid(RecordType_)));
-    if (holder)
-      return {id, holder->adoptLock(), _arena, *holder};
+    auto holderPtr = static_cast<Holder<RecordType_>*>(findHolder(typeid(RecordType_)));
+    if (holderPtr)
+      return {id, _arena, *holderPtr};
     ++_droppedThreads;
     return {};
   }
@@ -32,12 +32,14 @@ struct Manager {
    * Will start the writer thread if not already started. Must be called from
    * the main thread.
    */
-  virtual void startWriter() = 0;
+  virtual void startProcessor() = 0;
 
   /**
    * If still running, will stop the writer thread.
    */
-  virtual void stopWriter() = 0;
+  virtual void stopProcessor() = 0;
+
+  virtual bool isProcessorStarted() const = 0;
 
   /**
    * Will cause the writer to iterate once over record holders and write the
@@ -69,28 +71,31 @@ struct ManagerImpl : Manager {
   explicit ManagerImpl(const ConfigType& config_)
       : Manager(config_.instanceId), _config(config_) { }
   ManagerImpl(const Manager &) = delete;
-  ~ManagerImpl() override { stopWriter(); }
+  ~ManagerImpl() override { stopProcessor(); }
 
-  void startWriter() override {
-    if (_writerStarted)
+  void startProcessor() override {
+    if (_processorStarted)
       return;
-    _writerThread = std::thread([this]() { this->_writer.run(); });
-    _writerStarted = true;
+    _processorThread = std::thread([this]() { this->_processor.run(); });
+    _processorStarted = true;
   }
 
-  void stopWriter() override {
-    if (!_writerStarted)
+  void stopProcessor() override {
+    DLOG("Stopping writer!");
+    if (!_processorStarted)
       return;
-    _writer.stop();
-    if (_writerThread.joinable())
-      _writerThread.join();
-    _writerStarted = false;
+    _processor.stop();
+    if (_processorThread.joinable())
+      _processorThread.join();
+    _processorStarted = false;
     writerFinalPass();
   }
 
+  bool isProcessorStarted() const override { return _processorStarted; }
+
   void writerFinalPass() override  {
-    PROFILER_ASSERT(!_writerStarted);
-    _writer.finalPass();
+    PROFILER_ASSERT(!_processorStarted);
+    _processor.finalPass();
   }
  protected:
   void* findHolder(std::type_index recordTypeId_) override {
@@ -111,29 +116,32 @@ struct ManagerImpl : Manager {
   // TODO(mateusz): Add alignment and padding?
   const ConfigType _config;
   HolderArray<RecordList> _holderArray;
-  Writer::Processor<ConfigType> _writer{_config, _holderArray};
-  // FileOutputs _fileOutputs{_config};
-  std::thread _writerThread;
-  bool _writerStarted = false;
+  Writer::Processor<ConfigType> _processor{_config, _holderArray};
+  std::thread _processorThread;
+  bool _processorStarted = false;
 };
 
 namespace Internal {
 
-inline Manager &managerInstance(Manager *manager_ = nullptr) {
-  static Manager* manager(manager_);
-  if (!manager) PROFILER_RUNTIME_ERROR("You must setup Profiler first!");
-  return *manager;
+inline Manager *&managerInstancePtr() {
+  static Manager* manager = nullptr;
+  return manager;
 }
 } // namespace Internal
 
 template <typename ConfigType_>
 void setManager(const ConfigType_& config_) {
   static ManagerImpl<ConfigType_> manager(config_);
-  Internal::managerInstance(&manager);
+  if (Internal::managerInstancePtr())
+    PROFILER_RUNTIME_ERROR("Profiler already set up!");
+  Internal::managerInstancePtr() = &manager;
 }
 
 inline Manager &getManager() {
-  return Internal::managerInstance();
+  auto managerPtr = Internal::managerInstancePtr();
+  if (!managerPtr || !managerPtr->isProcessorStarted())
+    PROFILER_RUNTIME_ERROR("You must setup Profiler first!");
+  return *Internal::managerInstancePtr();
 }
 
 } // namespace Control
