@@ -12,6 +12,8 @@
 #include <unordered_map>
 #include <vector>
 #include <boost/variant.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/static_visitor.hpp>
 
 namespace Profiler {
 namespace Control {
@@ -22,30 +24,31 @@ struct Holder {
   using RecordManager = Control::RecordManager<RecordType>;
   using DirtyRecordsIter = Control::DirtyRecordsIter<RecordType>;
   Holder(std::mutex &lock_)
-      : _lock(&lock_) { }
+      : _lockPtr(&lock_) { }
   void setRecordManager(RecordManager &recordManager_) {
-    _recordManager = &recordManager_;
+    _recordManagerPtr = &recordManager_;
   }
   Control::DirtyRecordsIter<RecordType> getDirtyRecords()
   {
-    std::unique_lock<std::mutex> ulock(*_lock);
-    if (_recordManager) return _recordManager->getDirtyRecords();
+    std::unique_lock<std::mutex> ulock(*_lockPtr);
+    if (_recordManagerPtr) return _recordManagerPtr->getDirtyRecords();
     return _dirtyRecords;
   }
   void finalize()
   {
-    std::unique_lock<std::mutex> ulock(*_lock);
-    PROFILER_ASSERT(_recordManager);
-    _dirtyRecords = _recordManager->getFinalRecords();
-    _recordManager = nullptr;
+    std::unique_lock<std::mutex> ulock(*_lockPtr);
+    PROFILER_ASSERT(_recordManagerPtr);
+    _dirtyRecords = _recordManagerPtr->getFinalRecords();
+    _recordManagerPtr = nullptr;
   }
   std::unique_lock<std::mutex> adoptLock() {
-    return std::unique_lock<std::mutex>(*_lock, std::adopt_lock);
+    return std::unique_lock<std::mutex>(*_lockPtr, std::adopt_lock);
   }
 
  private:
-  std::mutex *_lock;
-  RecordManager *_recordManager = nullptr;
+  std::mutex *_lockPtr;
+  // TODO(mateusz): We could use a variant here as well.
+  RecordManager *_recordManagerPtr = nullptr;
   DirtyRecordsIter _dirtyRecords;
 };
 
@@ -54,9 +57,13 @@ struct HolderVariant {
   struct Empty { };
   using VariantType = boost::variant<Empty, Holder<RecordList_>...>;
   void* reserve(std::type_index type_) {
-    _lock->lock();
+    _lock.lock();
     if (_variant.which() == 0) return nullptr;
-    return initializer().set(_variant, type_, *_lock);
+    return initializer().set(_variant, type_, _lock);
+  }
+  template <typename VisitorFunc_>
+  void apply(VisitorFunc_ func_) {
+    boost::apply_visitor(func_, _variant);
   }
 
  private:
@@ -84,8 +91,12 @@ struct HolderVariant {
     static Initializer instance;
     return instance;
   }
-  // TODO(mateusz): use array not vector, and put lock inline?
-  mutable std::unique_ptr<std::mutex> _lock = std::make_unique<std::mutex>();
+  template <typename VisitorFunc_>
+  struct VisitorWrapper : VisitorFunc_, boost::static_visitor<> {
+    void operator()(Empty) { }
+  };
+
+  mutable std::mutex _lock;
   VariantType _variant{Empty()};
 };
 
@@ -109,6 +120,7 @@ template <typename... RecordList_>
 struct HolderArray<Mpl::TypeList<RecordList_...> > {
   static constexpr std::size_t MaxThreads = 1024;
   // Map RecordList_ types into std::type_index hash according to the variant index.
+  // TODO(mateusz): This must be thread safe
   void* findHolder(std::type_index type_) {
     // TODO(mateusz): add per-thread offset based on where was the last found holder
     int index = 0;
@@ -121,8 +133,13 @@ struct HolderArray<Mpl::TypeList<RecordList_...> > {
     return nullptr;
   }
 
+  template <typename VisitorFunc_>
+  void applyAll(VisitorFunc_ func_) {
+    for (auto &variant : _array) variant.apply(func_);
+  }
+
  private:
-  std::vector<HolderVariant<RecordList_...> > _array{MaxThreads};
+  std::array<HolderVariant<RecordList_...>, MaxThreads> _array;
 };
 
 } // namespace Control

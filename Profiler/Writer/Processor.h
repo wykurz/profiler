@@ -1,6 +1,7 @@
 #ifndef _PROFILER_CONTROL_WRITER_H
 #define _PROFILER_CONTROL_WRITER_H
 
+#include <Profiler/Algorithm/Mpl.h>
 #include <Profiler/Control/Allocation.h>
 #include <Profiler/Control/Holder.h>
 #include <atomic>
@@ -16,7 +17,8 @@ namespace Writer { // TODO(mateusz): Move to Writer namespace?
 
 struct WriteToFile {
   template <typename RecortType_>
-  void process(const RecortType_ &record_) {
+  void operator()(const RecortType_ &record_) {
+    std::cerr << "Saw record type " << typeid(record_).name() << "\n";
   }
 };
 
@@ -36,8 +38,6 @@ struct Processor {
    * there is no synchronization provided.
    */
   void finalPass() {
-    // TODO - remove!
-    // _holderArray.findHolder(typeid(int));
     // for (auto &holder : this->_holderArray) {
     //   auto lk = holder.lock();
     //   holder.finalize();
@@ -74,10 +74,10 @@ struct Processor {
 
 private:
   void onePass() {
-    // for (auto &holder : this->_holderArray) {
-    //   auto lk = holder.lock();
-    //   holder.streamDirtyRecords();
-    // }
+    Mpl::apply<typename ConfigType::WriterList>([this](auto dummy_) {
+        using WriterType = typename decltype(dummy_)::Type;
+        this->_holderArray.applyAll(WriterType());
+      });
   }
 
   const ConfigType& _config;
