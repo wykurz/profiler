@@ -5,11 +5,12 @@
 #include <Profiler/Config.h>
 #include <Profiler/Decoder.h>
 #include <Profiler/Instrumentation.h>
+#include <Profiler/Writer/Processor.h>
 #include <utility>
 
 namespace Profiler {
 
-using DefaultConfig = Config<Record::RecordStorageTypes, Mpl::TypeList<Control::WriteToFile> >;
+using DefaultConfig = Config<Record::RecordStorageTypes, Mpl::TypeList<Writer::WriteToFile> >;
 
 template <typename RecordList_, typename WriterList_>
 void setup(Config<RecordList_, WriterList_> config_) {

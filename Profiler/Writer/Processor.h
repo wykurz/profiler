@@ -12,7 +12,7 @@
 #include <utility>
 
 namespace Profiler {
-namespace Control { // TODO(mateusz): Move to Writer namespace?
+namespace Writer { // TODO(mateusz): Move to Writer namespace?
 
 struct WriteToFile {
   template <typename RecortType_>
@@ -21,14 +21,14 @@ struct WriteToFile {
 };
 
 template <typename ConfigType_>
-struct Writer {
+struct Processor {
   using ConfigType = ConfigType_;
   using RecordList = typename ConfigType::RecordList;
   // TODO(mateusz): specify sleepTime in the Config
-  Writer(const ConfigType& config_, HolderArray<RecordList> &holderArray_)
+  Processor(const ConfigType& config_, Control::HolderArray<RecordList> &holderArray_)
       : _config(config_), _holderArray(holderArray_) { }
-  Writer(const Writer &) = delete;
-  ~Writer() { PROFILER_ASSERT(_done.load(std::memory_order_acquire)); }
+  Processor(const Processor &) = delete;
+  ~Processor() { PROFILER_ASSERT(_done.load(std::memory_order_acquire)); }
 
   /**
    * Iterates over all record holders and writes all data. No other threads can
@@ -81,7 +81,7 @@ private:
   }
 
   const ConfigType& _config;
-  HolderArray<RecordList> &_holderArray;
+  Control::HolderArray<RecordList> &_holderArray;
   std::atomic<bool> _done{false};
 };
 

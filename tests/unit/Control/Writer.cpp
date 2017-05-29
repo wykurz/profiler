@@ -1,6 +1,6 @@
 #include <Profiler/Control/Holder.h>
 #include <Profiler/Control/ThreadRecords.h>
-#include <Profiler/Control/Writer.h>
+#include <Profiler/Writer/Processor.h>
 #include <Profiler/Instrumentation.h>
 #include <boost/test/unit_test.hpp>
 #include <thread>

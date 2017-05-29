@@ -5,7 +5,7 @@
 #include <Profiler/Control/Allocation.h>
 #include <Profiler/Control/Arena.h>
 #include <Profiler/Control/Holder.h>
-#include <Profiler/Control/Writer.h>
+#include <Profiler/Writer/Processor.h>
 #include <Profiler/Exception.h>
 #include <atomic>
 #include <thread>
@@ -111,7 +111,7 @@ struct ManagerImpl : Manager {
   // TODO(mateusz): Add alignment and padding?
   const ConfigType _config;
   HolderArray<RecordList> _holderArray;
-  Writer<ConfigType> _writer{_config, _holderArray};
+  Writer::Processor<ConfigType> _writer{_config, _holderArray};
   // FileOutputs _fileOutputs{_config};
   std::thread _writerThread;
   bool _writerStarted = false;
