@@ -94,14 +94,14 @@ template <typename Record_> struct DirtyRecordsIter {
       size = _lastNodeSize;
     }
     PROFILER_ASSERT(_nextRecord <= size);
-    auto ans = recordArray[_nextRecord++];
+    auto recordPtr = &recordArray[_nextRecord++];
     if (size <= _nextRecord) {
       auto _prev = _records;
       _records = _records->getNext();
       _arena->release(_prev);
       _nextRecord = 0;
     }
-    return ans;
+    return recordPtr;
   }
 
  private:

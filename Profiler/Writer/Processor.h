@@ -73,10 +73,28 @@ struct Processor {
   void stop() { _done.store(true, std::memory_order_release); }
 
 private:
+  template <typename RecordWriterType_>
+  struct HolderRecordIter {
+    explicit HolderRecordIter(RecordWriterType_ &writer_)
+        : _writer(writer_) { }
+    template <typename HolderType_>
+    void operator()(HolderType_ &holder_) {
+      auto recordIter = holder_.getDirtyRecords();
+      auto recordPtr = recordIter.next();
+      while (recordPtr) {
+        _writer(*recordPtr);
+        recordPtr = recordIter.next();
+      }
+    }
+   private:
+    RecordWriterType_ &_writer;
+  };
   void onePass() {
     Mpl::apply<typename ConfigType::WriterList>([this](auto dummy_) {
-        using WriterType = typename decltype(dummy_)::Type;
-        this->_holderArray.applyAll(WriterType());
+        using RecordWriterType = typename decltype(dummy_)::Type;
+        auto writer = RecordWriterType(); // TODO (mateusz): turn into object provided by user
+        HolderRecordIter<RecordWriterType> iter(writer);
+        this->_holderArray.applyAll(iter);
       });
   }
 
