@@ -11,24 +11,28 @@
 namespace Profiler {
 namespace Control {
 
+// TODO(mateusz): Rename to ThreadManager?
 template <typename RecordType_> struct ThreadRecords {
   using RecordType = RecordType_;
   using RecordManagerType = RecordManager<RecordType>;
   explicit ThreadRecords(const Allocation<RecordType> &allocation_)
-      : id(allocation_.id), _recordManager(allocation_.getArena()),
+      : _id(allocation_.id), _recordManager(allocation_.getArena()),
         _finalizer(allocation_.setupHolder(_recordManager)) {
     DLOG("ThreadRecords construction complete");
   }
   ThreadRecords(const ThreadRecords &) = delete;
   RecordManagerType &getRecordManager() { return _recordManager; }
-  const std::size_t id;
+  std::size_t id() const { return _id; }
 
 private:
+  std::size_t _id;
   RecordManager<RecordType> _recordManager;
   Finalizer<RecordType> _finalizer;
 };
 
 template <typename RecordType_> ThreadRecords<RecordType_> &getThreadRecords() {
+  // It is critical that we call getManager() here so taht the Manager isn't
+  // destructed before ThreadRecords.
   thread_local ThreadRecords<RecordType_> threadRecords(
       getManager().addThreadRecords<RecordType_>());
   return threadRecords;

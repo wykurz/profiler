@@ -1,6 +1,7 @@
 #ifndef _PROFILER_INSTRUMENTATION_PROFILERRECORD_H
 #define _PROFILER_INSTRUMENTATION_PROFILERRECORD_H
 
+#include <Profiler/Control/Manager.h>
 #include <Profiler/Control/RecordManager.h>
 #include <Profiler/Control/ThreadRecords.h>
 #include <Profiler/Defines.h>
@@ -22,6 +23,12 @@ void doRecord(Control::RecordManager<Record_> &recordManager_,
     return;
   }
   *record = std::forward<Record_>(record_);
+}
+
+template <typename Clock_, typename Record_>
+Record::EventId<Clock_> genEventId() {
+  return {Control::getManager().id(),
+          Control::getThreadRecords<Record_>().id()};
 }
 } // namespace Internal
 
@@ -49,8 +56,8 @@ void eventRecord(const char *name_, Record::EventId<Clock_> eventId_) {
 
 template <typename Clock_> auto eventRecord(const char *name_) {
   using RecordType = Record::EventRecord<Clock_>;
-  auto record = RecordType(name_);
-  auto eventId = record.eventId();
+  auto eventId = Internal::genEventId<Clock_, RecordType>();
+  auto record = RecordType(name_, eventId);
   Internal::doRecord(Control::getThreadRecords<RecordType>().getRecordManager(),
                      std::move(record));
   return eventId;

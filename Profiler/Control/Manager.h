@@ -103,16 +103,6 @@ struct ManagerImpl : Manager {
   }
 
  private:
-  template <typename RecordType_> static void setupStream(std::ostream &out_) {
-    const std::string &recordTypeName = typeid(RecordType_).name();
-    DLOG("Setup: " << recordTypeName.size() << " " << recordTypeName << " "
-                   << std::size_t(&out_))
-    const std::size_t &nameSize = recordTypeName.size();
-    out_.write(reinterpret_cast<const char *>(&nameSize), sizeof(nameSize));
-    out_ << recordTypeName;
-    RecordType_::encodePreamble(out_);
-  }
-
   // TODO(mateusz): Add alignment and padding?
   const ConfigType _config;
   HolderArray<RecordList> _holderArray;
