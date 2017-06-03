@@ -14,6 +14,16 @@ namespace Profiler {
 namespace Instrumentation {
 namespace Internal {
 
+struct Globals {
+  static decltype(auto) getManager() {
+    return Control::getManager();
+  }
+  template <typename StorageType>
+  static decltype(auto) getThreadRecords() {
+    return Control::getThreadRecords<StorageType>();
+  }
+};
+
 template <typename Record_>
 void doRecord(Control::RecordManager<Record_> &recordManager_,
               Record_ &&record_) {
@@ -25,20 +35,20 @@ void doRecord(Control::RecordManager<Record_> &recordManager_,
   *record = std::forward<Record_>(record_);
 }
 
-template <typename Clock_, typename Record_>
+template <typename Clock_, typename Record_, typename Globals_ = Globals>
 Record::EventId<Clock_> genEventId() {
-  return {Control::getManager().id(),
-          Control::getThreadRecords<Record_>().id()};
+  return {Globals_::getManager().id(),
+          Globals_::template getThreadRecords<Record_>().id()};
 }
 } // namespace Internal
 
-template <typename Clock_> struct ProfilerScope {
+template <typename Clock_, typename Globals_ = Internal::Globals> struct ProfilerScope {
   using RecordType = Record::ScopeRecord<Clock_>;
   using StorageType = typename RecordType::Storage;
   explicit ProfilerScope(const char *name_) : _record(name_) {}
   ~ProfilerScope() {
     Internal::doRecord(
-        Control::getThreadRecords<StorageType>().getRecordManager(),
+        Globals_::template getThreadRecords<StorageType>().getRecordManager(),
         _record.finish());
   }
   ProfilerScope(const ProfilerScope &) = delete;
@@ -47,18 +57,18 @@ private:
   RecordType _record;
 };
 
-template <typename Clock_>
+template <typename Clock_, typename Globals_ = Internal::Globals>
 void eventRecord(const char *name_, Record::EventId<Clock_> eventId_) {
   using RecordType = Record::EventRecord<Clock_>;
-  Internal::doRecord(Control::getThreadRecords<RecordType>().getRecordManager(),
+  Internal::doRecord(Globals_::template getThreadRecords<RecordType>().getRecordManager(),
                      RecordType(name_, eventId_));
 }
 
-template <typename Clock_> auto eventRecord(const char *name_) {
+template <typename Clock_, typename Globals_ = Internal::Globals> auto eventRecord(const char *name_) {
   using RecordType = Record::EventRecord<Clock_>;
   auto eventId = Internal::genEventId<Clock_, RecordType>();
   auto record = RecordType(name_, eventId);
-  Internal::doRecord(Control::getThreadRecords<RecordType>().getRecordManager(),
+  Internal::doRecord(Globals_::template getThreadRecords<RecordType>().getRecordManager(),
                      std::move(record));
   return eventId;
 }

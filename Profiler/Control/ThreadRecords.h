@@ -11,7 +11,6 @@
 namespace Profiler {
 namespace Control {
 
-// TODO(mateusz): Rename to ThreadManager?
 template <typename RecordType_> struct ThreadRecords {
   using RecordType = RecordType_;
   using RecordManagerType = RecordManager<RecordType>;
