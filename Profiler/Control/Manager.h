@@ -45,7 +45,7 @@ struct Manager {
    * Will cause the writer to iterate once over record holders and write the
    * contents to logs. The writer thread must be stopped.
    */
-  virtual void writerFinalPass() = 0;
+  virtual void processorFinalPass() = 0;
 
   /**
    * Capture per-process instance name. It's particularly useful when
@@ -81,19 +81,19 @@ struct ManagerImpl : Manager {
   }
 
   void stopProcessor() override {
-    DLOG("Stopping writer!");
+    DLOG("Stopping processor!");
     if (!_processorStarted)
       return;
     _processor.stop();
     if (_processorThread.joinable())
       _processorThread.join();
     _processorStarted = false;
-    writerFinalPass();
+    processorFinalPass();
   }
 
   bool isProcessorStarted() const override { return _processorStarted; }
 
-  void writerFinalPass() override  {
+  void processorFinalPass() override  {
     PROFILER_ASSERT(!_processorStarted);
     _processor.finalPass();
   }

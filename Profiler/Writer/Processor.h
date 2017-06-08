@@ -68,7 +68,6 @@ struct Processor {
    * The run loop will eventually terminate after stop() was called.
    */
   void stop() {
-    DLOG("Stopping Processor!");
     _done.store(true, std::memory_order_release); }
 
   void onePass() {
