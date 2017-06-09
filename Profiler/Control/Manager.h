@@ -127,7 +127,7 @@ void setManager(const ConfigType_& config_) {
 
 inline Manager &getManager() {
   auto managerPtr = Internal::managerInstancePtr();
-  if (!managerPtr || !managerPtr->isProcessorStarted())
+  if (!managerPtr)
     PROFILER_RUNTIME_ERROR("You must setup Profiler first!");
   return *Internal::managerInstancePtr();
 }
