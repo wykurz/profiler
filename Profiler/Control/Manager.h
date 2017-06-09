@@ -14,8 +14,9 @@ namespace Profiler {
 namespace Control {
 
 struct Manager {
-  Manager(std::size_t instanceId_)
-      : _instanceId(instanceId_)
+  Manager(std::size_t instanceId_, std::size_t arenaSize_)
+      : _arena(arenaSize_),
+        _instanceId(instanceId_)
     { }
   virtual ~Manager() { }
   template <typename RecordType_> Allocation<RecordType_> addThreadRecords() {
@@ -57,7 +58,7 @@ struct Manager {
   virtual void* findHolder(std::type_index recordTypeId_) = 0;
 
  private:
-  Arena _arena{100000};
+  Arena _arena;
   Arena _empty{0};
   const std::size_t _instanceId;
   std::atomic<std::uint64_t> _currentThread = {0};
@@ -69,7 +70,7 @@ struct ManagerImpl : Manager {
   using ConfigType = ConfigType_;
   using RecordList = typename ConfigType::RecordList;
   explicit ManagerImpl(const ConfigType& config_)
-      : Manager(config_.instanceId), _config(config_) { }
+      : Manager(config_.instanceId, config_.arenaSize), _config(config_) { }
   ManagerImpl(const Manager &) = delete;
   ~ManagerImpl() override { stopProcessor(); }
 
