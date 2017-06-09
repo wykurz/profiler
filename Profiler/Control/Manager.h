@@ -82,9 +82,6 @@ struct ManagerImpl : Manager {
   }
 
   void stopProcessor() override {
-    DLOG("Stopping processor!");
-    if (!_processorStarted)
-      return;
     _processor.stop();
     if (_processorThread.joinable())
       _processorThread.join();

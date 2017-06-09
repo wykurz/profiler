@@ -29,7 +29,9 @@ struct Processor {
   using RecordList = typename ConfigType::RecordList;
   // TODO(mateusz): specify sleepTime in the Config
   Processor(const ConfigType& config_, Control::HolderArray<RecordList> &holderArray_)
-      : _config(config_), _holderArray(holderArray_) { }
+      : _config(config_), _holderArray(holderArray_) {
+    DLOG("Created new Processor");
+  }
   Processor(const Processor &) = delete;
   ~Processor() { PROFILER_ASSERT(_done.load(std::memory_order_acquire)); }
 
@@ -68,6 +70,7 @@ struct Processor {
    * The run loop will eventually terminate after stop() was called.
    */
   void stop() {
+    DLOG("Stopping processor!");
     _done.store(true, std::memory_order_release); }
 
   void onePass() {
