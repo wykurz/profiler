@@ -19,7 +19,7 @@ void setup(Config<RecordList_, WriterList_> config_) {
   Control::getManager().startProcessor();
   // append Record::RecordStorageTypes to RecordList_
 }
-// TODO: Use config stored on the Manager
+// TODO(mateusz): Use config stored on the Manager
 template <typename RecordTypes_ = Mpl::TypeList<>> void primeThisThread() {
   Profiler::Control::primeThisThread<Record::RecordStorageTypes>();
   Profiler::Control::primeThisThread<RecordTypes_>();

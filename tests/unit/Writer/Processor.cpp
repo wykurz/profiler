@@ -21,7 +21,7 @@ struct MemoryWriter {
     const std::type_index type = typeid(record_);
     ++seenCount[type];
   }
-  // TODO: Make non-static once we can pass actual function objects
+  // TODO(mateusz): Make non-static once we can pass actual function objects
   using SeenMap = std::unordered_map<std::type_index, std::size_t>;
   static SeenMap seenCount;
 };
@@ -97,5 +97,5 @@ BOOST_AUTO_TEST_CASE(Basic) {
 
 BOOST_AUTO_TEST_SUITE_END()
 } // namespace Test
-} // namespace Control
+}  // namespace Writer
 } // namespace Profiler

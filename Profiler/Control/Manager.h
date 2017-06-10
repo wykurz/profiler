@@ -16,7 +16,7 @@ namespace Control {
 struct Manager {
   Manager(std::size_t instanceId_, std::size_t arenaSize_)
       : _arena(arenaSize_), _instanceId(instanceId_) {}
-  virtual ~Manager() {}
+  virtual ~Manager() = default;
   template <typename RecordType_> Allocation<RecordType_> addThreadRecords() {
     std::size_t id = _currentThread++;
     // TODO(mateusz): Add stress tests with tons of threads...
@@ -125,7 +125,7 @@ template <typename ConfigType_> void setManager(const ConfigType_ &config_) {
 
 inline Manager &getManager() {
   auto managerPtr = Internal::managerInstancePtr();
-  if (!managerPtr)
+  if (managerPtr == nullptr)
     PROFILER_RUNTIME_ERROR("You must setup Profiler first!");
   return *Internal::managerInstancePtr();
 }

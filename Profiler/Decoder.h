@@ -30,7 +30,7 @@ inline void decodeStream(std::istream &in_, std::ostream &out_) {
 }
 } // namespace Internal
 
-// TODO: convert to a function
+// TODO(mateusz): convert to a function
 template <typename ConfigType_> struct Decoder {
   using ConfigType = ConfigType_;
   using RecordList = typename ConfigType::RecordList;

@@ -80,7 +80,7 @@ template <typename Record_> struct DirtyRecordsIter {
                    std::size_t lastNodeSize_)
       : _arena(&arena_), _records(records_), _lastNodeSize(lastNodeSize_) {}
   ~DirtyRecordsIter() {
-    if (!_arena)
+    if (_arena == nullptr)
       return;
     while (_records) {
       DLOG("Releasing records: " << _records);

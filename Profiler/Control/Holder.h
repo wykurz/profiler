@@ -23,7 +23,7 @@ template <typename RecordType_> struct Holder {
   using RecordType = RecordType_;
   using RecordManager = Control::RecordManager<RecordType>;
   using DirtyRecordsIter = Control::DirtyRecordsIter<RecordType>;
-  Holder(std::mutex &lock_) : _lockPtr(&lock_) {}
+  explicit Holder(std::mutex &lock_) : _lockPtr(&lock_) {}
   void setRecordManager(RecordManager &recordManager_) {
     _recordManagerPtr = &recordManager_;
   }
@@ -105,7 +105,7 @@ private:
   struct VisitorWrapper : boost::static_visitor<> {
     explicit VisitorWrapper(VisitorFunc_ func_)
         : _func(std::forward<VisitorFunc_>(func_)) {}
-    void operator()(Empty) {}
+    void operator()(Empty /*unused*/) {}
     template <typename HolderType_> void operator()(HolderType_ &holder_) {
       _func(holder_);
     }
