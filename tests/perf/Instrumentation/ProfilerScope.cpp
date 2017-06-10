@@ -9,7 +9,7 @@ namespace Test {
 namespace {
 
 struct NoopWriter {
-  template <typename RecortType_> void operator()(const RecortType_ &) {}
+  template <typename RecortType_> void operator()(const RecortType_ & /*unused*/) {}
 };
 
 struct TestGlobals {
