@@ -29,13 +29,11 @@ template <typename Clock_>
 void eventRecord(const char *name_, Record::EventId<Clock_> eventId_) {
   Instrumentation::eventRecord<Clock_>(name_, eventId_);
 }
-template <typename Clock_>
-auto eventRecord(const char *name_) {
+template <typename Clock_> auto eventRecord(const char *name_) {
   return Instrumentation::eventRecord<Clock_>(name_);
 }
 
-template <typename Clock_>
-using Scope = Instrumentation::ProfilerScope<Clock_>;
+template <typename Clock_> using Scope = Instrumentation::ProfilerScope<Clock_>;
 
 using RdtscClock = Clock::Rdtsc;
 using SteadyClock = Clock::Steady;

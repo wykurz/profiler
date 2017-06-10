@@ -9,14 +9,11 @@ namespace Test {
 namespace {
 
 struct NoopWriter {
-  template <typename RecortType_>
-  void operator()(const RecortType_ &) { }
+  template <typename RecortType_> void operator()(const RecortType_ &) {}
 };
 
 struct TestGlobals {
-  static Control::Manager &getManager() {
-    return *manager();
-  }
+  static Control::Manager &getManager() { return *manager(); }
   template <typename StorageType_>
   static Control::ThreadRecords<StorageType_> &getThreadRecords() {
     return *threadRecords<StorageType_>();
@@ -46,18 +43,20 @@ private:
 void statsScopeTest(benchmark::State &state_) {
   using RecordType = Record::ScopeRecord<Clock::Rdtsc>;
   using StorageType = typename RecordType::Storage;
-  using TestConfig = Config<Mpl::TypeList<StorageType>, Mpl::TypeList<NoopWriter> >;
+  using TestConfig =
+      Config<Mpl::TypeList<StorageType>, Mpl::TypeList<NoopWriter>>;
   TestConfig config;
   Control::ManagerImpl<TestConfig> manager(config);
   TestGlobals::setManagerPtr(&manager);
   Control::ThreadRecords<StorageType> threadRecords(
-        manager.addThreadRecords<StorageType>());
+      manager.addThreadRecords<StorageType>());
   TestGlobals::setThreadRecordsPtr(&threadRecords);
   const int queryCount_ = state_.range(0);
   long processed = 0;
   while (state_.KeepRunning()) {
     for (int i = 0; i < queryCount_; ++i)
-      Instrumentation::ProfilerScope<typename StorageType::Clock, TestGlobals>("foobar");
+      Instrumentation::ProfilerScope<typename StorageType::Clock, TestGlobals>(
+          "foobar");
     state_.PauseTiming();
     processed += queryCount_;
     manager.processorFinalPass();
