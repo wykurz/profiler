@@ -1,14 +1,14 @@
 #include <Profiler/Api.h>
 
-void f1() { PROFILER_SCOPE(Rdtsc); }
+void f1() { Profiler::Scope<Profiler::RdtscClock> scope("f1"); }
 
 void f2() {
-  PROFILER_SCOPE(Steady);
+  Profiler::Scope<Profiler::SteadyClock> scope("f2");
   f1();
 }
 
 void f3() {
-  PROFILER_SCOPE(Steady);
+  Profiler::Scope<Profiler::SystemClock> scope("f3");
   f2();
   f1();
 }
