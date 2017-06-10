@@ -5,8 +5,8 @@
 #include <Profiler/Control/Allocation.h>
 #include <Profiler/Control/Arena.h>
 #include <Profiler/Control/Holder.h>
-#include <Profiler/Writer/Processor.h>
 #include <Profiler/Exception.h>
+#include <Profiler/Writer/Processor.h>
 #include <atomic>
 #include <thread>
 
@@ -15,14 +15,13 @@ namespace Control {
 
 struct Manager {
   Manager(std::size_t instanceId_, std::size_t arenaSize_)
-      : _arena(arenaSize_),
-        _instanceId(instanceId_)
-    { }
-  virtual ~Manager() { }
+      : _arena(arenaSize_), _instanceId(instanceId_) {}
+  virtual ~Manager() {}
   template <typename RecordType_> Allocation<RecordType_> addThreadRecords() {
     std::size_t id = _currentThread++;
     // TODO(mateusz): Add stress tests with tons of threads...
-    auto holderPtr = static_cast<Holder<RecordType_>*>(findHolder(typeid(RecordType_)));
+    auto holderPtr =
+        static_cast<Holder<RecordType_> *>(findHolder(typeid(RecordType_)));
     if (holderPtr)
       return {id, _arena, *holderPtr};
     ++_droppedThreads;
@@ -54,10 +53,10 @@ struct Manager {
    */
   std::size_t id() { return _instanceId; }
 
- protected:
-  virtual void* findHolder(std::type_index recordTypeId_) = 0;
+protected:
+  virtual void *findHolder(std::type_index recordTypeId_) = 0;
 
- private:
+private:
   Arena _arena;
   Arena _empty{0};
   const std::size_t _instanceId;
@@ -65,12 +64,11 @@ struct Manager {
   std::atomic<std::uint64_t> _droppedThreads = {0};
 };
 
-template <typename ConfigType_>
-struct ManagerImpl : Manager {
+template <typename ConfigType_> struct ManagerImpl : Manager {
   using ConfigType = ConfigType_;
   using RecordList = typename ConfigType::RecordList;
-  explicit ManagerImpl(const ConfigType& config_)
-      : Manager(config_.instanceId, config_.arenaSize), _config(config_) { }
+  explicit ManagerImpl(const ConfigType &config_)
+      : Manager(config_.instanceId, config_.arenaSize), _config(config_) {}
   ManagerImpl(const Manager &) = delete;
   ~ManagerImpl() override { stopProcessor(); }
 
@@ -91,16 +89,17 @@ struct ManagerImpl : Manager {
 
   bool isProcessorStarted() const override { return _processorStarted; }
 
-  void processorFinalPass() override  {
+  void processorFinalPass() override {
     PROFILER_ASSERT(!_processorStarted);
     _processor.finalPass();
   }
- protected:
-  void* findHolder(std::type_index recordTypeId_) override {
+
+protected:
+  void *findHolder(std::type_index recordTypeId_) override {
     return _holderArray.findHolder(recordTypeId_);
   }
 
- private:
+private:
   // TODO(mateusz): Add alignment and padding?
   const ConfigType _config;
   HolderArray<RecordList> _holderArray;
@@ -112,13 +111,12 @@ struct ManagerImpl : Manager {
 namespace Internal {
 
 inline Manager *&managerInstancePtr() {
-  static Manager* manager = nullptr;
+  static Manager *manager = nullptr;
   return manager;
 }
 } // namespace Internal
 
-template <typename ConfigType_>
-void setManager(const ConfigType_& config_) {
+template <typename ConfigType_> void setManager(const ConfigType_ &config_) {
   static ManagerImpl<ConfigType_> manager(config_);
   if (Internal::managerInstancePtr())
     PROFILER_RUNTIME_ERROR("Profiler already set up!");

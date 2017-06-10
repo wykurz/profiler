@@ -27,7 +27,9 @@ struct ConfigBase {
 template <typename RecordList_, typename WriterList_>
 struct Config : ConfigBase {
   using RecordList = RecordList_;
-  using WriterList = WriterList_; // TODO(mateusz): Best to provide a way to give set of types via a tuple of objects that will be used
+  using WriterList = WriterList_; // TODO(mateusz): Best to provide a way to
+                                  // give set of types via a tuple of objects
+                                  // that will be used
 };
 } // namespace Profiler
 

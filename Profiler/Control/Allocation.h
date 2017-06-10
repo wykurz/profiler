@@ -12,14 +12,15 @@
 namespace Profiler {
 namespace Control {
 
-template <typename RecordType_>
-struct Allocation {
+template <typename RecordType_> struct Allocation {
   using RecordType = RecordType_;
   Allocation(std::size_t id_, Arena &arena_, Holder<RecordType> &holder_)
-      : id(id_), _lock(holder_.adoptLock()), _arena(arena_), _holder(&holder_) {}
+      : id(id_), _lock(holder_.adoptLock()), _arena(arena_), _holder(&holder_) {
+  }
   Allocation() : id(-1), _arena(empty()), _holder(nullptr) {}
   Arena &getArena() const { return _arena; }
-  Finalizer<RecordType> setupHolder(RecordManager<RecordType> &recordManager_) const {
+  Finalizer<RecordType>
+  setupHolder(RecordManager<RecordType> &recordManager_) const {
     if (_holder != nullptr)
       _holder->setRecordManager(recordManager_);
     return Finalizer<RecordType>(_holder);

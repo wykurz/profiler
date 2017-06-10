@@ -10,7 +10,8 @@
 
 namespace Profiler {
 
-using DefaultConfig = Config<Record::RecordStorageTypes, Mpl::TypeList<Writer::FileWriter> >;
+using DefaultConfig =
+    Config<Record::RecordStorageTypes, Mpl::TypeList<Writer::FileWriter>>;
 
 template <typename RecordList_, typename WriterList_>
 void setup(Config<RecordList_, WriterList_> config_) {

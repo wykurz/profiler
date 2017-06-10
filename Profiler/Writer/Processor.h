@@ -17,18 +17,17 @@ namespace Profiler {
 namespace Writer { // TODO(mateusz): Move to Writer namespace?
 
 struct FileWriter {
-  template <typename RecortType_>
-  void operator()(const RecortType_ &record_) {
+  template <typename RecortType_> void operator()(const RecortType_ &record_) {
     std::cerr << "Saw record type " << typeid(record_).name() << "\n";
   }
 };
 
-template <typename ConfigType_>
-struct Processor {
+template <typename ConfigType_> struct Processor {
   using ConfigType = ConfigType_;
   using RecordList = typename ConfigType::RecordList;
   // TODO(mateusz): specify sleepTime in the Config
-  Processor(const ConfigType& config_, Control::HolderArray<RecordList> &holderArray_)
+  Processor(const ConfigType &config_,
+            Control::HolderArray<RecordList> &holderArray_)
       : _config(config_), _holderArray(holderArray_) {
     DLOG("Created new Processor");
   }
@@ -71,24 +70,23 @@ struct Processor {
    */
   void stop() {
     DLOG("Stopping processor!");
-    _done.store(true, std::memory_order_release); }
+    _done.store(true, std::memory_order_release);
+  }
 
   void onePass() {
     Mpl::apply<typename ConfigType::WriterList>([this](auto dummy_) {
-        using RecordWriterType = typename decltype(dummy_)::Type;
-        auto writer = RecordWriterType(); // TODO (mateusz): turn into object provided by user
-        HolderRecordIter<RecordWriterType> iter(writer);
-        this->_holderArray.applyAll(iter);
-      });
+      using RecordWriterType = typename decltype(dummy_)::Type;
+      auto writer = RecordWriterType(); // TODO (mateusz): turn into object
+                                        // provided by user
+      HolderRecordIter<RecordWriterType> iter(writer);
+      this->_holderArray.applyAll(iter);
+    });
   }
 
 private:
-  template <typename RecordWriterType_>
-  struct HolderRecordIter {
-    explicit HolderRecordIter(RecordWriterType_ &writer_)
-        : _writer(writer_) { }
-    template <typename HolderType_>
-    void operator()(HolderType_ &holder_) {
+  template <typename RecordWriterType_> struct HolderRecordIter {
+    explicit HolderRecordIter(RecordWriterType_ &writer_) : _writer(writer_) {}
+    template <typename HolderType_> void operator()(HolderType_ &holder_) {
       auto recordIter = holder_.getDirtyRecords();
       auto recordPtr = recordIter.next();
       while (recordPtr) {
@@ -96,21 +94,22 @@ private:
         recordPtr = recordIter.next();
       }
     }
-   private:
+
+  private:
     RecordWriterType_ &_writer;
   };
-  template <typename RecordWriterType_>
-  struct HolderFinalizer {
-    template <typename HolderType_>
-    void operator()(HolderType_ &holder_) { holder_.finalize(); }
+  template <typename RecordWriterType_> struct HolderFinalizer {
+    template <typename HolderType_> void operator()(HolderType_ &holder_) {
+      holder_.finalize();
+    }
   };
   void finalizeAll() {
     Mpl::apply<typename ConfigType::WriterList>([this](auto dummy_) {
-        using RecordWriterType = typename decltype(dummy_)::Type;
-        this->_holderArray.applyAll(HolderFinalizer<RecordWriterType>());
-      });
+      using RecordWriterType = typename decltype(dummy_)::Type;
+      this->_holderArray.applyAll(HolderFinalizer<RecordWriterType>());
+    });
   }
-  const ConfigType& _config;
+  const ConfigType &_config;
   Control::HolderArray<RecordList> &_holderArray;
   std::atomic<bool> _done{false};
 };
@@ -138,7 +137,8 @@ private:
 // struct FileOutputs : OutputFactory {
 //   explicit FileOutputs(const Config &config_) : _config(config_) {}
 //   Output::Ptr newOutput(std::size_t extractorId_) const override {
-//     return std::make_unique<Internal::FileOut>(_config.binaryLogPrefix + "." +
+//     return std::make_unique<Internal::FileOut>(_config.binaryLogPrefix + "."
+//     +
 //                                                std::to_string(extractorId_));
 //   }
 
@@ -146,15 +146,15 @@ private:
 //   const Config &_config;
 // };
 
-  // template <typename RecordType_> static void setupStream(std::ostream &out_) {
-  //   const std::string &recordTypeName = typeid(RecordType_).name();
-  //   DLOG("Setup: " << recordTypeName.size() << " " << recordTypeName << " "
-  //                  << std::size_t(&out_))
-  //   const std::size_t &nameSize = recordTypeName.size();
-  //   out_.write(reinterpret_cast<const char *>(&nameSize), sizeof(nameSize));
-  //   out_ << recordTypeName;
-  //   RecordType_::encodePreamble(out_, getManager().id());
-  // }
+// template <typename RecordType_> static void setupStream(std::ostream &out_) {
+//   const std::string &recordTypeName = typeid(RecordType_).name();
+//   DLOG("Setup: " << recordTypeName.size() << " " << recordTypeName << " "
+//                  << std::size_t(&out_))
+//   const std::size_t &nameSize = recordTypeName.size();
+//   out_.write(reinterpret_cast<const char *>(&nameSize), sizeof(nameSize));
+//   out_ << recordTypeName;
+//   RecordType_::encodePreamble(out_, getManager().id());
+// }
 
 } // namespace Control
 } // namespace Profiler

@@ -15,11 +15,8 @@ namespace Instrumentation {
 namespace Internal {
 
 struct Globals {
-  static decltype(auto) getManager() {
-    return Control::getManager();
-  }
-  template <typename StorageType>
-  static decltype(auto) getThreadRecords() {
+  static decltype(auto) getManager() { return Control::getManager(); }
+  template <typename StorageType> static decltype(auto) getThreadRecords() {
     return Control::getThreadRecords<StorageType>();
   }
 };
@@ -42,7 +39,8 @@ Record::EventId<Clock_> genEventId() {
 }
 } // namespace Internal
 
-template <typename Clock_, typename Globals_ = Internal::Globals> struct ProfilerScope {
+template <typename Clock_, typename Globals_ = Internal::Globals>
+struct ProfilerScope {
   using RecordType = Record::ScopeRecord<Clock_>;
   using StorageType = typename RecordType::Storage;
   explicit ProfilerScope(const char *name_) : _record(name_) {}
@@ -60,16 +58,19 @@ private:
 template <typename Clock_, typename Globals_ = Internal::Globals>
 void eventRecord(const char *name_, Record::EventId<Clock_> eventId_) {
   using RecordType = Record::EventRecord<Clock_>;
-  Internal::doRecord(Globals_::template getThreadRecords<RecordType>().getRecordManager(),
-                     RecordType(name_, eventId_));
+  Internal::doRecord(
+      Globals_::template getThreadRecords<RecordType>().getRecordManager(),
+      RecordType(name_, eventId_));
 }
 
-template <typename Clock_, typename Globals_ = Internal::Globals> auto eventRecord(const char *name_) {
+template <typename Clock_, typename Globals_ = Internal::Globals>
+auto eventRecord(const char *name_) {
   using RecordType = Record::EventRecord<Clock_>;
   auto eventId = Internal::genEventId<Clock_, RecordType>();
   auto record = RecordType(name_, eventId);
-  Internal::doRecord(Globals_::template getThreadRecords<RecordType>().getRecordManager(),
-                     std::move(record));
+  Internal::doRecord(
+      Globals_::template getThreadRecords<RecordType>().getRecordManager(),
+      std::move(record));
   return eventId;
 }
 

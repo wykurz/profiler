@@ -76,10 +76,12 @@ template <typename Record_> struct DirtyRecordsIter {
   using This = DirtyRecordsIter<RecordType>;
   using Node = typename Internal::RecordArray<Record_, Arena::DataSize>::Node;
   DirtyRecordsIter() = default;
-  DirtyRecordsIter(Arena &arena_, Node *const records_, std::size_t lastNodeSize_)
+  DirtyRecordsIter(Arena &arena_, Node *const records_,
+                   std::size_t lastNodeSize_)
       : _arena(&arena_), _records(records_), _lastNodeSize(lastNodeSize_) {}
   ~DirtyRecordsIter() {
-    if (!_arena) return;
+    if (!_arena)
+      return;
     while (_records) {
       DLOG("Releasing records: " << _records);
       auto next = _records->getNext();
@@ -87,17 +89,17 @@ template <typename Record_> struct DirtyRecordsIter {
       _records = next;
     }
   }
-  DirtyRecordsIter(DirtyRecordsIter &&other_)
-      : DirtyRecordsIter(other_) {
+  DirtyRecordsIter(DirtyRecordsIter &&other_) : DirtyRecordsIter(other_) {
     other_.clear();
   }
-  DirtyRecordsIter& operator=(DirtyRecordsIter &&other_) {
+  DirtyRecordsIter &operator=(DirtyRecordsIter &&other_) {
     *this = other_;
     other_.clear();
     return *this;
   }
-  RecordType* next() {
-    if (!_records) return nullptr;
+  RecordType *next() {
+    if (!_records)
+      return nullptr;
     auto &recordArray = _records->value;
     auto size = recordArray.size();
     if (!_records->getNext()) {
@@ -114,9 +116,9 @@ template <typename Record_> struct DirtyRecordsIter {
     return recordPtr;
   }
 
- private:
+private:
   DirtyRecordsIter(const DirtyRecordsIter &) = default;
-  DirtyRecordsIter& operator=(const DirtyRecordsIter &other_) = default;
+  DirtyRecordsIter &operator=(const DirtyRecordsIter &other_) = default;
   void clear() {
     _arena = nullptr;
     _records = nullptr;

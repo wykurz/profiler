@@ -1,9 +1,9 @@
+#include <Profiler/Clock.h>
 #include <Profiler/Control/Allocation.h>
 #include <Profiler/Control/Holder.h>
 #include <Profiler/Control/ThreadRecords.h>
-#include <Profiler/Writer/Processor.h>
 #include <Profiler/Instrumentation.h>
-#include <Profiler/Clock.h>
+#include <Profiler/Writer/Processor.h>
 #include <boost/test/unit_test.hpp>
 #include <thread>
 #include <unordered_map>
@@ -17,8 +17,7 @@ namespace {
 using BufferMap = std::unordered_map<std::string, std::string>;
 
 struct MemoryWriter {
-  template <typename RecortType_>
-  void operator()(const RecortType_ &record_) {
+  template <typename RecortType_> void operator()(const RecortType_ &record_) {
     const std::type_index type = typeid(record_);
     ++seenCount[type];
   }
@@ -30,12 +29,12 @@ struct MemoryWriter {
 MemoryWriter::SeenMap MemoryWriter::seenCount;
 
 struct TestGlobals {
-  static Control::Manager& getManager() {
+  static Control::Manager &getManager() {
     BOOST_REQUIRE(manager());
     return *manager();
   }
   template <typename StorageType_>
-  static Control::ThreadRecords<StorageType_>& getThreadRecords() {
+  static Control::ThreadRecords<StorageType_> &getThreadRecords() {
     BOOST_REQUIRE(threadRecords<StorageType_>());
     return *threadRecords<StorageType_>();
   }
@@ -43,17 +42,18 @@ struct TestGlobals {
     manager() = manager_;
   }
   template <typename StorageType_>
-  static void setThreadRecordsPtr(Control::ThreadRecords<StorageType_> *threadRecords_) {
+  static void
+  setThreadRecordsPtr(Control::ThreadRecords<StorageType_> *threadRecords_) {
     threadRecords<StorageType_>() = threadRecords_;
   }
 
- private:
-  static Control::Manager*& manager() {
+private:
+  static Control::Manager *&manager() {
     static Control::Manager *_manager = nullptr;
     return _manager;
   }
   template <typename StorageType>
-  static Control::ThreadRecords<StorageType>*& threadRecords() {
+  static Control::ThreadRecords<StorageType> *&threadRecords() {
     static Control::ThreadRecords<StorageType> *_threadRecords = nullptr;
     return _threadRecords;
   }
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(Basic) {
   using R2 = Record::ScopeRecord<Clock::Steady>;
   using R3 = Record::ScopeRecord<Clock::System>;
   using RecordTypeList = Mpl::TypeList<R1::Storage, R2::Storage, R3::Storage>;
-  using TestConfig = Config<RecordTypeList, Mpl::TypeList<MemoryWriter> >;
+  using TestConfig = Config<RecordTypeList, Mpl::TypeList<MemoryWriter>>;
   TestConfig config;
   config.arenaSize = 1024 * 1024; // Fix the performance issue and increase!
   Control::ManagerImpl<TestConfig> manager(config);
@@ -79,9 +79,11 @@ BOOST_AUTO_TEST_CASE(Basic) {
         manager.addThreadRecords<StorageType>());
     TestGlobals::setThreadRecordsPtr(&threadRecords);
     auto oneRecord = [&threadRecords]() {
-      Instrumentation::ProfilerScope<typename StorageType::Clock, TestGlobals>("foobar");
+      Instrumentation::ProfilerScope<typename StorageType::Clock, TestGlobals>(
+          "foobar");
     };
-    for (int i = 0; i < numAdd_; ++i) oneRecord();
+    for (int i = 0; i < numAdd_; ++i)
+      oneRecord();
   };
   addRecords(Mpl::TypeInfo<R1>(), 3);
   addRecords(Mpl::TypeInfo<R2>(), 1);
