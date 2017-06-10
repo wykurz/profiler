@@ -17,8 +17,9 @@ namespace Profiler {
 namespace Writer { // TODO(mateusz): Move to Writer namespace?
 
 struct FileWriter {
-  template <typename RecortType_> void operator()(const RecortType_ &record_) {
-    std::cerr << "Saw record type " << typeid(record_).name() << "\n";
+  template <typename RecortType_>
+  void operator()(const RecortType_ & /*record_*/) {
+    DLOG("Saw record type " << typeid(RecortType_).name())
   }
 };
 
