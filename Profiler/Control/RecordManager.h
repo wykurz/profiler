@@ -89,10 +89,11 @@ template <typename Record_> struct DirtyRecordsIter {
       _records = next;
     }
   }
-  DirtyRecordsIter(DirtyRecordsIter &&other_) : DirtyRecordsIter(other_) {
-    other_.clear();
+  DirtyRecordsIter(const DirtyRecordsIter &) = delete;
+  DirtyRecordsIter(DirtyRecordsIter &&other_) noexcept {
+    *this = std::move(other_);
   }
-  DirtyRecordsIter &operator=(DirtyRecordsIter &&other_) {
+  DirtyRecordsIter &operator=(DirtyRecordsIter &&other_) noexcept {
     *this = other_;
     other_.clear();
     return *this;
@@ -117,9 +118,8 @@ template <typename Record_> struct DirtyRecordsIter {
   }
 
 private:
-  DirtyRecordsIter(const DirtyRecordsIter &) = default;
   DirtyRecordsIter &operator=(const DirtyRecordsIter &other_) = default;
-  void clear() {
+  void clear() noexcept {
     _arena = nullptr;
     _records = nullptr;
     _arena = nullptr;

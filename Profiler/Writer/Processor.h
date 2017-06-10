@@ -156,7 +156,7 @@ private:
 //   RecordType_::encodePreamble(out_, getManager().id());
 // }
 
-}  // namespace Writer
+} // namespace Writer
 } // namespace Profiler
 
 #endif
