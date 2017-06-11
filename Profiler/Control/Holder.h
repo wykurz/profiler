@@ -28,17 +28,18 @@ template <typename RecordType_> struct Holder {
     _recordManagerPtr = &recordManager_;
   }
   Control::DirtyRecordsIter<RecordType> getDirtyRecords() {
-    std::unique_lock<std::mutex> ulock(*_lockPtr);
     if (_recordManagerPtr)
       return _recordManagerPtr->getDirtyRecords();
     return std::move(_dirtyRecords);
   }
   void finalize() {
-    std::unique_lock<std::mutex> ulock(*_lockPtr);
     if (!_recordManagerPtr)
       return;
     _dirtyRecords = _recordManagerPtr->getFinalRecords();
     _recordManagerPtr = nullptr;
+  }
+  std::unique_lock<std::mutex> acquireLock() {
+    return std::unique_lock<std::mutex>(*_lockPtr);
   }
   std::unique_lock<std::mutex> adoptLock() {
     DLOG("Adopting lock for holder, lock ptr: " << _lockPtr);
@@ -66,6 +67,7 @@ template <typename... RecordList_> struct HolderVariant {
   }
   template <typename VisitorFunc_> void apply(const VisitorFunc_ &func_) {
     VisitorWrapper<VisitorFunc_> wrapper(func_);
+    std::unique_lock<std::mutex> ulock(_lock);
     _variant.apply_visitor(wrapper);
   }
 
@@ -124,8 +126,10 @@ template <typename RecordType_> struct Finalizer {
       std::function<void(Control::DirtyRecordsIter<RecordType_> &&)>;
   explicit Finalizer(Holder *holder_) : _holder(holder_) {}
   ~Finalizer() {
-    if (_holder)
+    if (_holder) {
+      auto lock = _holder->acquireLock();
       _holder->finalize();
+    }
   }
 
 private:
@@ -141,6 +145,7 @@ struct HolderArray<Mpl::TypeList<RecordList_...>> {
   // index.
   // TODO(mateusz): This must be thread safe
   void *findHolder(std::type_index type_) {
+    DLOG("Search for new holder for type " << type_.name());
     // TODO(mateusz): add per-thread offset based on where was the last found
     // holder
     int index = 0;
