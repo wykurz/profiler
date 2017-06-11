@@ -69,7 +69,6 @@ BOOST_AUTO_TEST_CASE(Basic) {
   using RecordTypeList = Mpl::TypeList<R1::Storage, R2::Storage, R3::Storage>;
   using TestConfig = Config<RecordTypeList, Mpl::TypeList<MemoryWriter>>;
   TestConfig config;
-  config.arenaSize = 1024 * 1024; // Fix the performance issue and increase!
   Control::ManagerImpl<TestConfig> manager(config);
   TestGlobals::setManagerPtr(&manager);
   auto addRecords = [&](auto recordType_, auto numAdd_) {
@@ -87,12 +86,12 @@ BOOST_AUTO_TEST_CASE(Basic) {
   };
   addRecords(Mpl::TypeInfo<R1>(), 3);
   addRecords(Mpl::TypeInfo<R2>(), 1);
-  // addRecords(Mpl::TypeInfo<R3>(), 32 * 1024);
+  addRecords(Mpl::TypeInfo<R3>(), 32 * 1024);
   manager.processorFinalPass();
   manager.stopProcessor();
   BOOST_CHECK_EQUAL(MemoryWriter::seenCount[typeid(R1::Storage)], 3);
   BOOST_CHECK_EQUAL(MemoryWriter::seenCount[typeid(R2::Storage)], 1);
-  // BOOST_CHECK_EQUAL(MemoryWriter::seenCount[typeid(R3::Storage)], 32 * 1024);
+  BOOST_CHECK_EQUAL(MemoryWriter::seenCount[typeid(R3::Storage)], 32 * 1024);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

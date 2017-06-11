@@ -16,10 +16,7 @@ struct ConfigBase {
   std::string binaryLogPrefix = ".cxxperf-log";
   std::string binaryLogDir = ".";
   std::string yamlLogName = "cxxperf-log.yaml";
-  // TODO(mateusz): increase once we move to list FreeMap
-  // TODO(mateusz): fix performance issue and increase
-  // std::size_t arenaSize = std::size_t(5) * 1024 * 1024 * 1024; // 100MiB
-  std::size_t arenaSize = std::size_t(5) * 1024 * 1024; // 100MiB
+  std::size_t arenaSize = std::size_t(100) * 1024 * 1024; // 100MiB
   // TODO(mateusz): Writer should auto-tune this value.
   std::chrono::microseconds writerSleepTime{100000};
 };
