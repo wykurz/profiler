@@ -13,6 +13,8 @@ struct ConfigBase {
    * processes.
    */
   std::size_t instanceId = 0;
+  // TODO(mateusz): Settings specifying the log should be used to instantiate
+  // writer
   std::string binaryLogPrefix = ".cxxperf-log";
   std::string binaryLogDir = ".";
   std::string yamlLogName = "cxxperf-log.yaml";
