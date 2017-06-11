@@ -3,9 +3,10 @@
 
 #include <Profiler/Clock.h>
 #include <Profiler/Config.h>
+#include <Profiler/Control/ThreadRecords.h>
 #include <Profiler/Decoder.h>
 #include <Profiler/Instrumentation.h>
-#include <Profiler/Writer/Processor.h>
+#include <Profiler/Writer/FileWriter.h>
 #include <utility>
 
 namespace Profiler {
@@ -21,10 +22,10 @@ void setup(Config<RecordList_, WriterList_> config_) {
 }
 // TODO(mateusz): Use config stored on the Manager
 template <typename RecordTypes_ = Mpl::TypeList<>> void primeThisThread() {
-  Profiler::Control::primeThisThread<Record::RecordStorageTypes>();
-  Profiler::Control::primeThisThread<RecordTypes_>();
+  Control::primeThisThread<Record::RecordStorageTypes>();
+  Control::primeThisThread<RecordTypes_>();
 }
-inline void stopProcessor() { Profiler::Control::getManager().stopProcessor(); }
+inline void stopProcessor() { Control::getManager().stopProcessor(); }
 template <typename Clock_>
 void eventRecord(const char *name_, Record::EventId<Clock_> eventId_) {
   Instrumentation::eventRecord<Clock_>(name_, eventId_);

@@ -14,14 +14,7 @@
 #include <utility>
 
 namespace Profiler {
-namespace Writer { // TODO(mateusz): Move to Writer namespace?
-
-struct FileWriter {
-  template <typename RecortType_>
-  void operator()(const RecortType_ & /*record_*/) {
-    DLOG("Saw record type " << typeid(RecortType_).name())
-  }
-};
+namespace Writer {
 
 template <typename ConfigType_> struct Processor {
   using ConfigType = ConfigType_;
@@ -114,48 +107,6 @@ private:
   Control::HolderArray<RecordList> &_holderArray;
   std::atomic<bool> _done{false};
 };
-
-// struct OutputFactory {
-//   virtual ~OutputFactory() = default;
-//   virtual Output::Ptr newOutput(std::size_t extractorId_) const = 0;
-// };
-
-// namespace Internal {
-
-// struct FileOut : Output {
-//   explicit FileOut(const std::string &name_)
-//       : _out(name_, std::fstream::binary | std::fstream::trunc) {
-//     DLOG("FileOut " << name_ << " " << std::size_t(&_out));
-//   }
-//   std::ostream &get() override { return _out; }
-//   void flush() override { _out.flush(); }
-
-// private:
-//   std::ofstream _out;
-// };
-// } // namespace Internal
-
-// struct FileOutputs : OutputFactory {
-//   explicit FileOutputs(const Config &config_) : _config(config_) {}
-//   Output::Ptr newOutput(std::size_t extractorId_) const override {
-//     return std::make_unique<Internal::FileOut>(_config.binaryLogPrefix + "."
-//     +
-//                                                std::to_string(extractorId_));
-//   }
-
-// private:
-//   const Config &_config;
-// };
-
-// template <typename RecordType_> static void setupStream(std::ostream &out_) {
-//   const std::string &recordTypeName = typeid(RecordType_).name();
-//   DLOG("Setup: " << recordTypeName.size() << " " << recordTypeName << " "
-//                  << std::size_t(&out_))
-//   const std::size_t &nameSize = recordTypeName.size();
-//   out_.write(reinterpret_cast<const char *>(&nameSize), sizeof(nameSize));
-//   out_ << recordTypeName;
-//   RecordType_::encodePreamble(out_, getManager().id());
-// }
 
 } // namespace Writer
 } // namespace Profiler
