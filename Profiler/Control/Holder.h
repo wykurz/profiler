@@ -121,10 +121,10 @@ private:
 };
 
 template <typename RecordType_> struct Finalizer {
-  using Holder = Holder<RecordType_>;
+  using HolderType = Holder<RecordType_>;
   using FinalizerFunc =
       std::function<void(Control::DirtyRecordsIter<RecordType_> &&)>;
-  explicit Finalizer(Holder *holder_) : _holder(holder_) {}
+  explicit Finalizer(HolderType *holder_) : _holder(holder_) {}
   ~Finalizer() {
     if (_holder) {
       auto lock = _holder->acquireLock();
@@ -133,7 +133,7 @@ template <typename RecordType_> struct Finalizer {
   }
 
 private:
-  Holder *_holder;
+  HolderType *_holder;
 };
 
 template <typename... RecordList_> struct HolderArray;
