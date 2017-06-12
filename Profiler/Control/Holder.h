@@ -107,8 +107,7 @@ private:
   struct VisitorWrapper : boost::static_visitor<> {
     explicit VisitorWrapper(VisitorFunc_ &func_) : _func(func_) {}
     void operator()(Empty /*unused*/) {}
-    template <typename HolderType_>
-    void operator()(HolderType_ &holder_) {
+    template <typename HolderType_> void operator()(HolderType_ &holder_) {
       _func(holder_);
     }
 
