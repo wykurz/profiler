@@ -106,10 +106,10 @@ private:
   template <typename VisitorFunc_>
   struct VisitorWrapper : boost::static_visitor<> {
     explicit VisitorWrapper(VisitorFunc_ &func_) : _func(func_) {}
-    void operator()(Empty /*unused*/) const {}
+    void operator()(Empty /*unused*/) {}
     template <typename HolderType_>
-    void operator()(HolderType_ &holder_) const {
-      const_cast<VisitorFunc_ &>(_func)(holder_);
+    void operator()(HolderType_ &holder_) {
+      _func(holder_);
     }
 
   private:
