@@ -18,5 +18,5 @@ BOOST_AUTO_TEST_CASE(ApplyTuple) {
 
 BOOST_AUTO_TEST_SUITE_END()
 } // namespace Test
-} // namespace Algorithm
+}  // namespace Mpl
 } // namespace Profiler

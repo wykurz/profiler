@@ -70,7 +70,7 @@ template <std::size_t Index_, typename... Args_> struct ApplyTuple {
 
 template <typename... Args_> struct ApplyTuple<sizeof...(Args_), Args_...> {
   template <typename Func_>
-  static void run(Func_ &&func_, std::tuple<Args_...> &args_) {}
+  static void run(Func_ && /*func_*/, std::tuple<Args_...> & /*args_*/) {}
 };
 } // namespace Internal
 

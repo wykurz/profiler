@@ -13,7 +13,7 @@ namespace Profiler {
 
 using FileWriter = Writer::FileWriter;
 
-auto GetDefaultConfig() {
+inline auto GetDefaultConfig() {
   return GetConfig<Record::RecordStorageTypes>(Writer::FileWriter());
 }
 
