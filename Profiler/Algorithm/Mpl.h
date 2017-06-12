@@ -60,15 +60,15 @@ template <typename Res_> struct Concat<TypeList<>, TypeList<>, Res_> {
 
 namespace Internal {
 
-template <std::size_t Index_, typename... Args_> struct ApplyTuple {
+template <std::size_t NumLeft_, typename... Args_> struct ApplyTuple {
   template <typename Func_>
   static void run(Func_ &&func_, std::tuple<Args_...> &args_) {
-    func_(std::get<Index_>(args_));
-    ApplyTuple<Index_ + 1, Args_...>::run(func_, args_);
+    func_(std::get<NumLeft_ - 1>(args_));
+    ApplyTuple<NumLeft_ - 1, Args_...>::run(func_, args_);
   }
 };
 
-template <typename... Args_> struct ApplyTuple<sizeof...(Args_), Args_...> {
+template <typename... Args_> struct ApplyTuple<0, Args_...> {
   template <typename Func_>
   static void run(Func_ && /*func_*/, std::tuple<Args_...> & /*args_*/) {}
 };
@@ -76,7 +76,7 @@ template <typename... Args_> struct ApplyTuple<sizeof...(Args_), Args_...> {
 
 template <typename Func_, typename... Types_>
 void apply(Func_ &&func_, std::tuple<Types_...> &args_) {
-  Internal::ApplyTuple<0, Types_...>::run(func_, args_);
+  Internal::ApplyTuple<sizeof...(Types_), Types_...>::run(func_, args_);
 }
 } // namespace Mpl
 } // namespace Profiler
