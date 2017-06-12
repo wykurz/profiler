@@ -20,8 +20,7 @@ template <typename ConfigType_> struct Processor {
   using ConfigType = ConfigType_;
   using RecordList = typename ConfigType::RecordList;
   // TODO(mateusz): specify sleepTime in the Config
-  Processor(ConfigType &config_,
-            Control::HolderArray<RecordList> &holderArray_)
+  Processor(ConfigType &config_, Control::HolderArray<RecordList> &holderArray_)
       : _config(config_), _holderArray(holderArray_) {
     DLOG("Created new Processor");
   }
@@ -68,11 +67,12 @@ template <typename ConfigType_> struct Processor {
   }
 
   void onePass() {
-    Mpl::apply([this](auto& writer_) {
-        HolderRecordIter<decltype(writer_)> iter(writer_);
-        this->_holderArray.applyAll(iter);
-      },
-      _config.writers);
+    Mpl::apply(
+        [this](auto &writer_) {
+          HolderRecordIter<decltype(writer_)> iter(writer_);
+          this->_holderArray.applyAll(iter);
+        },
+        _config.writers);
   }
 
 private:
@@ -96,10 +96,8 @@ private:
     }
   };
   void finalizeAll() {
-    Mpl::apply([this](auto& writer_) {
-        this->_holderArray.applyAll(writer_);
-      },
-      _config.writers);
+    Mpl::apply([this](auto &writer_) { this->_holderArray.applyAll(writer_); },
+               _config.writers);
   }
   ConfigType &_config;
   Control::HolderArray<RecordList> &_holderArray;

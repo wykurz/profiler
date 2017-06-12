@@ -101,7 +101,7 @@ protected:
 
 private:
   // TODO(mateusz): Add alignment and padding?
-  ConfigType& _config;
+  ConfigType &_config;
   HolderArray<RecordList> _holderArray;
   Writer::Processor<ConfigType> _processor{_config, _holderArray};
   std::thread _processorThread;

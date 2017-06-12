@@ -99,21 +99,21 @@ private:
   private:
     FuncMap _funcmap;
   };
-  static const Initializer& initializer() {
+  static const Initializer &initializer() {
     static Initializer instance;
     return instance;
   }
   template <typename VisitorFunc_>
   struct VisitorWrapper : boost::static_visitor<> {
-    explicit VisitorWrapper(VisitorFunc_& func_)
-        : _func(func_) {}
+    explicit VisitorWrapper(VisitorFunc_ &func_) : _func(func_) {}
     void operator()(Empty /*unused*/) const {}
-    template <typename HolderType_> void operator()(HolderType_ &holder_) const {
-      const_cast<VisitorFunc_&>(_func)(holder_);
+    template <typename HolderType_>
+    void operator()(HolderType_ &holder_) const {
+      const_cast<VisitorFunc_ &>(_func)(holder_);
     }
 
   private:
-    VisitorFunc_& _func;
+    VisitorFunc_ &_func;
   };
 
   mutable std::mutex _lock;
