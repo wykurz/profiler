@@ -8,9 +8,10 @@ namespace Profiler {
 namespace Writer {
 
 struct FileWriter {
-  template <typename RecortType_>
-  void operator()(const RecortType_ & /*record_*/) {
-    DLOG("Saw record type " << typeid(RecortType_).name())
+  // TODO(mateusz): writer's must also get the ID of the holder
+  template <typename RecordType_>
+  void operator()(const RecordType_ & /*record_*/) {
+    DLOG("Saw record type " << typeid(RecordType_).name())
   }
 };
 
