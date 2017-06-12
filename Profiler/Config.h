@@ -3,7 +3,9 @@
 
 #include <Profiler/Exception.h>
 #include <chrono>
+#include <functional>
 #include <string>
+#include <tuple>
 
 namespace Profiler {
 
@@ -23,13 +25,19 @@ struct ConfigBase {
   std::chrono::microseconds writerSleepTime{100000};
 };
 
-template <typename RecordList_, typename WriterList_>
+template <typename RecordList_, typename... Writers_>
 struct Config : ConfigBase {
   using RecordList = RecordList_;
-  using WriterList = WriterList_; // TODO(mateusz): Best to provide a way to
-                                  // give set of types via a tuple of objects
-                                  // that will be used
+  explicit Config(Writers_&&... writers_)
+      : writers(std::move(writers_)...)
+    {}
+  std::tuple<Writers_...> writers;
 };
+
+template <typename RecordList_, typename... Writers_>
+auto GetConfig(Writers_&&... writers_) {
+  return Config<RecordList_, Writers_...>(std::move(writers_)...);
+}
 } // namespace Profiler
 
 #endif

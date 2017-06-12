@@ -10,7 +10,7 @@ namespace {
 
 struct NoopWriter {
   template <typename RecortType_>
-  void operator()(const RecortType_ & /*unused*/) {}
+  void operator()(const RecortType_ & /*unused*/) const {}
 };
 
 struct TestGlobals {
@@ -45,8 +45,8 @@ void statsScopeTest(benchmark::State &state_) {
   using RecordType = Record::ScopeRecord<Clock::Rdtsc>;
   using StorageType = typename RecordType::Storage;
   using TestConfig =
-      Config<Mpl::TypeList<StorageType>, Mpl::TypeList<NoopWriter>>;
-  TestConfig config;
+      Config<Mpl::TypeList<StorageType>, NoopWriter>;
+  TestConfig config{NoopWriter()};
   Control::ManagerImpl<TestConfig> manager(config);
   TestGlobals::setManagerPtr(&manager);
   Control::ThreadRecords<StorageType> threadRecords(

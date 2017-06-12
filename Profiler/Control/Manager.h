@@ -67,7 +67,7 @@ private:
 template <typename ConfigType_> struct ManagerImpl : Manager {
   using ConfigType = ConfigType_;
   using RecordList = typename ConfigType::RecordList;
-  explicit ManagerImpl(const ConfigType &config_)
+  explicit ManagerImpl(ConfigType &config_)
       : Manager(config_.instanceId, config_.arenaSize), _config(config_) {}
   ManagerImpl(const Manager &) = delete;
   ~ManagerImpl() override { stopProcessor(); }
@@ -101,7 +101,7 @@ protected:
 
 private:
   // TODO(mateusz): Add alignment and padding?
-  const ConfigType _config;
+  ConfigType& _config;
   HolderArray<RecordList> _holderArray;
   Writer::Processor<ConfigType> _processor{_config, _holderArray};
   std::thread _processorThread;
@@ -116,7 +116,7 @@ inline Manager *&managerInstancePtr() {
 }
 } // namespace Internal
 
-template <typename ConfigType_> void setManager(const ConfigType_ &config_) {
+template <typename ConfigType_> void setManager(ConfigType_ &config_) {
   static ManagerImpl<ConfigType_> manager(config_);
   if (Internal::managerInstancePtr())
     PROFILER_RUNTIME_ERROR("Profiler already set up!");

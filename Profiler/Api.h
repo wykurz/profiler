@@ -11,11 +11,14 @@
 
 namespace Profiler {
 
-using DefaultConfig =
-    Config<Record::RecordStorageTypes, Mpl::TypeList<Writer::FileWriter>>;
+using FileWriter = Writer::FileWriter;
+
+auto GetDefaultConfig() {
+  return GetConfig<Record::RecordStorageTypes>(Writer::FileWriter());
+}
 
 template <typename RecordList_, typename WriterList_>
-void setup(Config<RecordList_, WriterList_> config_) {
+void setup(Config<RecordList_, WriterList_> &config_) {
   Control::setManager(config_);
   Control::getManager().startProcessor();
   // append Record::RecordStorageTypes to RecordList_

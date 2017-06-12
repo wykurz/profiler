@@ -65,7 +65,7 @@ template <typename... RecordList_> struct HolderVariant {
     }
     return initializer().set(_variant, type_, _lock);
   }
-  template <typename VisitorFunc_> void apply(const VisitorFunc_ &func_) {
+  template <typename VisitorFunc_> void apply(VisitorFunc_ &func_) {
     VisitorWrapper<VisitorFunc_> wrapper(func_);
     std::unique_lock<std::mutex> ulock(_lock);
     _variant.apply_visitor(wrapper);
@@ -99,21 +99,21 @@ private:
   private:
     FuncMap _funcmap;
   };
-  static const Initializer initializer() {
+  static const Initializer& initializer() {
     static Initializer instance;
     return instance;
   }
   template <typename VisitorFunc_>
   struct VisitorWrapper : boost::static_visitor<> {
-    explicit VisitorWrapper(VisitorFunc_ func_)
-        : _func(std::forward<VisitorFunc_>(func_)) {}
-    void operator()(Empty /*unused*/) {}
-    template <typename HolderType_> void operator()(HolderType_ &holder_) {
-      _func(holder_);
+    explicit VisitorWrapper(VisitorFunc_& func_)
+        : _func(func_) {}
+    void operator()(Empty /*unused*/) const {}
+    template <typename HolderType_> void operator()(HolderType_ &holder_) const {
+      const_cast<VisitorFunc_&>(_func)(holder_);
     }
 
   private:
-    VisitorFunc_ _func;
+    VisitorFunc_& _func;
   };
 
   mutable std::mutex _lock;

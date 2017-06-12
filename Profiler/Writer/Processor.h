@@ -20,7 +20,7 @@ template <typename ConfigType_> struct Processor {
   using ConfigType = ConfigType_;
   using RecordList = typename ConfigType::RecordList;
   // TODO(mateusz): specify sleepTime in the Config
-  Processor(const ConfigType &config_,
+  Processor(ConfigType &config_,
             Control::HolderArray<RecordList> &holderArray_)
       : _config(config_), _holderArray(holderArray_) {
     DLOG("Created new Processor");
@@ -68,13 +68,11 @@ template <typename ConfigType_> struct Processor {
   }
 
   void onePass() {
-    Mpl::apply<typename ConfigType::WriterList>([this](auto dummy_) {
-      using RecordWriterType = typename decltype(dummy_)::Type;
-      auto writer = RecordWriterType(); // TODO (mateusz): turn into object
-                                        // provided by user
-      HolderRecordIter<RecordWriterType> iter(writer);
-      this->_holderArray.applyAll(iter);
-    });
+    Mpl::apply([this](auto& writer_) {
+        HolderRecordIter<decltype(writer_)> iter(writer_);
+        this->_holderArray.applyAll(iter);
+      },
+      _config.writers);
   }
 
 private:
@@ -98,12 +96,12 @@ private:
     }
   };
   void finalizeAll() {
-    Mpl::apply<typename ConfigType::WriterList>([this](auto dummy_) {
-      using RecordWriterType = typename decltype(dummy_)::Type;
-      this->_holderArray.applyAll(HolderFinalizer<RecordWriterType>());
-    });
+    Mpl::apply([this](auto& writer_) {
+        this->_holderArray.applyAll(writer_);
+      },
+      _config.writers);
   }
-  const ConfigType &_config;
+  ConfigType &_config;
   Control::HolderArray<RecordList> &_holderArray;
   std::atomic<bool> _done{false};
 };

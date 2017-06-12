@@ -63,7 +63,7 @@ namespace Internal {
 template <std::size_t Index_, typename... Args_>
 struct ApplyTuple {
   template <typename Func_>
-  static void run(const Func_ &func_, const std::tuple<Args_...>& args_) {
+  static void run(Func_ &&func_, std::tuple<Args_...>& args_) {
     func_(std::get<Index_>(args_));
     ApplyTuple<Index_ + 1, Args_...>::run(func_, args_);
   }
@@ -72,11 +72,11 @@ struct ApplyTuple {
 template <typename... Args_>
 struct ApplyTuple<sizeof...(Args_), Args_...> {
   template <typename Func_>
-  static void run(const Func_ &func_, const std::tuple<Args_...>& args_) {}
+  static void run(Func_ &&func_, std::tuple<Args_...>& args_) {}
 };
 } // namespace Internal
 
-template <typename Func_, typename... Types_> void apply(const Func_ &func_, std::tuple<Types_...> args_) {
+template <typename Func_, typename... Types_> void apply(Func_ &&func_, std::tuple<Types_...>& args_) {
   Internal::ApplyTuple<0, Types_...>::run(func_, args_);
 }
 } // namespace Mpl

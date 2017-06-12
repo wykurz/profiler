@@ -67,8 +67,8 @@ BOOST_AUTO_TEST_CASE(Basic) {
   using R2 = Record::ScopeRecord<Clock::Steady>;
   using R3 = Record::ScopeRecord<Clock::System>;
   using RecordTypeList = Mpl::TypeList<R1::Storage, R2::Storage, R3::Storage>;
-  using TestConfig = Config<RecordTypeList, Mpl::TypeList<MemoryWriter>>;
-  TestConfig config;
+  using TestConfig = Config<RecordTypeList, MemoryWriter>;
+  TestConfig config{MemoryWriter()};
   Control::ManagerImpl<TestConfig> manager(config);
   TestGlobals::setManagerPtr(&manager);
   auto addRecords = [&](auto recordType_, auto numAdd_) {

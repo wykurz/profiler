@@ -1,7 +1,7 @@
 #include <Profiler/Api.h>
 
 int main() {
-  Profiler::DefaultConfig config;
+  auto config = Profiler::GetDefaultConfig();
   config.binaryLogPrefix = ".my.perf.log";
   config.binaryLogDir = ".";
   config.yamlLogName = "my.perf.yaml";
