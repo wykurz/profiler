@@ -24,7 +24,7 @@ template <typename RecordType_> struct ThreadRecords {
   std::size_t id() const { return _id; }
 
 private:
-  std::size_t _id;
+  const std::size_t _id;
   RecordManager<RecordType> _recordManager;
   Finalizer<RecordType> _finalizer;
 };
