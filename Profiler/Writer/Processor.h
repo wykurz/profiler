@@ -82,7 +82,7 @@ private:
       auto recordIter = holder_.getDirtyRecords();
       auto recordPtr = recordIter.next();
       while (recordPtr) {
-        _writer(*recordPtr);
+        _writer(*recordPtr, holder_.getId());
         recordPtr = recordIter.next();
       }
     }
@@ -90,14 +90,8 @@ private:
   private:
     RecordWriterType_ &_writer;
   };
-  template <typename RecordWriterType_> struct HolderFinalizer {
-    template <typename HolderType_> void operator()(HolderType_ &holder_) {
-      holder_.finalize();
-    }
-  };
   void finalizeAll() {
-    Mpl::apply([this](auto &writer_) { this->_holderArray.applyAll(writer_); },
-               _config.writers);
+    _holderArray.applyAll([](auto &holder_) { holder_.finalize(); });
   }
   ConfigType &_config;
   Control::HolderArray<RecordList> &_holderArray;

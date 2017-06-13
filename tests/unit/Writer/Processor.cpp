@@ -17,7 +17,7 @@ namespace {
 using BufferMap = std::unordered_map<std::string, std::string>;
 
 struct MemoryWriter {
-  template <typename RecortType_> void operator()(const RecortType_ &record_) {
+  template <typename RecortType_> void operator()(const RecortType_ &record_, std::size_t holderId_) {
     const std::type_index type = typeid(record_);
     ++seenCount[type];
   }

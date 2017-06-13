@@ -10,7 +10,7 @@ namespace {
 
 struct NoopWriter {
   template <typename RecortType_>
-  void operator()(const RecortType_ & /*unused*/) const {}
+  void operator()(const RecortType_ & /*unused*/, std::size_t /*unused*/) const {}
 };
 
 struct TestGlobals {
