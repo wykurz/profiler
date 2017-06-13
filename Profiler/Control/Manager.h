@@ -23,7 +23,7 @@ struct Manager {
     auto holderPtr =
         static_cast<Holder<RecordType_> *>(findHolder(typeid(RecordType_), id));
     if (holderPtr)
-      return {id, _arena, *holderPtr};
+      return {_arena, *holderPtr};
     ++_droppedThreads;
     return {};
   }

@@ -14,10 +14,10 @@ namespace Control {
 
 template <typename RecordType_> struct Allocation {
   using RecordType = RecordType_;
-  Allocation(std::size_t id_, Arena &arena_, Holder<RecordType> &holder_)
-      : id(id_), _lock(holder_.adoptLock()), _arena(arena_), _holder(&holder_) {
+  Allocation(Arena &arena_, Holder<RecordType> &holder_)
+      : _lock(holder_.adoptLock()), _arena(arena_), _holder(&holder_) {
   }
-  Allocation() : id(-1), _arena(empty()), _holder(nullptr) {}
+  Allocation() : _arena(empty()), _holder(nullptr) {}
   Arena &getArena() const { return _arena; }
   Finalizer<RecordType>
   setupHolder(RecordManager<RecordType> &recordManager_) const {
@@ -25,7 +25,10 @@ template <typename RecordType_> struct Allocation {
       _holder->setRecordManager(recordManager_);
     return Finalizer<RecordType>(_holder);
   }
-  const std::size_t id;
+  std::size_t holderId() const {
+    if (!_holder) return 0;
+    return _holder->getId();
+  }
 
 private:
   static Arena &empty() {

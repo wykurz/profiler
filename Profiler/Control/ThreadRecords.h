@@ -15,7 +15,7 @@ template <typename RecordType_> struct ThreadRecords {
   using RecordType = RecordType_;
   using RecordManagerType = RecordManager<RecordType>;
   explicit ThreadRecords(const Allocation<RecordType> &allocation_)
-      : _id(allocation_.id), _recordManager(allocation_.getArena()),
+      : _id(allocation_.holderId()), _recordManager(allocation_.getArena()),
         _finalizer(allocation_.setupHolder(_recordManager)) {
     DLOG("ThreadRecords construction complete");
   }
