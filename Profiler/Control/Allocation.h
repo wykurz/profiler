@@ -15,8 +15,7 @@ namespace Control {
 template <typename RecordType_> struct Allocation {
   using RecordType = RecordType_;
   Allocation(Arena &arena_, Holder<RecordType> &holder_)
-      : _lock(holder_.adoptLock()), _arena(arena_), _holder(&holder_) {
-  }
+      : _lock(holder_.adoptLock()), _arena(arena_), _holder(&holder_) {}
   Allocation() : _arena(empty()), _holder(nullptr) {}
   Arena &getArena() const { return _arena; }
   Finalizer<RecordType>
@@ -26,7 +25,8 @@ template <typename RecordType_> struct Allocation {
     return Finalizer<RecordType>(_holder);
   }
   std::size_t holderId() const {
-    if (!_holder) return 0;
+    if (!_holder)
+      return 0;
     return _holder->getId();
   }
 

@@ -54,7 +54,8 @@ struct Manager {
   std::size_t id() { return _instanceId; }
 
 protected:
-  virtual void *findHolder(std::type_index recordTypeId_, std::size_t holderId_) = 0;
+  virtual void *findHolder(std::type_index recordTypeId_,
+                           std::size_t holderId_) = 0;
 
 private:
   Arena _arena;
@@ -95,7 +96,8 @@ template <typename ConfigType_> struct ManagerImpl : Manager {
   }
 
 protected:
-  void *findHolder(std::type_index recordTypeId_, std::size_t holderId_) override {
+  void *findHolder(std::type_index recordTypeId_,
+                   std::size_t holderId_) override {
     return _holderArray.findHolder(recordTypeId_, holderId_);
   }
 

@@ -46,9 +46,7 @@ template <typename RecordType_> struct Holder {
     DLOG("Adopting lock for holder, lock ptr: " << _lockPtr);
     return std::unique_lock<std::mutex>(*_lockPtr, std::adopt_lock);
   }
-  std::size_t getId() const {
-    return _holderId;
-  }
+  std::size_t getId() const { return _holderId; }
 
 private:
   std::mutex *_lockPtr;
@@ -78,24 +76,25 @@ template <typename... RecordList_> struct HolderVariant {
 
 private:
   struct Initializer {
-    using FuncMap =
-      std::unordered_map<
-        std::type_index, std::function<void *(VariantType &, std::size_t holderId_,
-                                              std::mutex &)>>;
+    using FuncMap = std::unordered_map<
+        std::type_index,
+        std::function<void *(VariantType &, std::size_t holderId_,
+                             std::mutex &)>>;
     Initializer() {
       Mpl::apply<Mpl::TypeList<RecordList_...>>([this](auto dummy_) {
         using RecordType = typename decltype(dummy_)::Type;
         DLOG("Defining init function for record type "
              << typeid(RecordType).name());
-        auto func = [this](VariantType &variant_, std::size_t holderId_, std::mutex &lock_) {
+        auto func = [this](VariantType &variant_, std::size_t holderId_,
+                           std::mutex &lock_) {
           variant_ = Holder<RecordType>(lock_, holderId_);
           return static_cast<void *>(boost::get<Holder<RecordType>>(&variant_));
         };
         this->_funcmap[typeid(RecordType)] = func;
       });
     }
-    void *set(VariantType &variant_, std::type_index type_, std::size_t holderId_,
-              std::mutex &lock_) const {
+    void *set(VariantType &variant_, std::type_index type_,
+              std::size_t holderId_, std::mutex &lock_) const {
       DLOG("Setting variant of type " << type_.name());
       auto it = _funcmap.find(type_);
       PROFILER_ASSERT(it != _funcmap.end());
