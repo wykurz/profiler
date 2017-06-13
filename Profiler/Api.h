@@ -23,7 +23,7 @@ void setup(Config<RecordList_, WriterList_> &config_) {
   Control::getManager().startProcessor();
   // append Record::RecordStorageTypes to RecordList_
 }
-// TODO(mateusz): Use config stored on the Manager
+// TODO(mateusz): Allow passing user-defined thread context
 template <typename RecordTypes_ = Mpl::TypeList<>> void primeThisThread() {
   Control::primeThisThread<Record::RecordStorageTypes>();
   Control::primeThisThread<RecordTypes_>();
