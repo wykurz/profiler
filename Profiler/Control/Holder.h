@@ -23,7 +23,8 @@ template <typename RecordType_> struct Holder {
   using RecordType = RecordType_;
   using RecordManager = Control::RecordManager<RecordType>;
   using DirtyRecordsIter = Control::DirtyRecordsIter<RecordType>;
-  explicit Holder(std::mutex &lock_) : _lockPtr(&lock_) {}
+  explicit Holder(std::mutex &lock_, std::size_t holderId_)
+      : _lockPtr(&lock_), _holderId(holderId_) {}
   void setRecordManager(RecordManager &recordManager_) {
     _recordManagerPtr = &recordManager_;
   }
@@ -45,9 +46,13 @@ template <typename RecordType_> struct Holder {
     DLOG("Adopting lock for holder, lock ptr: " << _lockPtr);
     return std::unique_lock<std::mutex>(*_lockPtr, std::adopt_lock);
   }
+  std::size_t getId() const {
+    return _holderId;
+  }
 
 private:
   std::mutex *_lockPtr;
+  std::size_t _holderId;
   // TODO(mateusz): We could use a variant here as well.
   RecordManager *_recordManagerPtr = nullptr;
   DirtyRecordsIter _dirtyRecords;
@@ -56,14 +61,14 @@ private:
 template <typename... RecordList_> struct HolderVariant {
   struct Empty {};
   using VariantType = boost::variant<Empty, Holder<RecordList_>...>;
-  void *reserve(std::type_index type_) {
+  void *reserve(std::type_index type_, std::size_t holderId_) {
     DLOG("Reserving variant, lock ptr: " << &_lock);
     _lock.lock();
     if (_variant.which() != 0) {
       _lock.unlock();
       return nullptr;
     }
-    return initializer().set(_variant, type_, _lock);
+    return initializer().set(_variant, type_, holderId_, _lock);
   }
   template <typename VisitorFunc_> void apply(VisitorFunc_ &func_) {
     VisitorWrapper<VisitorFunc_> wrapper(func_);
@@ -74,26 +79,27 @@ template <typename... RecordList_> struct HolderVariant {
 private:
   struct Initializer {
     using FuncMap =
-        std::unordered_map<std::type_index,
-                           std::function<void *(VariantType &, std::mutex &)>>;
+      std::unordered_map<
+        std::type_index, std::function<void *(VariantType &, std::size_t holderId_,
+                                              std::mutex &)>>;
     Initializer() {
       Mpl::apply<Mpl::TypeList<RecordList_...>>([this](auto dummy_) {
         using RecordType = typename decltype(dummy_)::Type;
         DLOG("Defining init function for record type "
              << typeid(RecordType).name());
-        auto func = [this](VariantType &variant_, std::mutex &lock_) {
-          variant_ = Holder<RecordType>(lock_);
+        auto func = [this](VariantType &variant_, std::size_t holderId_, std::mutex &lock_) {
+          variant_ = Holder<RecordType>(lock_, holderId_);
           return static_cast<void *>(boost::get<Holder<RecordType>>(&variant_));
         };
         this->_funcmap[typeid(RecordType)] = func;
       });
     }
-    void *set(VariantType &variant_, std::type_index type_,
+    void *set(VariantType &variant_, std::type_index type_, std::size_t holderId_,
               std::mutex &lock_) const {
       DLOG("Setting variant of type " << type_.name());
       auto it = _funcmap.find(type_);
       PROFILER_ASSERT(it != _funcmap.end());
-      return it->second(variant_, lock_);
+      return it->second(variant_, holderId_, lock_);
     }
 
   private:
@@ -143,7 +149,7 @@ struct HolderArray<Mpl::TypeList<RecordList_...>> {
   // Map RecordList_ types into std::type_index hash according to the variant
   // index.
   // TODO(mateusz): This must be thread safe
-  void *findHolder(std::type_index type_) {
+  void *findHolder(std::type_index type_, std::size_t holderId_) {
     DLOG("Search for new holder for type " << type_.name());
     // TODO(mateusz): add per-thread offset based on where was the last found
     // holder
@@ -151,7 +157,7 @@ struct HolderArray<Mpl::TypeList<RecordList_...>> {
     int count = MaxThreads;
     while (0 < count--) {
       auto &variant = _array[index++ % _array.size()];
-      auto res = variant.reserve(type_);
+      auto res = variant.reserve(type_, holderId_);
       if (res)
         return res;
     }
