@@ -25,8 +25,8 @@ void setup(Config<RecordList_, WriterList_> &config_) {
 }
 // TODO(mateusz): Allow passing user-defined thread context
 // TODO(mateusz): Should userContext be a void*?
-template <typename RecordTypes_ = Record::RecordStorageTypes> void primeThisThread(
-    const std::string &userContext_ = "") {
+template <typename RecordTypes_ = Record::RecordStorageTypes>
+void primeThisThread(const std::string &userContext_ = "") {
   Control::primeThisThread<RecordTypes_>(userContext_);
 }
 inline void stopProcessor() { Control::getManager().stopProcessor(); }

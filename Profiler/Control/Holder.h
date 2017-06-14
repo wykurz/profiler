@@ -62,7 +62,8 @@ private:
 template <typename... RecordList_> struct HolderVariant {
   struct Empty {};
   using VariantType = boost::variant<Empty, Holder<RecordList_>...>;
-  void *reserve(std::type_index type_, std::size_t holderId_, const std::string &userContext_) {
+  void *reserve(std::type_index type_, std::size_t holderId_,
+                const std::string &userContext_) {
     DLOG("Reserving variant, lock ptr: " << &_lock);
     _lock.lock();
     if (_variant.which() != 0) {
@@ -152,7 +153,8 @@ struct HolderArray<Mpl::TypeList<RecordList_...>> {
   // Map RecordList_ types into std::type_index hash according to the variant
   // index.
   // TODO(mateusz): This must be thread safe
-  void *findHolder(std::type_index type_, std::size_t holderId_, const std::string &userContext_) {
+  void *findHolder(std::type_index type_, std::size_t holderId_,
+                   const std::string &userContext_) {
     DLOG("Search for new holder for type " << type_.name());
     // TODO(mateusz): add per-thread offset based on where was the last found
     // holder

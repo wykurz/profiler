@@ -10,7 +10,7 @@ namespace Writer {
 struct FileWriter {
   // TODO(mateusz): writer's must also get the ID of the holder
   template <typename RecordType_>
-  void operator()(const RecordType_ & /*record_*/, std::size_t  /*holderId_*/,
+  void operator()(const RecordType_ & /*record_*/, std::size_t /*holderId_*/,
                   const std::string & /*userContext_*/) {
     DLOG("Saw record type " << typeid(RecordType_).name())
   }
