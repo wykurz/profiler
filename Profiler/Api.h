@@ -24,9 +24,10 @@ void setup(Config<RecordList_, WriterList_> &config_) {
   // append Record::RecordStorageTypes to RecordList_
 }
 // TODO(mateusz): Allow passing user-defined thread context
-template <typename RecordTypes_ = Mpl::TypeList<>> void primeThisThread() {
-  Control::primeThisThread<Record::RecordStorageTypes>();
-  Control::primeThisThread<RecordTypes_>();
+// TODO(mateusz): Should userContext be a void*?
+template <typename RecordTypes_ = Record::RecordStorageTypes> void primeThisThread(
+    const std::string &userContext_ = "") {
+  Control::primeThisThread<RecordTypes_>(userContext_);
 }
 inline void stopProcessor() { Control::getManager().stopProcessor(); }
 template <typename Clock_>

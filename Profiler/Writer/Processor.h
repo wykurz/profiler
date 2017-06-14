@@ -82,7 +82,7 @@ private:
       auto recordIter = holder_.getDirtyRecords();
       auto recordPtr = recordIter.next();
       while (recordPtr) {
-        _writer(*recordPtr, holder_.getId());
+        _writer(*recordPtr, holder_.getId(), holder_.getUserContext());
         recordPtr = recordIter.next();
       }
     }

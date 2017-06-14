@@ -17,11 +17,12 @@ struct Manager {
   Manager(std::size_t instanceId_, std::size_t arenaSize_)
       : _arena(arenaSize_), _instanceId(instanceId_) {}
   virtual ~Manager() = default;
-  template <typename RecordType_> Allocation<RecordType_> addThreadRecords() {
+  template <typename RecordType_> Allocation<RecordType_> addThreadRecords(
+      const std::string &userContext_ = "") {
     std::size_t id = _currentThread++;
     // TODO(mateusz): Add stress tests with tons of threads...
     auto holderPtr =
-        static_cast<Holder<RecordType_> *>(findHolder(typeid(RecordType_), id));
+      static_cast<Holder<RecordType_> *>(findHolder(typeid(RecordType_), id, userContext_));
     if (holderPtr)
       return {_arena, *holderPtr};
     ++_droppedThreads;
@@ -55,7 +56,8 @@ struct Manager {
 
 protected:
   virtual void *findHolder(std::type_index recordTypeId_,
-                           std::size_t holderId_) = 0;
+                           std::size_t holderId_,
+                           const std::string &userContext_) = 0;
 
 private:
   Arena _arena;
@@ -97,8 +99,9 @@ template <typename ConfigType_> struct ManagerImpl : Manager {
 
 protected:
   void *findHolder(std::type_index recordTypeId_,
-                   std::size_t holderId_) override {
-    return _holderArray.findHolder(recordTypeId_, holderId_);
+                   std::size_t holderId_,
+                   const std::string &userContext_) override {
+    return _holderArray.findHolder(recordTypeId_, holderId_, userContext_);
   }
 
 private:

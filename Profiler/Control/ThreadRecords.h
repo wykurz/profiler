@@ -29,19 +29,20 @@ private:
   Finalizer<RecordType> _finalizer;
 };
 
-template <typename RecordType_> ThreadRecords<RecordType_> &getThreadRecords() {
+template <typename RecordType_> ThreadRecords<RecordType_> &getThreadRecords(
+    const std::string &userContext_ = "") {
   // It is critical that we call getManager() here so taht the Manager isn't
   // destructed before ThreadRecords.
   thread_local ThreadRecords<RecordType_> threadRecords(
-      getManager().addThreadRecords<RecordType_>());
+      getManager().addThreadRecords<RecordType_>(userContext_));
   return threadRecords;
 }
 
 // TODO(mateusz): measure and document the cost of this call
-template <typename RecordTypes_> void primeThisThread() {
-  auto requestRecordType = [](auto dummy_) {
+template <typename RecordTypes_> void primeThisThread(const std::string &userContext_) {
+  auto requestRecordType = [&userContext_](auto dummy_) {
     using RecordType = typename decltype(dummy_)::Type;
-    getThreadRecords<RecordType>();
+    getThreadRecords<RecordType>(userContext_);
   };
   Mpl::apply<RecordTypes_>(requestRecordType);
 }
