@@ -24,8 +24,9 @@ template <typename RecordType_> struct Holder {
   using RecordManager = Control::RecordManager<RecordType>;
   using DirtyRecordsIter = Control::DirtyRecordsIter<RecordType>;
   explicit Holder(std::mutex &lock_, std::size_t holderId_,
-                  const std::string &userContext_)
-      : _lockPtr(&lock_), _holderId(holderId_), _userContext(userContext_) {}
+                  std::string userContext_)
+      : _lockPtr(&lock_), _holderId(holderId_),
+        _userContext(std::move(userContext_)) {}
   void setRecordManager(RecordManager &recordManager_) {
     _recordManagerPtr = &recordManager_;
   }
