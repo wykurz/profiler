@@ -23,13 +23,16 @@ template <typename Clock_> struct ScopeStorage {
                std::size_t depth_, std::size_t seqNum_)
       : _name(name_), _t0(std::move(t0_)), _t1(std::move(t1_)), _depth(depth_),
         _seqNum(seqNum_) {}
+  // TODO(mateusz): Move to FileWriter
   void encode(std::ostream &out_) {
     Serialize::encodeString(out_, _name);
     out_ << _t0 << _t1;
     Serialize::encode(out_, _depth);
     Serialize::encode(out_, _seqNum);
   }
+  // TODO(mateusz): Remove.
   static void decodePreamble(std::istream & /*in_*/, std::ostream & /*out_*/) {}
+  // TODO(mateusz): Move to Decoder function (FileWriter)
   static void decode(std::istream &in_, std::ostream &out_) {
     auto name = Serialize::decodeString(in_);
     Duration t0;

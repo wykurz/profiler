@@ -4,7 +4,6 @@
 #include <Profiler/Clock.h>
 #include <Profiler/Config.h>
 #include <Profiler/Control/ThreadRecords.h>
-#include <Profiler/Decoder.h>
 #include <Profiler/Instrumentation.h>
 #include <Profiler/Writer/FileWriter.h>
 #include <utility>
@@ -17,6 +16,7 @@ inline auto GetDefaultConfig() {
   return GetConfig<Record::RecordStorageTypes>(Writer::FileWriter());
 }
 
+// TODO(mateusz): Separate writers from config
 template <typename RecordList_, typename WriterList_>
 void setup(Config<RecordList_, WriterList_> &config_) {
   Control::setManager(config_);
