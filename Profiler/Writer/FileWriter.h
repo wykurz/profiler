@@ -91,8 +91,7 @@ private:
   std::vector<std::ifstream> _inputs;
 };
 
-template <typename RecordList_>
-struct FileWriter {
+template <typename RecordList_> struct FileWriter {
   using RecordList = RecordList_;
   FileWriter() : FileWriter(".", ".cxxperf-log", "cxxperf-log.yaml") {}
   FileWriter(std::string binaryLogDir_, std::string binaryLogPrefix_,
@@ -106,7 +105,8 @@ struct FileWriter {
     DLOG("Saw record type " << typeid(RecordType_).name())
   }
   void finished() {
-    auto decoder = Decoder<RecordList>(_binaryLogPrefix, _binaryLogDir, _yamlLogName);
+    auto decoder =
+        Decoder<RecordList>(_binaryLogPrefix, _binaryLogDir, _yamlLogName);
   }
 
 private:
