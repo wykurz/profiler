@@ -2,7 +2,7 @@
 
 int main() {
   auto config = Profiler::GetDefaultConfig();
-  Profiler::setup(config);
+  Profiler::setup(config, Profiler::FileWriter());
   Profiler::primeThisThread();
   auto recordId = Profiler::eventRecord<Profiler::RdtscClock>("foo");
   Profiler::eventRecord<Profiler::RdtscClock>("bar", recordId);

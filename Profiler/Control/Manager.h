@@ -67,11 +67,12 @@ private:
   std::atomic<std::uint64_t> _droppedThreads = {0};
 };
 
-template <typename ConfigType_> struct ManagerImpl : Manager {
+template <typename ConfigType_, typename... Writers_> struct ManagerImpl : Manager {
   using ConfigType = ConfigType_;
   using RecordList = typename ConfigType::RecordList;
-  explicit ManagerImpl(ConfigType &config_)
-      : Manager(config_.instanceId, config_.arenaSize), _config(config_) {}
+  explicit ManagerImpl(ConfigType &config_, Writers_ &&... writers_)
+      : Manager(config_.instanceId, config_.arenaSize),
+        _processor(_holderArray, config_, std::forward<Writers_>(writers_)...) {}
   ManagerImpl(const Manager &) = delete;
   ~ManagerImpl() override { stopProcessor(); }
 
@@ -105,9 +106,8 @@ protected:
 
 private:
   // TODO(mateusz): Add alignment and padding?
-  ConfigType &_config;
   HolderArray<RecordList> _holderArray;
-  Writer::Processor<ConfigType> _processor{_config, _holderArray};
+  Writer::Processor<ConfigType, Writers_...> _processor;
   std::thread _processorThread;
   bool _processorStarted = false;
 };
@@ -120,8 +120,9 @@ inline Manager *&managerInstancePtr() {
 }
 } // namespace Internal
 
-template <typename ConfigType_> void setManager(ConfigType_ &config_) {
-  static ManagerImpl<ConfigType_> manager(config_);
+template <typename ConfigType_, typename... Writers_>
+void setManager(ConfigType_ &config_, Writers_ &&... writers_) {
+  static ManagerImpl<ConfigType_, Writers_...> manager(config_, std::forward<Writers_>(writers_)...);
   if (Internal::managerInstancePtr())
     PROFILER_RUNTIME_ERROR("Profiler already set up!");
   Internal::managerInstancePtr() = &manager;

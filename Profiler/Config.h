@@ -9,7 +9,9 @@
 
 namespace Profiler {
 
-struct ConfigBase {
+template <typename RecordList_>
+struct Config {
+  using RecordList = RecordList_;
   /**
    * Instance id is used when synchronizing event records across multiple
    * processes.
@@ -19,18 +21,6 @@ struct ConfigBase {
   // TODO(mateusz): Writer should auto-tune this value.
   std::chrono::microseconds writerSleepTime{100000};
 };
-
-template <typename RecordList_, typename... Writers_>
-struct Config : ConfigBase {
-  using RecordList = RecordList_;
-  explicit Config(Writers_ &&... writers_) : writers(std::move(writers_)...) {}
-  std::tuple<Writers_...> writers;
-};
-
-template <typename RecordList_, typename... Writers_>
-auto GetConfig(Writers_ &&... writers_) {
-  return Config<RecordList_, Writers_...>(std::forward<Writers_>(writers_)...);
-}
 } // namespace Profiler
 
 #endif

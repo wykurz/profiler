@@ -13,13 +13,11 @@ namespace Profiler {
 using FileWriter = Writer::FileWriter;
 
 inline auto GetDefaultConfig() {
-  return GetConfig<Record::RecordStorageTypes>(Writer::FileWriter());
+  return Config<Record::RecordStorageTypes>();
 }
-
-// TODO(mateusz): Separate writers from config
-template <typename RecordList_, typename WriterList_>
-void setup(Config<RecordList_, WriterList_> &config_) {
-  Control::setManager(config_);
+template <typename RecordList_, typename... Writers_>
+void setup(Config<RecordList_> &config_, Writers_ &&... writers_) {
+  Control::setManager(config_, std::forward<Writers_>(writers_)...);
   Control::getManager().startProcessor();
   // append Record::RecordStorageTypes to RecordList_
 }

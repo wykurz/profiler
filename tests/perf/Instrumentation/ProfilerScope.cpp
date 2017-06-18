@@ -45,9 +45,9 @@ private:
 void statsScopeTest(benchmark::State &state_) {
   using RecordType = Record::ScopeRecord<Clock::Rdtsc>;
   using StorageType = typename RecordType::Storage;
-  using TestConfig = Config<Mpl::TypeList<StorageType>, NoopWriter>;
-  TestConfig config{NoopWriter()};
-  Control::ManagerImpl<TestConfig> manager(config);
+  using TestConfig = Config<Mpl::TypeList<StorageType>>;
+  TestConfig config;
+  Control::ManagerImpl<TestConfig, NoopWriter> manager(config, NoopWriter());
   TestGlobals::setManagerPtr(&manager);
   Control::ThreadRecords<StorageType> threadRecords(
       manager.addThreadRecords<StorageType>());

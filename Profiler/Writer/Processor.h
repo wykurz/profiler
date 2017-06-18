@@ -16,12 +16,12 @@
 namespace Profiler {
 namespace Writer {
 
-template <typename ConfigType_> struct Processor {
+template <typename ConfigType_, typename... Writers_> struct Processor {
   using ConfigType = ConfigType_;
   using RecordList = typename ConfigType::RecordList;
   // TODO(mateusz): specify sleepTime in the Config
-  Processor(ConfigType &config_, Control::HolderArray<RecordList> &holderArray_)
-      : _config(config_), _holderArray(holderArray_) {
+  Processor(Control::HolderArray<RecordList> &holderArray_, ConfigType &config_, Writers_ &&... writers_)
+      : _holderArray(holderArray_), _config(config_), _writers(std::forward<Writers_>(writers_)...) {
     DLOG("Created new Processor");
   }
   Processor(const Processor &) = delete;
@@ -72,7 +72,7 @@ template <typename ConfigType_> struct Processor {
           HolderRecordIter<decltype(writer_)> iter(writer_);
           this->_holderArray.applyAll(iter);
         },
-        _config.writers);
+        _writers);
   }
 
 private:
@@ -93,8 +93,9 @@ private:
   void finalizeAll() {
     _holderArray.applyAll([](auto &holder_) { holder_.finalize(); });
   }
-  ConfigType &_config;
   Control::HolderArray<RecordList> &_holderArray;
+  ConfigType &_config;
+  std::tuple<Writers_...> _writers;
   std::atomic<bool> _done{false};
 };
 
