@@ -67,12 +67,14 @@ private:
   std::atomic<std::uint64_t> _droppedThreads = {0};
 };
 
-template <typename ConfigType_, typename... Writers_> struct ManagerImpl : Manager {
+template <typename ConfigType_, typename... Writers_>
+struct ManagerImpl : Manager {
   using ConfigType = ConfigType_;
   using RecordList = typename ConfigType::RecordList;
   explicit ManagerImpl(ConfigType &config_, Writers_ &&... writers_)
       : Manager(config_.instanceId, config_.arenaSize),
-        _processor(_holderArray, config_, std::forward<Writers_>(writers_)...) {}
+        _processor(_holderArray, config_, std::forward<Writers_>(writers_)...) {
+  }
   ManagerImpl(const Manager &) = delete;
   ~ManagerImpl() override { stopProcessor(); }
 
@@ -122,7 +124,8 @@ inline Manager *&managerInstancePtr() {
 
 template <typename ConfigType_, typename... Writers_>
 void setManager(ConfigType_ &config_, Writers_ &&... writers_) {
-  static ManagerImpl<ConfigType_, Writers_...> manager(config_, std::forward<Writers_>(writers_)...);
+  static ManagerImpl<ConfigType_, Writers_...> manager(
+      config_, std::forward<Writers_>(writers_)...);
   if (Internal::managerInstancePtr())
     PROFILER_RUNTIME_ERROR("Profiler already set up!");
   Internal::managerInstancePtr() = &manager;

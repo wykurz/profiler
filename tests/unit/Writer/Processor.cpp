@@ -71,7 +71,8 @@ BOOST_AUTO_TEST_CASE(Basic) {
   using RecordTypeList = Mpl::TypeList<R1::Storage, R2::Storage, R3::Storage>;
   using TestConfig = Config<RecordTypeList>;
   TestConfig config;
-  Control::ManagerImpl<TestConfig, MemoryWriter> manager(config, MemoryWriter());
+  Control::ManagerImpl<TestConfig, MemoryWriter> manager(config,
+                                                         MemoryWriter());
   TestGlobals::setManagerPtr(&manager);
   auto addRecords = [&](auto recordType_, auto numAdd_) {
     using RecordType = typename decltype(recordType_)::Type;

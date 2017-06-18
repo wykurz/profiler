@@ -12,9 +12,7 @@ namespace Profiler {
 
 using FileWriter = Writer::FileWriter;
 
-inline auto GetDefaultConfig() {
-  return Config<Record::RecordStorageTypes>();
-}
+inline auto GetDefaultConfig() { return Config<Record::RecordStorageTypes>(); }
 template <typename RecordList_, typename... Writers_>
 void setup(Config<RecordList_> &config_, Writers_ &&... writers_) {
   Control::setManager(config_, std::forward<Writers_>(writers_)...);

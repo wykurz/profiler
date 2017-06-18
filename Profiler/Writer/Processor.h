@@ -20,8 +20,10 @@ template <typename ConfigType_, typename... Writers_> struct Processor {
   using ConfigType = ConfigType_;
   using RecordList = typename ConfigType::RecordList;
   // TODO(mateusz): specify sleepTime in the Config
-  Processor(Control::HolderArray<RecordList> &holderArray_, ConfigType &config_, Writers_ &&... writers_)
-      : _holderArray(holderArray_), _config(config_), _writers(std::forward<Writers_>(writers_)...) {
+  Processor(Control::HolderArray<RecordList> &holderArray_, ConfigType &config_,
+            Writers_ &&... writers_)
+      : _holderArray(holderArray_), _config(config_),
+        _writers(std::forward<Writers_>(writers_)...) {
     DLOG("Created new Processor");
   }
   Processor(const Processor &) = delete;

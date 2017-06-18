@@ -9,8 +9,7 @@
 
 namespace Profiler {
 
-template <typename RecordList_>
-struct Config {
+template <typename RecordList_> struct Config {
   using RecordList = RecordList_;
   /**
    * Instance id is used when synchronizing event records across multiple
