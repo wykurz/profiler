@@ -10,7 +10,8 @@
 
 namespace Profiler {
 
-using FileWriter = Writer::FileWriter;
+template <typename RecordList_>
+using FileWriter = Writer::FileWriter<RecordList_>;
 
 inline auto GetDefaultConfig() { return Config<Record::RecordStorageTypes>(); }
 template <typename RecordList_, typename... Writers_>

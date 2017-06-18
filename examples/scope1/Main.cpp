@@ -15,7 +15,7 @@ void f3() {
 
 int main() {
   auto config = Profiler::GetDefaultConfig();
-  Profiler::setup(config);
+  Profiler::setup(config, Profiler::FileWriter<decltype(config)::RecordList>());
   Profiler::primeThisThread();
   f3();
   Profiler::stopProcessor();
