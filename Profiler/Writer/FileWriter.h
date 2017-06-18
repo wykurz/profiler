@@ -94,7 +94,8 @@ private:
 
 struct FileWriter {
   FileWriter() : FileWriter(".", ".cxxperf-log", "cxxperf-log.yaml") {}
-  FileWriter(std::string binaryLogDir_, std::string binaryLogPrefix_, std::string yamlLogName_)
+  FileWriter(std::string binaryLogDir_, std::string binaryLogPrefix_,
+             std::string yamlLogName_)
       : _binaryLogPrefix(std::move(binaryLogPrefix_)),
         _binaryLogDir(std::move(binaryLogDir_)),
         _yamlLogName(std::move(yamlLogName_)) {}
