@@ -1,62 +1,57 @@
 #ifndef FILEWRITER_H
 #define FILEWRITER_H
 
+#include <Profiler/Exception.h>
 #include <Profiler/Log.h>
-#include <typeinfo>
+#include <fstream>
+#include <typeindex>
+#include <unordered_map>
+#include <utility>
 
 namespace Profiler {
 namespace Writer {
 
+
 struct FileWriter {
-  // TODO(mateusz): writer's must also get the ID of the holder
+  FileWriter() : FileWriter(".cxxperf-log", ".") { }
+  FileWriter(std::string binaryLogPrefix_, std::string binaryLogDir_)
+      : _binaryLogPrefix(std::move(binaryLogPrefix_)),
+        _binaryLogDir(std::move(binaryLogDir_))
+    { }
   template <typename RecordType_>
   void operator()(const RecordType_ & /*record_*/, std::size_t /*holderId_*/,
                   const std::string & /*userContext_*/) {
     DLOG("Saw record type " << typeid(RecordType_).name())
   }
+
+  template <typename RecordType_> std::ofstream& getStream() {
+    auto it = _outputs.find(typeid(RecordType_));
+    if (it != _outputs.end()) return it->second;
+    auto insPair = _outputs.emplace(
+        std::piecewise_construct,
+        std::forward_as_tuple(typeid(RecordType_)),
+        std::forward_as_tuple(std::ofstream("foo", std::fstream::binary | std::fstream::trunc)));
+    const std::string &recordTypeName = typeid(RecordType_).name();
+    if (!insPair.second)
+      PROFILER_RUNTIME_ERROR("Couldn't add a new output file for type " << recordTypeName);
+    auto& out = insPair.first->second;
+    DLOG("Setup: " << recordTypeName.size() << " " << recordTypeName << " "
+         << std::size_t(&out))
+      const std::size_t &nameSize = recordTypeName.size();
+    out.write(reinterpret_cast<const char *>(&nameSize), sizeof(nameSize));
+    out << recordTypeName;
+    // RecordType_::encodePreamble(out, getManager().id());
+  }
+
+ private:
+  std::string _binaryLogPrefix;
+  std::string _binaryLogDir;
+  std::unordered_map<std::type_index, std::ofstream> _outputs;
 };
 
-// struct OutputFactory {
-//   virtual ~OutputFactory() = default;
-//   virtual Output::Ptr newOutput(std::size_t extractorId_) const = 0;
-// };
-
-// namespace Internal {
-
-// struct FileOut : Output {
-//   explicit FileOut(const std::string &name_)
-//       : _out(name_, std::fstream::binary | std::fstream::trunc) {
-//     DLOG("FileOut " << name_ << " " << std::size_t(&_out));
-//   }
-//   std::ostream &get() override { return _out; }
-//   void flush() override { _out.flush(); }
-
-// private:
-//   std::ofstream _out;
-// };
-// } // namespace Internal
-
-// struct FileOutputs : OutputFactory {
-//   explicit FileOutputs(const Config &config_) : _config(config_) {}
-//   Output::Ptr newOutput(std::size_t extractorId_) const override {
-//     return std::make_unique<Internal::FileOut>(_config.binaryLogPrefix + "."
-//     +
-//                                                std::to_string(extractorId_));
-//   }
-
-// private:
-//   const Config &_config;
-// };
-
-// template <typename RecordType_> static void setupStream(std::ostream &out_) {
-//   const std::string &recordTypeName = typeid(RecordType_).name();
-//   DLOG("Setup: " << recordTypeName.size() << " " << recordTypeName << " "
-//                  << std::size_t(&out_))
-//   const std::size_t &nameSize = recordTypeName.size();
-//   out_.write(reinterpret_cast<const char *>(&nameSize), sizeof(nameSize));
-//   out_ << recordTypeName;
-//   RecordType_::encodePreamble(out_, getManager().id());
-// }
+// TODO(mateusz): Move those to decoder
+// "cxxperf-log.yaml"
+// _yamlLogName(std::move(yamlLogName_))
 
 } // namespace Writer
 } // namespace Profiler

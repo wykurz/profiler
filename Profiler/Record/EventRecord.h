@@ -46,9 +46,6 @@ template <typename Clock_> struct EventRecord {
     std::atomic_signal_fence(std::memory_order_acq_rel);
   }
   EventId<Clock_> eventId() const { return _eventId; }
-  static void encodePreamble(std::ostream &out_, std::size_t id_) {
-    Serialize::encode(out_, id_);
-  }
   void encode(std::ostream &out_) {
     Serialize::encodeString(out_, _name);
     out_ << _eventId;

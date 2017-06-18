@@ -2,9 +2,6 @@
 
 int main() {
   auto config = Profiler::GetDefaultConfig();
-  config.binaryLogPrefix = ".my.perf.log";
-  config.binaryLogDir = ".";
-  config.yamlLogName = "my.perf.yaml";
   Profiler::setup(config);
   Profiler::primeThisThread();
   auto recordId = Profiler::eventRecord<Profiler::RdtscClock>("foo");

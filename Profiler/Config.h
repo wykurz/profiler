@@ -15,11 +15,6 @@ struct ConfigBase {
    * processes.
    */
   std::size_t instanceId = 0;
-  // TODO(mateusz): Settings specifying the log should be used to instantiate
-  // writer
-  std::string binaryLogPrefix = ".cxxperf-log";
-  std::string binaryLogDir = ".";
-  std::string yamlLogName = "cxxperf-log.yaml";
   std::size_t arenaSize = std::size_t(100) * 1024 * 1024; // 100MiB
   // TODO(mateusz): Writer should auto-tune this value.
   std::chrono::microseconds writerSleepTime{100000};
@@ -34,7 +29,7 @@ struct Config : ConfigBase {
 
 template <typename RecordList_, typename... Writers_>
 auto GetConfig(Writers_ &&... writers_) {
-  return Config<RecordList_, Writers_...>(std::move(writers_)...);
+  return Config<RecordList_, Writers_...>(std::forward<Writers_>(writers_)...);
 }
 } // namespace Profiler
 

@@ -15,9 +15,6 @@ void f3() {
 
 int main() {
   auto config = Profiler::GetDefaultConfig();
-  config.binaryLogPrefix = ".my.perf.log";
-  config.binaryLogDir = ".";
-  config.yamlLogName = "my.perf.yaml";
   Profiler::setup(config);
   Profiler::primeThisThread();
   f3();

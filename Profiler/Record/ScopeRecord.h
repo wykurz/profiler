@@ -23,7 +23,6 @@ template <typename Clock_> struct ScopeStorage {
                std::size_t depth_, std::size_t seqNum_)
       : _name(name_), _t0(std::move(t0_)), _t1(std::move(t1_)), _depth(depth_),
         _seqNum(seqNum_) {}
-  static void encodePreamble(std::ostream & /*out_*/) {}
   void encode(std::ostream &out_) {
     Serialize::encodeString(out_, _name);
     out_ << _t0 << _t1;
