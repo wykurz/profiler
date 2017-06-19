@@ -32,7 +32,7 @@ template <typename ConfigType_, typename... Writers_> struct Processor {
   void finalPass() {
     finalizeAll();
     onePass();
-    Mpl::apply([this](auto &writer_) { writer_.finished(); }, _writers);
+    Mpl::apply([this](auto &writer_) { writer_.finish(); }, _writers);
   }
 
   void run() {

@@ -104,7 +104,7 @@ template <typename RecordList_> struct FileWriter {
                   const std::string & /*userContext_*/) {
     DLOG("Saw record type " << typeid(RecordType_).name())
   }
-  void finished() {
+  void finish() {
     auto decoder =
         Decoder<RecordList>(_binaryLogPrefix, _binaryLogDir, _yamlLogName);
   }

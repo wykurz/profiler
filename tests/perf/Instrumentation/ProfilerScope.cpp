@@ -12,7 +12,7 @@ struct NoopWriter {
   template <typename RecortType_>
   void operator()(const RecortType_ & /*unused*/, std::size_t /*unused*/,
                   const std::string & /*unused*/) const {}
-  void finished() {}
+  void finish() {}
 };
 
 struct TestGlobals {
