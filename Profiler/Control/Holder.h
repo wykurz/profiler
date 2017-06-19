@@ -38,6 +38,7 @@ template <typename RecordType_> struct Holder {
   void finalize() {
     if (!_recordManagerPtr)
       return;
+    PROFILER_ASSERT(_dirtyRecords.next() == nullptr);
     _dirtyRecords = _recordManagerPtr->getFinalRecords();
     _recordManagerPtr = nullptr;
   }

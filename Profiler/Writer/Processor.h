@@ -29,40 +29,22 @@ template <typename ConfigType_, typename... Writers_> struct Processor {
   Processor(const Processor &) = delete;
   ~Processor() { PROFILER_ASSERT(_done.load(std::memory_order_acquire)); }
 
-  /**
-   * Iterates over all record holders and writes all data. No other threads can
-   * perform logging at this time as
-   * there is no synchronization provided.
-   */
   void finalPass() {
     finalizeAll();
     onePass();
+    Mpl::apply([this](auto &writer_) { writer_.finished(); }, _writers);
   }
 
-  /**
-   * Puts worker in a loop periodically checking if any thread produced output
-   * that needs to be written to disk.
-   * After iterating through all threads, worker will sleep for a fixed amount
-   * of time.
-   */
   void run() {
-    auto doRun = [this]() {
+    do {
       onePass();
       std::this_thread::sleep_for(_config.writerSleepTime);
-    };
-    do
-      doRun();
+    }
     while (!_done.load(std::memory_order_acquire));
-    // One final run to capture any events that may have been missed due to
-    // notification timing
-    doRun();
-    // for (auto &holder : _holderArray)
-    //   holder.flush();
+    // One final run to capture any events that may have been missed
+    onePass();
   }
 
-  /**
-   * The run loop will eventually terminate after stop() was called.
-   */
   void stop() {
     DLOG("Stopping processor!");
     _done.store(true, std::memory_order_release);

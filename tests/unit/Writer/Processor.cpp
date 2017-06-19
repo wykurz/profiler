@@ -23,12 +23,15 @@ struct MemoryWriter {
     const std::type_index type = typeid(record_);
     ++seenCount[type];
   }
+  void finished() { isFinished = true;}
   // TODO(mateusz): Make non-static once we can pass actual function objects
   using SeenMap = std::unordered_map<std::type_index, std::size_t>;
   static SeenMap seenCount;
+  static bool isFinished;
 };
 
 MemoryWriter::SeenMap MemoryWriter::seenCount;
+bool MemoryWriter::isFinished = false;
 
 struct TestGlobals {
   static Control::Manager &getManager() {
@@ -92,6 +95,7 @@ BOOST_AUTO_TEST_CASE(Basic) {
   addRecords(Mpl::TypeInfo<R3>(), 32 * 1024);
   manager.processorFinalPass();
   manager.stopProcessor();
+  BOOST_CHECK(MemoryWriter::isFinished);
   BOOST_CHECK_EQUAL(MemoryWriter::seenCount[typeid(R1::Storage)], 3);
   BOOST_CHECK_EQUAL(MemoryWriter::seenCount[typeid(R2::Storage)], 1);
   BOOST_CHECK_EQUAL(MemoryWriter::seenCount[typeid(R3::Storage)], 32 * 1024);

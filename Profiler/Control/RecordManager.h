@@ -139,6 +139,9 @@ template <typename Record_> struct RecordManager {
   explicit RecordManager(Arena &arena_)
       : _arena(arena_), _dirty(arena_.basePtr()) {}
   RecordManager(const This &) = delete;
+  // TODO(mateusz): This must synchronize with getAllDirtyRecords
+  // TODO(mateusz): Add stress test verifying that logging by a thread after
+  // finalize is safe
   RecordType *getRecord() {
     if (!_current || _current->value.size() <= _nextRecord) {
       if (_current)
@@ -152,9 +155,11 @@ template <typename Record_> struct RecordManager {
     }
     return &_current->value[_nextRecord++];
   }
+  // TODO(mateusz): Rename to fastGetDirtyRecords
   DirtyRecordsIter<RecordType> getDirtyRecords() {
     return {_arena, _dirty.extract(), 0};
   }
+  // TODO(mateusz): Rename to getAllDirtyRecords
   DirtyRecordsIter<RecordType> getFinalRecords() {
     if (_current)
       _dirty.push(_current);
