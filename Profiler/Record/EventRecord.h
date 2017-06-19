@@ -37,43 +37,16 @@ std::istream &operator>>(std::istream &in_, EventId<Clock_> &eventId_) {
 
 template <typename Clock_> struct EventRecord {
   using Clock = Clock_;
-  using This = EventRecord<Clock_>;
   using TimePoint = typename Clock::TimePoint;
-  using Duration = typename Clock::Duration;
   EventRecord(const char *name_, EventId<Clock> eventId_)
-      : _name(name_), _eventId(std::move(eventId_)), _time(Clock::now()) {
+      : name(name_), eventId(std::move(eventId_)), time(Clock::now()) {
     PROFILER_ASSERT(name_);
     std::atomic_signal_fence(std::memory_order_acq_rel);
   }
-  EventId<Clock_> eventId() const { return _eventId; }
-  void encode(std::ostream &out_) {
-    Serialize::encodeString(out_, _name);
-    out_ << _eventId;
-    out_ << _time;
-  }
-  static void decodePreamble(std::istream &in_, std::ostream &out_) {
-    auto instanceId = Serialize::decode<std::size_t>(in_);
-    out_ << "instance: " << instanceId << "\n";
-  }
-  static void decode(std::istream &in_, std::ostream &out_) {
-    DLOG("Loop in ScopeRecordStart decode, currently at: " << in_.tellg());
-    auto name = Serialize::decodeString(in_);
-    EventId<Clock> eventId;
-    in_ >> eventId;
-    Duration duration;
-    in_ >> duration;
-    out_ << "- name: " << name << "\n";
-    out_ << "  event_id:\n";
-    out_ << "    instance: " << eventId.instanceId << "\n";
-    out_ << "    recorder: " << eventId.recorderId << "\n";
-    out_ << "  time: " << duration << "\n";
-  }
-  bool dirty() const { return nullptr != _name; }
-
-protected:
-  const char *_name;
-  EventId<Clock> _eventId;
-  TimePoint _time;
+  bool dirty() const { return nullptr != name; }
+  const char *name;
+  EventId<Clock> eventId;
+  TimePoint time;
 };
 } // namespace Record
 } // namespace Profiler

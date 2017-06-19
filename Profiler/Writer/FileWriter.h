@@ -22,16 +22,55 @@ namespace fs = boost::filesystem;
 
 namespace Internal {
 
+template <typename RecordType_>
+struct BinaryDecoder;
+
+template <typename Clock_>
+struct BinaryDecoder<Record::ScopeStorage<Clock_> > {
+  using Clock = Clock_;
+  using Duration = typename Clock::Duration;
+  static void run(std::istream &in_, std::ostream &out_) {
+    auto name = Serialize::decodeString(in_);
+    Duration t0;
+    Duration t1;
+    in_ >> t0 >> t1;
+    auto depth = Serialize::decode<std::size_t>(in_);
+    auto seqNum = Serialize::decode<std::size_t>(in_);
+    out_ << "- seq: " << seqNum << "\n";
+    out_ << "  name: \"" << name << "\"\n";
+    out_ << "  t0: " << t0 << "\n";
+    out_ << "  t1: " << t1 << "\n";
+    out_ << "  depth: " << depth << "\n";
+  }
+};
+
+template <typename Clock_>
+struct BinaryDecoder<Record::EventRecord<Clock_> > {
+  using Clock = Clock_;
+  using Duration = typename Clock::Duration;
+  static void run(std::istream &in_, std::ostream &out_) {
+    DLOG("Loop in ScopeRecordStart decode, currently at: " << in_.tellg());
+    auto name = Serialize::decodeString(in_);
+    Record::EventId<Clock> eventId;
+    in_ >> eventId;
+    Duration duration;
+    in_ >> duration;
+    out_ << "- name: " << name << "\n";
+    out_ << "  event_id:\n";
+    out_ << "    instance: " << eventId.instanceId << "\n";
+    out_ << "    recorder: " << eventId.recorderId << "\n";
+    out_ << "  time: " << duration << "\n";
+  }
+};
+
 template <typename StorageType_>
 inline void decodeStream(std::istream &in_, std::ostream &out_) {
-  StorageType_::decodePreamble(in_, out_);
   out_ << "records:\n";
   while (in_.good() && in_.peek() != EOF) {
     DLOG("Currently at: " << in_.tellg());
-    StorageType_::decode(in_, out_);
+    BinaryDecoder<StorageType_>::run(in_, out_);
   }
 }
-} // namespace Internal
 
 template <typename RecordList_> struct Decoder {
   using RecordList = RecordList_;
@@ -91,6 +130,32 @@ private:
   std::vector<std::ifstream> _inputs;
 };
 
+template <typename RecordType_>
+struct BinaryEncoder;
+
+template <typename Clock_>
+struct BinaryEncoder<Record::ScopeStorage<Clock_> > {
+  using Record = Record::ScopeStorage<Clock_>;
+  static void run(const Record &record_, std::ostream &out_) {
+    Serialize::encodeString(out_, record_.name);
+    out_ << record_.t0 << record_.t1;
+    Serialize::encode(out_, record_.depth);
+    Serialize::encode(out_, record_.seqNum);
+  }
+};
+
+template <typename Clock_>
+struct BinaryEncoder<Record::EventRecord<Clock_> > {
+  using Record = Record::EventRecord<Clock_>;
+  static void run(const Record &record_, std::ostream &out_) {
+    Serialize::encodeString(out_, record_.name);
+    out_ << record_.eventId;
+    out_ << record_.time;
+  }
+};
+} // namespace Internal
+
+
 template <typename RecordList_> struct FileWriter {
   using RecordList = RecordList_;
   FileWriter() : FileWriter(".", ".cxxperf-log", "cxxperf-log.yaml") {}
@@ -99,17 +164,20 @@ template <typename RecordList_> struct FileWriter {
       : _binaryLogPrefix(std::move(binaryLogPrefix_)),
         _binaryLogDir(std::move(binaryLogDir_)),
         _yamlLogName(std::move(yamlLogName_)) {}
+  // TODO(mateusz): Measure performance
   template <typename RecordType_>
-  void operator()(const RecordType_ & /*record_*/, std::size_t /*holderId_*/,
+  void operator()(const RecordType_ & record_, std::size_t /*holderId_*/,
                   const std::string & /*userContext_*/) {
-    DLOG("Saw record type " << typeid(RecordType_).name())
+    Internal::BinaryEncoder<RecordType_>::run(record_, getStream<RecordType_>());
   }
   void finish() {
+    for (auto& mpair : _outputs) mpair.second.flush();
     auto decoder =
-        Decoder<RecordList>(_binaryLogPrefix, _binaryLogDir, _yamlLogName);
+        Internal::Decoder<RecordList>(_binaryLogPrefix, _binaryLogDir, _yamlLogName);
   }
 
 private:
+  // TODO(mateusz): Is this slow?
   template <typename RecordType_> std::ofstream &getStream() {
     auto it = _outputs.find(typeid(RecordType_));
     if (it != _outputs.end())

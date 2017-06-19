@@ -18,42 +18,16 @@ namespace Record {
 template <typename Clock_> struct ScopeStorage {
   using Clock = Clock_;
   using TimePoint = typename Clock::TimePoint;
-  using Duration = typename Clock::Duration;
   ScopeStorage(const char *name_, TimePoint t0_, TimePoint t1_,
                std::size_t depth_, std::size_t seqNum_)
-      : _name(name_), _t0(std::move(t0_)), _t1(std::move(t1_)), _depth(depth_),
-        _seqNum(seqNum_) {}
-  // TODO(mateusz): Move to FileWriter
-  void encode(std::ostream &out_) {
-    Serialize::encodeString(out_, _name);
-    out_ << _t0 << _t1;
-    Serialize::encode(out_, _depth);
-    Serialize::encode(out_, _seqNum);
-  }
-  // TODO(mateusz): Remove.
-  static void decodePreamble(std::istream & /*in_*/, std::ostream & /*out_*/) {}
-  // TODO(mateusz): Move to Decoder function (FileWriter)
-  static void decode(std::istream &in_, std::ostream &out_) {
-    auto name = Serialize::decodeString(in_);
-    Duration t0;
-    Duration t1;
-    in_ >> t0 >> t1;
-    auto depth = Serialize::decode<std::size_t>(in_);
-    auto seqNum = Serialize::decode<std::size_t>(in_);
-    out_ << "- seq: " << seqNum << "\n";
-    out_ << "  name: \"" << name << "\"\n";
-    out_ << "  t0: " << t0 << "\n";
-    out_ << "  t1: " << t1 << "\n";
-    out_ << "  depth: " << depth << "\n";
-  }
-  bool dirty() const { return nullptr != _name; }
-
-private:
-  const char *_name;
-  TimePoint _t0;
-  TimePoint _t1;
-  std::size_t _depth;
-  std::size_t _seqNum;
+      : name(name_), t0(std::move(t0_)), t1(std::move(t1_)), depth(depth_),
+        seqNum(seqNum_) {}
+  bool dirty() const { return nullptr != name; }
+  const char *name;
+  TimePoint t0;
+  TimePoint t1;
+  std::size_t depth;
+  std::size_t seqNum;
 };
 
 struct ScopeRecordBase {
