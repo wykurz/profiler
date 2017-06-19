@@ -187,11 +187,12 @@ private:
                              << recordTypeName);
     auto &out = insPair.first->second;
     DLOG("Setup: " << recordTypeName.size() << " " << recordTypeName << " "
-                   << std::size_t(&out))
+                   << std::size_t(&out));
     const std::size_t &nameSize = recordTypeName.size();
     out.write(reinterpret_cast<const char *>(&nameSize), sizeof(nameSize));
     out << recordTypeName;
     // RecordType_::encodePreamble(out, getManager().id());
+    return out;
   }
   std::string _binaryLogPrefix;
   std::string _binaryLogDir;
