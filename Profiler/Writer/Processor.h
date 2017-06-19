@@ -39,8 +39,7 @@ template <typename ConfigType_, typename... Writers_> struct Processor {
     do {
       onePass();
       std::this_thread::sleep_for(_config.writerSleepTime);
-    }
-    while (!_done.load(std::memory_order_acquire));
+    } while (!_done.load(std::memory_order_acquire));
     // One final run to capture any events that may have been missed
     onePass();
   }

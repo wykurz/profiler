@@ -23,7 +23,7 @@ struct MemoryWriter {
     const std::type_index type = typeid(record_);
     ++seenCount[type];
   }
-  void finished() { isFinished = true;}
+  void finished() { isFinished = true; }
   // TODO(mateusz): Make non-static once we can pass actual function objects
   using SeenMap = std::unordered_map<std::type_index, std::size_t>;
   static SeenMap seenCount;
