@@ -22,11 +22,9 @@ namespace fs = boost::filesystem;
 
 namespace Internal {
 
-template <typename RecordType_>
-struct BinaryDecoder;
+template <typename RecordType_> struct BinaryDecoder;
 
-template <typename Clock_>
-struct BinaryDecoder<Record::ScopeStorage<Clock_> > {
+template <typename Clock_> struct BinaryDecoder<Record::ScopeStorage<Clock_>> {
   using Clock = Clock_;
   using Duration = typename Clock::Duration;
   static void run(std::istream &in_, std::ostream &out_) {
@@ -44,8 +42,7 @@ struct BinaryDecoder<Record::ScopeStorage<Clock_> > {
   }
 };
 
-template <typename Clock_>
-struct BinaryDecoder<Record::EventRecord<Clock_> > {
+template <typename Clock_> struct BinaryDecoder<Record::EventRecord<Clock_>> {
   using Clock = Clock_;
   using Duration = typename Clock::Duration;
   static void run(std::istream &in_, std::ostream &out_) {
@@ -130,11 +127,9 @@ private:
   std::vector<std::ifstream> _inputs;
 };
 
-template <typename RecordType_>
-struct BinaryEncoder;
+template <typename RecordType_> struct BinaryEncoder;
 
-template <typename Clock_>
-struct BinaryEncoder<Record::ScopeStorage<Clock_> > {
+template <typename Clock_> struct BinaryEncoder<Record::ScopeStorage<Clock_>> {
   using Record = Record::ScopeStorage<Clock_>;
   static void run(const Record &record_, std::ostream &out_) {
     Serialize::encodeString(out_, record_.name);
@@ -144,8 +139,7 @@ struct BinaryEncoder<Record::ScopeStorage<Clock_> > {
   }
 };
 
-template <typename Clock_>
-struct BinaryEncoder<Record::EventRecord<Clock_> > {
+template <typename Clock_> struct BinaryEncoder<Record::EventRecord<Clock_>> {
   using Record = Record::EventRecord<Clock_>;
   static void run(const Record &record_, std::ostream &out_) {
     Serialize::encodeString(out_, record_.name);
@@ -154,7 +148,6 @@ struct BinaryEncoder<Record::EventRecord<Clock_> > {
   }
 };
 } // namespace Internal
-
 
 template <typename RecordList_> struct FileWriter {
   using RecordList = RecordList_;
@@ -166,14 +159,16 @@ template <typename RecordList_> struct FileWriter {
         _yamlLogName(std::move(yamlLogName_)) {}
   // TODO(mateusz): Measure performance
   template <typename RecordType_>
-  void operator()(const RecordType_ & record_, std::size_t /*holderId_*/,
+  void operator()(const RecordType_ &record_, std::size_t /*holderId_*/,
                   const std::string & /*userContext_*/) {
-    Internal::BinaryEncoder<RecordType_>::run(record_, getStream<RecordType_>());
+    Internal::BinaryEncoder<RecordType_>::run(record_,
+                                              getStream<RecordType_>());
   }
   void finish() {
-    for (auto& mpair : _outputs) mpair.second.flush();
-    auto decoder =
-        Internal::Decoder<RecordList>(_binaryLogPrefix, _binaryLogDir, _yamlLogName);
+    for (auto &mpair : _outputs)
+      mpair.second.flush();
+    auto decoder = Internal::Decoder<RecordList>(_binaryLogPrefix,
+                                                 _binaryLogDir, _yamlLogName);
   }
 
 private:
