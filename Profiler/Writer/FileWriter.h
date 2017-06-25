@@ -12,8 +12,8 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <fstream>
 #include <functional>
-#include <string>
 #include <sstream>
+#include <string>
 #include <typeindex>
 #include <unordered_map>
 #include <utility>
@@ -76,40 +76,17 @@ inline void decodeStream(std::istream &in_, std::ostream &out_) {
 template <typename RecordList_> struct Decoder {
   using RecordList = RecordList_;
   using DecodeFunc = std::function<void(std::istream &, std::ostream &)>;
-  explicit Decoder(const std::string &binaryLogDir_,
-                   const std::string &binaryLogPrefix_,
-                   const std::string &yamlLogName_)
+  explicit Decoder(const std::string &yamlLogName_)
       : _funcMap(genFuncMap<RecordList>()),
-        _out(yamlLogName_, std::fstream::trunc) {
-    const fs::path logDir(binaryLogDir_);
-    DLOG("Traversing: " << logDir);
-    for (auto &entry : fs::directory_iterator(logDir)) {
-      if (!fs::is_regular_file(entry.status())) {
-        DLOG("Not a file: " << entry.path());
-        continue;
-      }
-      const auto &fileName = entry.path().filename().string();
-      const auto &prefix = binaryLogPrefix_;
-      if (prefix != fileName.substr(0, prefix.size())) {
-        DLOG("Wrong prefix: " << entry.path());
-        continue;
-      }
-      DLOG("Found: " << entry.path());
-      std::ifstream input(entry.path().string(), std::fstream::binary);
-      if (input.fail())
-        PROFILER_RUNTIME_ERROR("Error opening file " << entry.path().string());
-      _inputs.push_back(std::move(input));
-    }
-  }
-  void run() {
-    for (auto &input : _inputs) {
-      const auto recordName = Serialize::decodeString(input);
-      auto it = _funcMap.find(recordName);
-      if (it == _funcMap.end())
-        PROFILER_RUNTIME_ERROR(
-            "Attempting to decode unknown record type: " << recordName);
-      (it->second)(input, _out);
-    }
+        _out(yamlLogName_, std::fstream::trunc) {}
+  void run(const std::string &fname_) {
+    std::ifstream input(fname_, std::fstream::binary);
+    const auto recordName = Serialize::decodeString(input);
+    auto it = _funcMap.find(recordName);
+    if (it == _funcMap.end())
+      PROFILER_RUNTIME_ERROR(
+          "Attempting to decode unknown record type: " << recordName);
+    (it->second)(input, _out);
   }
 
 private:
@@ -155,11 +132,9 @@ template <typename Clock_> struct BinaryEncoder<Record::EventRecord<Clock_>> {
 
 template <typename RecordList_> struct FileWriter {
   using RecordList = RecordList_;
-  FileWriter() : FileWriter(".", ".cxxperf-log", "cxxperf-log.yaml") {}
-  FileWriter(std::string binaryLogDir_, std::string binaryLogPrefix_,
-             std::string yamlLogName_)
-      : _binaryLogPrefix(std::move(binaryLogPrefix_)),
-        _binaryLogDir(std::move(binaryLogDir_)),
+  FileWriter() : FileWriter(".", "cxxperf-log.yaml") {}
+  FileWriter(std::string binaryLogDir_, std::string yamlLogName_)
+      : _binaryLogDir(std::move(binaryLogDir_)),
         _yamlLogName(std::move(yamlLogName_)) {}
   // TODO(mateusz): Measure performance
   template <typename RecordType_>
@@ -171,8 +146,9 @@ template <typename RecordList_> struct FileWriter {
   void finish() {
     for (auto &mpair : _outputs)
       mpair.second.second.close();
-    auto decoder = Internal::Decoder<RecordList>(_binaryLogPrefix,
-                                                 _binaryLogDir, _yamlLogName);
+    auto decoder = Internal::Decoder<RecordList>(_yamlLogName);
+    for (auto &mpair : _outputs)
+      decoder.run(mpair.second.first);
   }
 
 private:
@@ -182,13 +158,13 @@ private:
     if (it != _outputs.end())
       return it->second.second;
     std::stringstream fname;
-    fname << ".binlog_" << _idgen();
+    fname << _binaryLogDir << "/.binlog_" << _idgen();
     DLOG("Creating new binary output file: " << fname.str());
     auto insPair = _outputs.emplace(
         std::piecewise_construct, std::forward_as_tuple(typeid(RecordType_)),
         std::forward_as_tuple(
-            fname.str(),
-            std::ofstream(fname.str(), std::fstream::binary | std::fstream::trunc)));
+            fname.str(), std::ofstream(fname.str(), std::fstream::binary |
+                                                        std::fstream::trunc)));
     const std::string &recordTypeName = typeid(RecordType_).name();
     if (!insPair.second)
       PROFILER_RUNTIME_ERROR("Couldn't add a new output file for type "
@@ -202,10 +178,10 @@ private:
     // RecordType_::encodePreamble(out, getManager().id());
     return out;
   }
-  std::string _binaryLogPrefix;
   std::string _binaryLogDir;
   std::string _yamlLogName;
-  std::unordered_map<std::type_index, std::pair<std::string, std::ofstream>> _outputs;
+  std::unordered_map<std::type_index, std::pair<std::string, std::ofstream>>
+      _outputs;
   boost::uuids::random_generator _idgen;
 };
 } // namespace Writer
