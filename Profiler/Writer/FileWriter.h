@@ -170,7 +170,7 @@ template <typename RecordList_> struct FileWriter {
   }
   void finish() {
     for (auto &mpair : _outputs)
-      mpair.second.close();
+      mpair.second.second.close();
     auto decoder = Internal::Decoder<RecordList>(_binaryLogPrefix,
                                                  _binaryLogDir, _yamlLogName);
   }
@@ -180,19 +180,20 @@ private:
   template <typename RecordType_> std::ofstream &getStream() {
     auto it = _outputs.find(typeid(RecordType_));
     if (it != _outputs.end())
-      return it->second;
+      return it->second.second;
     std::stringstream fname;
     fname << ".binlog_" << _idgen();
     DLOG("Creating new binary output file: " << fname.str());
     auto insPair = _outputs.emplace(
         std::piecewise_construct, std::forward_as_tuple(typeid(RecordType_)),
         std::forward_as_tuple(
+            fname.str(),
             std::ofstream(fname.str(), std::fstream::binary | std::fstream::trunc)));
     const std::string &recordTypeName = typeid(RecordType_).name();
     if (!insPair.second)
       PROFILER_RUNTIME_ERROR("Couldn't add a new output file for type "
                              << recordTypeName);
-    auto &out = insPair.first->second;
+    auto &out = insPair.first->second.second;
     DLOG("Setup: " << recordTypeName.size() << " " << recordTypeName << " "
                    << std::size_t(&out));
     const std::size_t &nameSize = recordTypeName.size();
@@ -204,7 +205,7 @@ private:
   std::string _binaryLogPrefix;
   std::string _binaryLogDir;
   std::string _yamlLogName;
-  std::unordered_map<std::type_index, std::ofstream> _outputs;
+  std::unordered_map<std::type_index, std::pair<std::string, std::ofstream>> _outputs;
   boost::uuids::random_generator _idgen;
 };
 } // namespace Writer
