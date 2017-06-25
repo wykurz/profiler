@@ -7,9 +7,13 @@
 #include <Profiler/Record/Records.h>
 #include <Profiler/Serialize.h>
 #include <boost/filesystem.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include <fstream>
 #include <functional>
 #include <string>
+#include <sstream>
 #include <typeindex>
 #include <unordered_map>
 #include <utility>
@@ -166,7 +170,7 @@ template <typename RecordList_> struct FileWriter {
   }
   void finish() {
     for (auto &mpair : _outputs)
-      mpair.second.flush();
+      mpair.second.close();
     auto decoder = Internal::Decoder<RecordList>(_binaryLogPrefix,
                                                  _binaryLogDir, _yamlLogName);
   }
@@ -177,10 +181,13 @@ private:
     auto it = _outputs.find(typeid(RecordType_));
     if (it != _outputs.end())
       return it->second;
+    std::stringstream fname;
+    fname << ".binlog_" << _idgen();
+    DLOG("Creating new binary output file: " << fname.str());
     auto insPair = _outputs.emplace(
         std::piecewise_construct, std::forward_as_tuple(typeid(RecordType_)),
         std::forward_as_tuple(
-            std::ofstream("foo", std::fstream::binary | std::fstream::trunc)));
+            std::ofstream(fname.str(), std::fstream::binary | std::fstream::trunc)));
     const std::string &recordTypeName = typeid(RecordType_).name();
     if (!insPair.second)
       PROFILER_RUNTIME_ERROR("Couldn't add a new output file for type "
@@ -198,6 +205,7 @@ private:
   std::string _binaryLogDir;
   std::string _yamlLogName;
   std::unordered_map<std::type_index, std::ofstream> _outputs;
+  boost::uuids::random_generator _idgen;
 };
 } // namespace Writer
 } // namespace Profiler
