@@ -30,9 +30,12 @@ template <typename ConfigType_, typename... Writers_> struct Processor {
   ~Processor() { PROFILER_ASSERT(_done.load(std::memory_order_acquire)); }
 
   void finalPass() {
+    if (_finished)
+      return;
     finalizeAll();
     onePass();
     Mpl::apply([this](auto &writer_) { writer_.finish(); }, _writers);
+    _finished = true;
   }
 
   void run() {
@@ -80,6 +83,7 @@ private:
   ConfigType &_config;
   std::tuple<Writers_...> _writers;
   std::atomic<bool> _done{false};
+  bool _finished = false;
 };
 
 } // namespace Writer

@@ -80,6 +80,7 @@ template <typename RecordList_> struct Decoder {
       : _funcMap(genFuncMap<RecordList>()),
         _out(yamlLogName_, std::fstream::trunc) {}
   void run(std::fstream &input_) {
+    DLOG("Processing input file stream..." << input_.tellg());
     const auto recordName = Serialize::decodeString(input_);
     auto it = _funcMap.find(recordName);
     if (it == _funcMap.end())
@@ -151,11 +152,6 @@ template <typename RecordList_> struct FileWriter {
       decoder.run(fstream);
       it = _outputs.erase(it);
       fs::remove(fname);
-    }
-    for (auto &mpair : _outputs) {
-      mpair.second.second.close();
-      decoder.run(mpair.second.second);
-      // fs::remove(mpair.second.first);
     }
   }
 
