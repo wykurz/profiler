@@ -79,14 +79,13 @@ template <typename RecordList_> struct Decoder {
   explicit Decoder(const std::string &yamlLogName_)
       : _funcMap(genFuncMap<RecordList>()),
         _out(yamlLogName_, std::fstream::trunc) {}
-  void run(const std::string &fname_) {
-    std::ifstream input(fname_, std::fstream::binary);
-    const auto recordName = Serialize::decodeString(input);
+  void run(std::fstream &input_) {
+    const auto recordName = Serialize::decodeString(input_);
     auto it = _funcMap.find(recordName);
     if (it == _funcMap.end())
       PROFILER_RUNTIME_ERROR(
           "Attempting to decode unknown record type: " << recordName);
-    (it->second)(input, _out);
+    (it->second)(input_, _out);
   }
 
 private:
@@ -105,7 +104,6 @@ private:
 
   std::unordered_map<std::string, DecodeFunc> _funcMap;
   std::ofstream _out;
-  std::vector<std::ifstream> _inputs;
 };
 
 template <typename RecordType_> struct BinaryEncoder;
@@ -144,16 +142,26 @@ template <typename RecordList_> struct FileWriter {
                                               getStream<RecordType_>());
   }
   void finish() {
-    for (auto &mpair : _outputs)
-      mpair.second.second.close();
     auto decoder = Internal::Decoder<RecordList>(_yamlLogName);
-    for (auto &mpair : _outputs)
-      decoder.run(mpair.second.first);
+    auto it = _outputs.begin();
+    while (it != _outputs.end()) {
+      std::string fname = std::move(it->second.first);
+      std::fstream &fstream = it->second.second;
+      fstream.seekp(std::ios::beg);
+      decoder.run(fstream);
+      it = _outputs.erase(it);
+      fs::remove(fname);
+    }
+    for (auto &mpair : _outputs) {
+      mpair.second.second.close();
+      decoder.run(mpair.second.second);
+      // fs::remove(mpair.second.first);
+    }
   }
 
 private:
   // TODO(mateusz): Is this slow?
-  template <typename RecordType_> std::ofstream &getStream() {
+  template <typename RecordType_> std::fstream &getStream() {
     auto it = _outputs.find(typeid(RecordType_));
     if (it != _outputs.end())
       return it->second.second;
@@ -163,8 +171,10 @@ private:
     auto insPair = _outputs.emplace(
         std::piecewise_construct, std::forward_as_tuple(typeid(RecordType_)),
         std::forward_as_tuple(
-            fname.str(), std::ofstream(fname.str(), std::fstream::binary |
-                                                        std::fstream::trunc)));
+            fname.str(),
+            std::fstream(fname.str(), std::fstream::in | std::fstream::out |
+                                          std::fstream::binary |
+                                          std::fstream::trunc)));
     const std::string &recordTypeName = typeid(RecordType_).name();
     if (!insPair.second)
       PROFILER_RUNTIME_ERROR("Couldn't add a new output file for type "
@@ -180,7 +190,7 @@ private:
   }
   std::string _binaryLogDir;
   std::string _yamlLogName;
-  std::unordered_map<std::type_index, std::pair<std::string, std::ofstream>>
+  std::unordered_map<std::type_index, std::pair<std::string, std::fstream>>
       _outputs;
   boost::uuids::random_generator _idgen;
 };
