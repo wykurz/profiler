@@ -19,7 +19,5 @@ int main() {
   Profiler::primeThisThread();
   f3();
   Profiler::stopProcessor();
-  // auto decoder = Profiler::Decoder(config);
-  // decoder.run();
   return 0;
 }

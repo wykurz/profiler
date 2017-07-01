@@ -24,8 +24,6 @@ namespace Writer {
 
 namespace fs = boost::filesystem;
 
-namespace Internal {
-
 template <typename RecordType_> struct BinaryDecoder;
 
 template <typename Clock_> struct BinaryDecoder<Record::ScopeStorage<Clock_>> {
@@ -63,6 +61,8 @@ template <typename Clock_> struct BinaryDecoder<Record::EventRecord<Clock_>> {
     out_ << "  time: " << duration << "\n";
   }
 };
+
+namespace Internal {
 
 template <typename StorageType_>
 inline void decodeStream(std::istream &in_, std::ostream &out_) {
